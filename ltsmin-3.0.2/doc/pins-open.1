@@ -1,0 +1,111 @@
+'\" t
+.\"     Title: pins-open
+.\"    Author: [FIXME: author] [see http://www.docbook.org/tdg5/en/html/author]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/17/2018
+.\"    Manual: LTSmin Manual
+.\"    Source: LTSmin 3.0.2
+.\"  Language: English
+.\"
+.TH "PINS\-OPEN" "1" "12/17/2018" "LTSmin 3\&.0\&.2" "LTSmin Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+pins-open \- execute OPEN/CAESAR application programs on PINS\-based state space generators
+.SH "SYNOPSIS"
+.sp
+\fBpins\-open\fR \fImodel\fR\&.\fItype\fR [\fIcc_options\fR] \fIapp\fR[\fI\&.a\fR|\fI\&.c\fR|\fI\&.o\fR] [\fIapp_options\fR]
+.sp
+\fBpins\-open\fR [OPTION]\&...
+.SH "DESCRIPTION"
+.sp
+pins\-open provides the OPEN/CAESAR interface for state space generators which themselves provide a LTSmin PINS interface\&. Supporting PINS libraries which correspond to the \fItype\fR of \fImodel\fR are linked to an OPEN/CAESAR application \fIapp\fR[\fI\&.a\fR|\fI\&.c\fR|\fI\&.o\fR]\&. The resulting executable \fIapp\fR is then executed\&.
+.sp
+pins\-open follows the OPEN/CAESAR command line conventions\&.
+.SH "OPTIONS"
+.PP
+\fB\-\-version\fR
+.RS 4
+Print version information of this tool\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print help text\&.
+.RE
+.SH "EXAMPLES"
+.sp
+Run the \fBdeclarator\fR test application (provided by \m[blue]\fBCADP\fR\m[]\&\s-2\u[1]\d\s+2) with the \fBmcrl\fR(1) specification \fIbrp\&.tbf\fR:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+{manname} brp\&.tbf declarator
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+Output:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+{manname}: running ``declarator\*(Aq\*(Aq for ``brp\&.tbf\*(Aq\*(Aq
+
+*** checking compatibility of ``\&./declarator\*(Aq\*(Aq
+
+declarator: loading model from brp\&.tbf
+MCRL grey box: Start compiling \&.\&.\&.
+MCRL grey box: \&.\&.\&.\&. end compiling\&.
+declarator: hiding the state\&.
+declarator: creating a new string index
+declarator: creating a new string index
+declarator: model brp\&.tbf loaded
+declarator: length is 21, there are 45 groups
+declarator: There are 0 state labels and 1 edge labels
+declarator: CAESAR_HINT_SIZE_STATE=84 CAESAR_HINT_SIZE_LABEL=4
+*** general parameters
+
+[\&.\&.\&.]
+
+*** state #1
+
+CAESAR_COPY_STATE : OK
+CAESAR_COMPARE_STATE : OK
+
+[\&.\&.\&.]
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SH "SEE ALSO"
+.sp
+\fBltsmin\fR(7), \fBcaesar.open\fR(l), \fBmcrl\fR(1), \m[blue]\fBCADP\fR\m[]\&\s-2\u[1]\d\s+2
+.SH "NOTES"
+.IP " 1." 4
+CADP
+.RS 4
+\%http://www.inrialpes.fr/vasy/cadp/
+.RE

@@ -1,0 +1,112 @@
+opaal development version
+=========================
+opaal is mainly tested on Ubuntu, so these installation instructions are minded
+for that target. If you are running something else, you will probably need to do
+some things differently.
+
+=======================
+1) Install Instructions
+=======================
+opaal depends on the following ubuntu packages:
+libopenmpi-dev, python-dev, openmpi-bin, python-numpy python-nose
+
+(on ubuntu run)
+sudo aptitude install libopenmpi-dev python-dev openmpi-bin python-numpy python-matplotlib python-nose
+
+
+pyuppaal
+========
+Also you need to install pyuppaal by following the directions on 
+https://launchpad.net/pyuppaal 
+The ubuntu packages python-pygraphviz and python-ply are needed by pyuppaal.
+
+
+mpi4py (only needed for distributed version)
+============================================
+To use the model checker you need to install mpi4py
+Download mpi4py from http://code.google.com/p/mpi4py/
+
+wget http://mpi4py.googlecode.com/files/mpi4py-1.2.tar.gz
+tar -xvf mpi4py-1.2.tar.gz #Creates dur mpi4py-1.2
+cd mpi4py-1.2
+
+Install it by:
+
+python setup.py build
+sudo python setup.py install
+
+
+UPPAAL DBM Library
+==================
+Download from http://people.cs.aau.dk/~adavid/UDBM/
+
+To install it, after unpacking:
+./setup.sh
+Choose build dir, install path, and compiler.
+
+There are many configuration options. These are known to work:
+Compilation options: Debug (1) or optimized (2)
+Configuration options: Chose "6 11", if on 64 bit, otherwise just "6"
+
+If on 64 bit: edit "makefile", and on the line
+export CFLAGS := ...
+add "-fPIC" as a flag
+
+Then
+make
+sudo make install
+
+pydbm
+=====
+You need swig, so:
+sudo apt-get install swig2.0
+
+To install, assuming you chose the default install path for the DBM library:
+python setup.py build
+sudo python setup.py install
+
+To test:
+python test.py
+
+================
+2) Running opaal
+================
+If you followed the above steps, you should now be able to run opaal.
+An important caveat: If you want to run opaal without installing it, you need to
+set your PYTHONPATH to include the directory you have opaal in, e.g. by running
+export PYTHONPATH=/home/mchro/projects/opaal
+
+To check everything is alright, you can run the command "nosetests" from the
+opaal root directory, and you should get no errors.
+
+opaal contains a number of different tools, for different tasks and
+configurations. All tools have a --help option for displaying their options.
+
+opaal_singlecore
+================
+The basic model checker, using a single core. This is the main binary of opaal.
+It can be invoked such as
+./bin/opaal_singlecore tests/dekker-mutual-exclusion.xml
+to explore the entire statespace, or
+./bin/opaal_singlecore tests/dekker-mutual-exclusion.xml "E<> P0.CR"
+to check a specific property.
+
+opaal_simulator
+===============
+Interactive simulator for exploring a model's behaviour. Run it as
+./bin/opaal_simulator tests/master-election-simple.xml
+
+"q" quits the simulator.
+
+opaal_draw_statespace
+=====================
+Export the statespace of a model as graphics. Uses GraphViz, and only works for
+quite small statespaces. Run it as
+./bin/opaal_draw_statespace tests/dekker-mutual-exclusion.xml /tmp/test.pdf
+then open /tmp/test.pdf in a pdf viewer.
+
+opaal
+=====
+This is the GUI version for the distributed configuration. Run it as
+mpirun -np 3 ./bin/opaal <uppaalxmlfile>
+after configuring MPI.

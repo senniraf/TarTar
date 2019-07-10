@@ -1,0 +1,368 @@
+'\" t
+.\"     Title: ltsmin-printtrace
+.\"    Author: [FIXME: author] [see http://www.docbook.org/tdg5/en/html/author]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/17/2018
+.\"    Manual: LTSmin Manual
+.\"    Source: LTSmin 3.0.2
+.\"  Language: English
+.\"
+.TH "LTSMIN\-PRINTTRACE" "1" "12/17/2018" "LTSmin 3\&.0\&.2" "LTSmin Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ltsmin-printtrace \- Trace pretty printer
+.SH "SYNOPSIS"
+.sp
+ltsmin\-printtrace [OPTIONS] <input> [<output>]
+.SH "DESCRIPTION"
+.sp
+This tool reads a trace output written with the \fB\-\-trace\fR option and converts it into the desired output file format\&. <output> specifies the name of the output archive\&. The desired format is deduced from the filename extension\&.
+.sp
+Supported output file extensions are:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+txt: Textual output
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+aut: Aldebaran file format
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+csv: Comma separated values
+.RE
+.sp
+If no output file is given, txt output will be written to stdout\&.
+.SH "OPTIONS"
+.SS "General Options"
+.PP
+\fB\-v\fR
+.RS 4
+Increase the level of verbosity
+.RE
+.PP
+\fB\-q\fR
+.RS 4
+Be quiet; do not print anything to the terminal\&.
+.RE
+.PP
+\fB\-\-debug=<file\&.c>\fR
+.RS 4
+Enable debugging output for file\&.c (option allowed multiple times)\&.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+Print version string of this tool\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print help text
+.RE
+.PP
+\fB\-\-usage\fR
+.RS 4
+Print short usage summary\&.
+.RE
+.SH "FILE FORMATS"
+.sp
+The following file formats are supported:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Directory format (\fI*\&.dir\fR,
+\fI*\&.dz\fR
+and
+\fI*\&.gcf\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Vector format (\fI*\&.dir\fR,
+\fI*\&.gcd\fR,
+\fI*\&.gcf\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Binary Coded Graphs (\fI*\&.bcg\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Aldebaran Format (\fI*\&.aut\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+FSM Format (\fI*\&.fsm\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+MRMC/Prism (\fI*\&.tra\fR+\fI*\&.lab\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+PGSolver format (\fI*\&.pg\fR)
+.RE
+.sp
+If a tool operates in streaming mode then support for file formats is limited, as can be seen in the following table:
+.TS
+allbox tab(:);
+ltB ltB ltB.
+T{
+Format
+T}:T{
+Streaming mode
+T}:T{
+Load/Store mode
+T}
+.T&
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt.
+T{
+.sp
+DIR
+T}:T{
+.sp
+R/W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+VEC
+T}:T{
+.sp
+R/W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+BCG
+T}:T{
+.sp
+W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+AUT
+T}:T{
+.sp
+W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+FSM
+T}:T{
+.sp
+W
+T}:T{
+.sp
+W
+T}
+T{
+.sp
+TRA
+T}:T{
+.sp
+\-
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+PG
+T}:T{
+.sp
+\-
+T}:T{
+.sp
+W
+T}
+.TE
+.sp 1
+.sp
+The directory format uses multiple files to store an LTS\&. The various extension explain how these files are stored in the underlying file system\&. The \fI*\&.dir\fR format uses multiple files in a directory without compression\&. If the LTS has one edge label, no state labels and does not store state vectors then these files are backwards compatible\&. Neither the \fI*\&.dz\fR nor the \fI*\&.gcf\fR formats are backwards compatible\&. Both formats use compression\&. The first uses a directory for the files, second interleaves files into a single file\&.
+.sp
+If you try to open a \fI*\&.dir\fR with the old mCRL tools and you get the error message:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+wrong file version: 0
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+then the directory is probably compressed\&. If that happens then you may convert the directory by typing the command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ltsmin\-convert bad\&.dir good\&.dir
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SS "Print trace Options"
+.PP
+\fB\-s\fR, \fB\-\-csv\-separator\fR
+.RS 4
+Define a custom the separator used in csv output
+.RE
+.PP
+\fB\-\-values\fR=\fITYPE\fR
+.RS 4
+Select the output type:
+\fIidx\fR
+or
+\fIname\fR\&. With
+\fIidx\fR
+the state vector, edge\- and state labels will be displayed as number, with
+\fIname\fR
+these numbers will be translated (if possible) to their text representation\&.
+.RE
+.PP
+\fB\-a\fR, \fB\-\-all\fR
+.RS 4
+Output all the values in state/state labels/edge labels instead of differences\&. This option works for txt output\&.
+.RE
+.PP
+\fB\-d\fR, \fB\-\-diff\fR
+.RS 4
+Output differences between state/state labels/edge labels instead of just all values\&. This option works for txt output\&.
+.RE
+.PP
+\fB\-t\fR, \fB\-\-table\fR
+.RS 4
+Output the trace in tabular form\&. This option works for txt output\&.
+.RE
+.PP
+\fB\-l\fR, \fB\-\-list\fR
+.RS 4
+Output the trace in list form\&. This option works for txt output\&.
+.RE
+.PP
+\fB\-\-trace=INT\fR
+.RS 4
+If the input contains multiple traces then this options may be used to select the trace that will be printed\&.
+.RE
+.SH "EXIT STATUS"
+.PP
+0
+.RS 4
+Successful termination\&.
+.RE
+.PP
+255
+.RS 4
+Some error occurred\&.
+.RE
+.SH "SEE ALSO"
+.sp
+\fBlpo2lts-seq\fR(1), \fBetf2lts-seq\fR(1), \fBlps2lts-seq\fR(1), \fBlpo2lts-sym\fR(1), \fBetf2lts-sym\fR(1), \fBlps2lts-sym\fR(1), \fBlpo2lts-dist\fR(1), \fBetf2lts-dist\fR(1), \fBlps2lts-dist\fR(1), \fBlpo2lts-mc\fR(1), \fBetf2lts-mc\fR(1), \fBlps2lts-mc\fR(1), etc

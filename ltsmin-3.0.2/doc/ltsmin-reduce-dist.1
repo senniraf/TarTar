@@ -1,0 +1,188 @@
+'\" t
+.\"     Title: ltsmin-reduce-dist
+.\"    Author: [FIXME: author] [see http://www.docbook.org/tdg5/en/html/author]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/17/2018
+.\"    Manual: LTSmin Manual
+.\"    Source: LTSmin 3.0.2
+.\"  Language: English
+.\"
+.TH "LTSMIN\-REDUCE\-DIST" "1" "12/17/2018" "LTSmin 3\&.0\&.2" "LTSmin Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ltsmin-reduce-dist \- distributed reduction of labelled transition systems modulo strong or branching bisimulation
+.SH "SYNOPSIS"
+.sp
+mpirun [MPI OPTIONS] ltsmin\-reduce\-dist [OPTIONS] <input> [<output>]
+.SH "DESCRIPTION"
+.sp
+Using the option \fI\-\-workers=N\fR, this tool starts the command \fImpirun\fR silently in the background with the suitable options, i\&.e\&. \fI\-np 4\fR\&. Alternatively, one may wish to call \fImpirun\fR with additional options\&. This can be done using the \fI\-\-mpi\fR option, e\&.g\&.:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+mpirun \-np 4 \-mca btl tcp,self {manname} \-\-mpi
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SH "OPTIONS"
+.SS "LTS I/O Options"
+.PP
+\fB\-\-block\-size\fR=\fIBYTES\fR
+.RS 4
+Size of a block in bytes\&. Defaults to 32,768\&.
+.RE
+.PP
+\fB\-\-cluster\-size\fR=\fIBLOCKS\fR
+.RS 4
+Number of blocks in a cluster\&. Defaults to 32\&.
+.RE
+.SS "Hybrid Runtime Options"
+.sp
+The Hybrid Runtime Environment provides startup options for several parallel architectures\&.
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBPosix threads options\fR
+.RS 4
+.sp
+If the application supports it and Posix threads are supported by the OS then the following option is available:
+.PP
+\fB\-\-threads[=\fR\fB\fIcount\fR\fR\fB]\fR
+.RS 4
+Start
+\fIcount\fR
+worker threads\&. The default count is the number of CPU\(cqs in the system\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBPosix processes options\fR
+.RS 4
+.sp
+If the application supports it and Posix shared memory is supported by the OS then the following option is available:
+.PP
+\fB\-\-procs[=\fR\fB\fIcount\fR\fR\fB]\fR
+.RS 4
+Fork
+\fIcount\fR
+worker processes\&. The default count is the number of CPUs in the system\&.
+.RE
+.sp
+Note that MacOS X only supports Posix shared memory from version 10\&.7 (Lion) onwards\&.
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBMPI options\fR
+.RS 4
+.sp
+If the application supports it and MPI support was compiled into the binary then the following options are available:
+.PP
+\fB\-\-workers=\fR\fB\fIcount\fR\fR
+.RS 4
+Start the program with
+\fIcount\fR
+MPI workers\&.
+.RE
+.PP
+\fB\-\-mpirun=\fR\fB\fImpirun arguments\fR\fR
+.RS 4
+Invoke mpirun with the given arguments\&.
+.RE
+.PP
+\fB\-\-mpi\fR
+.RS 4
+Ignore
+\fB\-\-workers\fR
+and
+\fB\-\-mpirun\fR
+options and start the MPI runtime\&.
+.RE
+.RE
+.SS "General Options"
+.PP
+\fB\-v\fR
+.RS 4
+Increase the level of verbosity
+.RE
+.PP
+\fB\-q\fR
+.RS 4
+Be quiet; do not print anything to the terminal\&.
+.RE
+.PP
+\fB\-\-debug=\fR\fB\fIfile\fR\fR
+.RS 4
+Enable debugging output for
+\fIfile\fR\&.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+Print version string of this tool\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print help text
+.RE
+.PP
+\fB\-\-usage\fR
+.RS 4
+Print short usage summary\&.
+.RE
+.PP
+\fB\-\-stats\fR
+.RS 4
+Enable statistics gathering/printing\&.
+.RE
+.PP
+\fB\-\-timeout=INT\fR
+.RS 4
+Terminate after the given amount of seconds\&.
+.RE
+.PP
+\fB\-\-where\fR
+.RS 4
+Include file and line number in debug messages\&.
+.RE
+.PP
+\fB\-\-when\fR
+.RS 4
+Include the wall time since program start in all messages\&.
+.RE
+.SH "SEE ALSO"
+.sp
+\fBltsmin-compare\fR(1), \fBltsmin-reduce\fR(1)

@@ -1,0 +1,127 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+### BEGIN LICENSE
+# Copyright (C) 2010 Mads Chr. Olesen <mchro@cs.aau.dk>
+#This program is free software: you can redistribute it and/or modify it 
+#under the terms of the GNU General Public License version 3, as published 
+#by the Free Software Foundation.
+#
+#This program is distributed in the hope that it will be useful, but 
+#WITHOUT ANY WARRANTY; without even the implied warranties of 
+#MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR 
+#PURPOSE.  See the GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License along 
+#with this program.  If not, see <http://www.gnu.org/licenses/>.
+### END LICENSE
+
+import sys
+import pygraphviz as pgv
+import logging
+
+import pyuppaal
+from opaal.model_parsers.pyuppaal import SuccessorGenerator, GoalChecker
+from opaal.model_parsers.pyuppaal import GenerateSuccessorGenerator
+from opaal.passed_waiting_list import SimplePWList, NoMoreStatesException
+from opaal.passed_waiting_list.lattice_pwlist import LatticeCoverPWList, LatticeJoinPWList
+
+if __name__ != "__main__":
+    print "Error: should be run!"
+    sys.exit(1)
+
+def createOptionParser():
+    from optparse import OptionParser, OptionGroup
+    parser = OptionParser(usage="usage: %prog [options] uppaalmodel.xml outputfile.{pdf,ps,png,...}")
+    parser.add_option("-v", "--verbose",
+              action="store_true", dest="verbose", default=False,
+              help="Print warnings")
+    parser.add_option("-L", "--layout-large",
+              action="store_true", dest="layout_large", default=False,
+              help="Layout graphs > 10000 nodes")
+    parser.add_option("-l", "--passed-waiting-list",
+              action="store", dest="pwlist", default="SimplePWList",
+              help="Choose passed-waiting list implementation")
+    parser.add_option("-D", "--define",
+              action="append", dest="constant_defines", nargs=2, default=list(),
+              help="Override constant values.")
+    parser.add_option("-m", "--max-states",
+              action="store", dest="maxstates", default=None, type="int",
+              help="Limit the number of states to include in graph")
+    return parser
+
+parser = createOptionParser()
+(options, args) = parser.parse_args()
+
+if not len(args) in [2]:
+    parser.error("incorrect number of arguments")
+    
+logging.basicConfig( stream=sys.stderr, 
+        level={0: logging.WARNING, 1: logging.DEBUG}[options.verbose] )
+
+model_file = args[0]
+out_file = args[1]
+model = pyuppaal.NTA.from_xml(model_file)
+
+constant_defines = dict(options.constant_defines)
+if constant_defines:
+    print "Overriding constants:", constant_defines
+
+#succgen = SuccessorGenerator(model, constant_defines)
+succgen = GenerateSuccessorGenerator(model, constant_defines)
+
+#XXX
+#XXX dynamic import of pwlist
+exec("pwlist = " + options.pwlist + "()")
+#pwlist = SimplePWList()
+
+#Make PWList track joins, if applicable
+pwlist.trackjoins = True
+
+init_state = succgen.get_initialstate()
+pwlist.addState(init_state)
+
+G=pgv.AGraph(directed=True, strict=False)
+G.add_node(init_state)
+
+processed_states = 0
+try:
+    while True:
+        state = pwlist.getWaitingState()
+        for succ in succgen.successors(state, trans_info=True):
+            try:
+                ti = succ.trans_info
+            except:
+                ti = ""
+            processed_states += 1
+            succ_real = pwlist.addState(succ)
+            G.add_edge(state, succ, label=ti+", " +str(processed_states))
+
+            if options.maxstates and processed_states >= options.maxstates:
+                print "Reached max limit on no. of states"
+                raise NoMoreStatesException()
+            if succ_real and not succ == succ_real:
+                #some joining occured, not the precise successor
+                #check if we have extended information on joined states
+                joined_states = getattr(succ_real, "joined", None)
+                if joined_states:
+                    for s in joined_states:
+                        G.add_edge(s, succ_real, arrowhead="empty", style="dashed")
+                else:
+                    #only add edge if not already there
+                    if not G.has_edge(succ, succ_real):
+                        G.add_edge(succ, succ_real, arrowhead="empty", style="dashed")
+
+                
+except NoMoreStatesException:
+    pass
+
+if len(pwlist.passed_waiting) <= 10000 or options.layout_large:
+    print "State space generated, lay-out'ing..."
+    G.draw(out_file, prog='dot')
+else:
+    print "Graph too large,", len(pwlist.passed_waiting), "nodes - not doing layout."
+    print "(see the -L option)"
+print 'Done'
+
+
+# vim:ts=4:sw=4:expandtab

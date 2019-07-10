@@ -1,0 +1,10 @@
+Format-Specification: http://wiki.debian.org/Proposals/CopyrightFormat
+Upstream-Name: opaal
+Upstream-Maintainer: Mads Chr. Olesen <mchro@cs.aau.dk>
+Upstream-Source: https://launchpad.net/opaal
+
+Files: *
+Copyright: (C) 2010 Mads Chr. Olesen <mchro@cs.aau.dk>, Kenneth Yrke Jørgensen <kyrke@cs.aau.dk>
+License: GPL-3
+ The full text of the GPL is distributed in
+ /usr/share/common-licenses/GPL-3 on Debian systems.

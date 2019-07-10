@@ -1,0 +1,259 @@
+#!/usr/bin/env python
+import sys
+import os
+from datetime import datetime
+from os.path import basename
+import subprocess
+
+#Recipe for activating pdb on uncaugth exceptions: http://code.activestate.com/recipes/65287/
+def info(type, value, tb):
+   if hasattr(sys, 'ps1') or not sys.stderr.isatty():
+      # we are in interactive mode or we don't have a tty-like
+      # device, so we call the default hook
+      sys.__excepthook__(type, value, tb)
+   else:
+      import traceback, pdb
+      # we are NOT in interactive mode, print the exception...
+      traceback.print_exception(type, value, tb)
+      print
+      # ...then start the debugger in post-mortem mode.
+      pdb.pm()
+
+sys.excepthook = info
+
+
+if __name__ != "__main__":
+    print "Error: should be run!"
+    sys.exit(1)
+
+def createOptionParser():
+    from optparse import OptionParser, OptionGroup
+    parser = OptionParser(usage="usage: %prog [options] uppaalmodel.xml [query]")
+    parser.add_option("-v", "--verbose",
+              action="store_true", dest="verbose", default=False,
+              help="Print warnings")
+    #parser.add_option("-D", "--define",
+    #          action="append", dest="constant_defines", nargs=2, default=list(),
+    #          help="Override constant values.")
+    parser.add_option("-t", "--threads",
+              action="store", dest="threads", default=None, type="int",
+              help="ltsmin: Number of threads to use")
+    parser.add_option("-O",
+              action="store", dest="optimization", default="0", type="string",
+              help="Compiler: optimization level (O2, O1, O0, ...)")
+    parser.add_option("-c",
+              action="store", dest="compiler", default="g++", type="string",
+              help="compiler to use (c++, clang++, ...)")
+    parser.add_option("-g",
+              action="store_true", dest="debugging", default=False,
+              help="compiler: enable debugging symbols")
+    parser.add_option("--uppaal",
+              action="store_true", dest="uppaal", default=False,
+              help="Also run UPPAAL 'verifyta' to compare timings")
+    parser.add_option("--only-compile",
+              action="store_true", dest="compileonly", default=False,
+              help="Only compile the model to .so library")
+    parser.add_option("--uppaal-dbm",
+              action="store", dest="uppaal_dbm", default=None, type="string",
+              help="Path to where the UPPAAL DBM library is installed")
+    parser.add_option("-o",
+              action="store", dest="searchorder", default=None,
+              choices=['0', '1', '2','bfs', 'sbfs', 'dfs', 'cndfs'],
+              help="ltsmin/UPPAAL: Search order (0 = bfs,1 = sbfs,2 = dfs)")
+    parser.add_option("-n", "--extrapolation",
+              action="store", dest="extrapolation", default="LU",
+              choices=['LU', 'k'],
+              help="ltsmin: Extrapolation to use: 'LU' or 'k'") #TODO: pass this on to UPPAAL
+    parser.add_option("-s", "--size",
+              action="store", dest="statestoresize", default=25, type="int",
+              help="ltsmin: Size of the state store (log2(size))")
+    parser.add_option("-u", "--update",
+              action="store", dest="update", default=1, type="int",
+              help="ltsmin: cover update stragegy: 0=simple, 1=update waiting, 2=update passed, 3=use joining") #TODO: pass this on to UPPAAL
+    parser.add_option("--state",
+              action="store", dest="statestore", default="table",
+              choices=['tree', 'table'],
+              help="ltsmin: data structure for storing states")
+    parser.add_option("-D", "--define",
+              action="append", dest="constant_defines", nargs=2, default=list(),
+              help="Override constant values, e.g. '-D N 2''")
+    parser.add_option("--ltl",
+              action="store", dest="ltl", default=None,
+              help="ltsmin: LTL formula or file with LTL formula. Implies CNDFS strategy.")
+    parser.add_option("--trace",
+              action="store", dest="trace", default=None,
+              help="ltsmin: file to write trace to.")
+    return parser
+
+parser = createOptionParser()
+(options, args) = parser.parse_args()
+
+if options.threads:
+    options.threads = "--threads=%d" % options.threads
+else:
+    options.threads = ""
+options.debugging = options.debugging and "-g" or ""
+
+ltsmin_ltl = ""
+if options.ltl:
+    if options.searchorder:
+        parser.error("Search order for LTL checking must be cndfs!")
+    if options.uppaal:
+        parser.error("UPPAAL does not support LTL checking")
+    options.searchorder = "cndfs"
+    ltsmin_ltl = '--ltl="%s"' % (options.ltl)
+elif not options.searchorder:
+    options.searchorder = "1"
+
+if options.searchorder in ['0', 'bfs']:
+    ltsmin_strategy = "--strategy=bfs"
+    uppaal_searchorder = "-o 0"
+elif options.searchorder in ['1', 'sbfs']:
+    ltsmin_strategy = "--strategy=sbfs"
+    uppaal_searchorder = "-o 0"
+elif options.searchorder in ['2', 'dfs']:
+    ltsmin_strategy = "--strategy=dfs"
+    uppaal_searchorder = "-o 1"
+elif options.searchorder in ['cndfs']:
+    ltsmin_strategy = "--strategy=cndfs"
+    uppaal_searchorder = None
+    if options.uppaal:
+        parser.error("UPPAAL does not support CNDFS search order")
+
+if options.trace:
+    ltsmin_trace = '--trace="%s"' % (options.trace)
+else:
+    ltsmin_trace = ""
+
+
+#figure out where the UPPAAL DBM library is installed
+if options.uppaal_dbm:
+    uppaal_dbm_include_dir = "-I%s/include/" % (options.uppaal_dbm)
+    uppaal_dbm_lib_dir = "-L%s/lib/" % (options.uppaal_dbm)
+else:
+    #try with udbm-config binary
+    try:
+        uppaal_dbm_include_dir = subprocess.check_output(["udbm-config", "--inc"]).split()[0]
+        uppaal_dbm_lib_dir = subprocess.check_output(["udbm-config", "--libs"]).split()[0] #only need dir
+    except:
+        if os.path.exists("../usr/uppaal/"):
+            uppaal_dbm_include_dir = "-I../usr/uppaal/include/"
+            uppaal_dbm_lib_dir = "-L../usr/uppaal/lib/"
+        else:
+            uppaal_dbm_include_dir = "-I/usr/local/uppaal/include/"
+            uppaal_dbm_lib_dir = "-L/usr/local/uppaal/lib/"
+
+
+
+constant_defines = dict(options.constant_defines)
+if constant_defines:
+    print "Overriding constants:", constant_defines
+
+if not len(args) in [1]:
+    parser.error("incorrect number of arguments")
+    
+base_name = os.path.splitext(basename(args[0]))[0]
+for key, value in constant_defines.items():
+    base_name += "-"+ key + value
+cpp_name = '"' + base_name +'.cpp"'
+so_name = '"' + base_name +'.so"'
+
+model_file = open(args[0])
+outfile = open(base_name+'.cpp', 'w')
+
+timestart = datetime.now()
+
+import pyuppaal
+from opaal.model_parsers.pyuppaal.gensuccgen import GenerateSuccessorGenerator
+nta = pyuppaal.NTA.from_xml(model_file)
+s = GenerateSuccessorGenerator(nta, constant_defines, options.extrapolation)
+s.generateCFile(outfile)
+outfile.close()
+
+#did the model not use clocks? if not the model will not have dbm, and so the
+#ltsmin search strategy should not be "ta_XXX"
+if not s.usesDBM:
+    if options.verbose:
+        print "Model does not use clocks, running LTSMin in discrete mode"
+    if options.searchorder in ['0', 'bfs']:
+        ltsmin_strategy = "--strategy=bfs"
+    elif options.searchorder in ['1', 'dfs']:
+        ltsmin_strategy = "--strategy=dfs"
+
+#gcccmd = "%s %s -shared -O%s -fPIC -I%s/include/ -L%s/lib/ -o %s %s -ludbm -lnbds" % (options.compiler, options.debugging, options.optimization, options.uppaal_dbm, options.uppaal_dbm, so_name, cpp_name)
+
+#determine ldflags
+if len(s.externs) >= 1:
+    cflags = ""
+    ldflags = ""
+    for (_, cls) in s.externs.iteritems():
+        ldflags += cls.getCompilerLinkFlags()
+else: #using DBM
+    cflags = "%s %s" % (uppaal_dbm_include_dir, uppaal_dbm_lib_dir)
+    ldflags = "-ludbm"
+
+#respect CXXFLAGS and LDFLAGS from the environment
+cflags = cflags + ' ' + os.environ.get('CXXFLAGS', '')
+ldflags = ldflags + ' ' + os.environ.get('LDFLAGS', '')
+
+
+gcccmd = "%s %s -shared -O%s -fPIC %s -o %s %s %s" % (options.compiler, options.debugging, options.optimization, cflags, so_name, cpp_name, ldflags)
+if options.verbose:
+    print gcccmd
+
+gccstart = datetime.now()
+os.system(gcccmd)
+
+if options.compileonly:
+    sys.exit(0)
+
+#ltsmincmd = "LD_PRELOAD=/usr/lib/libjemalloc.so.1 LD_LIBRARY_PATH=/usr/local/nbds/lib dve22lts-mc --state=%s -s %d %s %s -u1 /tmp/fibcall.so" % (options.statestore, options.statestoresize, options.threads, ltsmin_strategy)
+ltsmincmd = ("opaal2lts-mc --state=%(statestore)s -s %(statestoresize)d %(threads)s %(strategy)s %(ltl)s %(trace)s -u%(update)s %(so_name)s") % {
+        'statestore': options.statestore,
+        'statestoresize': options.statestoresize,
+        'threads': options.threads,
+        'strategy': ltsmin_strategy,
+        'ltl': ltsmin_ltl,
+        'trace': ltsmin_trace,
+        'update': options.update,
+        'so_name': so_name
+        }
+if options.verbose:
+    print ltsmincmd
+ltsminstart = datetime.now()
+os.system(ltsmincmd)
+
+timeend = datetime.now()
+
+uppaalcmd = "verifyta -u %s %s tests/explore_all.q" % (uppaal_searchorder, args[0])
+if options.uppaal:
+    if constant_defines:
+        print
+        print "WARNING: Constant overrides do not apply to UPPAAL run!"
+        print
+    if options.verbose:
+        print uppaalcmd
+    uppaalstart = datetime.now()
+    os.system(uppaalcmd)
+    uppaalend = datetime.now()
+
+totaltime = timeend-timestart
+def pctoftotal(td):
+    return (td.total_seconds() / totaltime.total_seconds())*100
+
+#import pdb; pdb.set_trace()
+print
+print
+print "*"*80
+print ("opaal time:        %s (%6.2f%%)" % (gccstart-timestart, pctoftotal(gccstart-timestart)))
+print ("g++ time:          %s (%6.2f%%)" % (ltsminstart-gccstart, pctoftotal(ltsminstart-gccstart)))
+print ("ltsmin time:       %s (%6.2f%%)" % (timeend-ltsminstart, pctoftotal(timeend-ltsminstart)))
+print "="*80
+print ("Total time taken:  %s (%6.2f%%)" % (totaltime, pctoftotal(totaltime)))
+print "*"*80
+
+if options.uppaal:
+    print ("UPPAAL time taken: %s (%6.2f%%)" % (uppaalend-uppaalstart, pctoftotal(uppaalend-uppaalstart)) )
+
+
+

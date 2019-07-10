@@ -1,0 +1,104 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+### BEGIN LICENSE
+# Copyright (C) 2010 Mads Chr. Olesen <mchro@cs.aau.dk>
+#This program is free software: you can redistribute it and/or modify it 
+#under the terms of the GNU General Public License version 3, as published 
+#by the Free Software Foundation.
+#
+#This program is distributed in the hope that it will be useful, but 
+#WITHOUT ANY WARRANTY; without even the implied warranties of 
+#MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR 
+#PURPOSE.  See the GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License along 
+#with this program.  If not, see <http://www.gnu.org/licenses/>.
+### END LICENSE
+
+import sys
+import logging
+
+import pyuppaal
+from opaal.model_parsers.pyuppaal import SuccessorGenerator, GoalChecker
+from opaal.model_parsers.pyuppaal import GenerateSuccessorGenerator
+from opaal.passed_waiting_list import SimplePWList
+from opaal.modelchecking_algorithms.reachability import McReachability
+from opaal.passed_waiting_list.lattice_pwlist import LatticeCoverPWList, LatticeJoinPWList
+
+if __name__ != "__main__":
+    print "Error: should be run!"
+    sys.exit(1)
+
+def createOptionParser():
+    from optparse import OptionParser, OptionGroup
+    parser = OptionParser(usage="usage: %prog [options] uppaalmodel.xml [query]")
+    parser.add_option("-v", "--verbose",
+              action="store_true", dest="verbose", default=False,
+              help="Print warnings")
+    parser.add_option("-l", "--passed-waiting-list",
+              action="store", dest="pwlist", default="SimplePWList",
+              help="Choose passed-waiting list implementation")
+    parser.add_option("-D", "--define",
+              action="append", dest="constant_defines", nargs=2, default=list(),
+              help="Override constant values.")
+    return parser
+
+parser = createOptionParser()
+(options, args) = parser.parse_args()
+
+if not len(args) in [1, 2]:
+    parser.error("incorrect number of arguments")
+
+logging.basicConfig( stream=sys.stderr, 
+        level={0: logging.WARNING, 1: logging.DEBUG}[options.verbose] )
+
+model_file = args[0]
+model = pyuppaal.NTA.from_xml(model_file)
+
+if len(args) > 1:
+    query = args[1]
+else:
+    query = ""
+
+constant_defines = dict(options.constant_defines)
+if constant_defines:
+    print "Overriding constants:", constant_defines
+
+#succgen = SuccessorGenerator(model, constant_defines)
+succgen = GenerateSuccessorGenerator(model, constant_defines)
+goalchecker = GoalChecker(succgen, query)
+
+#XXX
+#XXX dynamic import of pwlist
+exec("pwlist = " + options.pwlist + "()")
+#pwlist = SimplePWList()
+
+m = McReachability(succgen, goalchecker, pwlist)
+
+init_state = succgen.get_initialstate()
+pwlist.addState(init_state)
+
+#Profiling?
+if False:
+    import cProfile
+    cProfile.run('res = m.start()', '/tmp/opaal_prof%d.txt' % (1))
+else:
+    res = m.start()
+
+print ''
+propres = goalchecker.finalize()
+if propres:
+    print 'Property SATISFIED!!!'
+    print "Result: " + str(propres)
+elif res:
+    print 'Property SATISFIED!!!'
+else:
+    print 'Property NOT satisfied!!!'
+print ''
+print 'States processed (incl. duplicates): ',  m.processed_states
+print 'Size of PWList at termination: ', pwlist.lenOfPWList()
+print 'Number of PWList adds: ', pwlist.num_adds
+
+sys.exit(res)
+
+# vim:ts=4:sw=4:expandtab

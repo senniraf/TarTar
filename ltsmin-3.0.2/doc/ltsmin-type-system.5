@@ -1,0 +1,1071 @@
+'\" t
+.\"     Title: ltsmin-type-system
+.\"    Author: [FIXME: author] [see http://www.docbook.org/tdg5/en/html/author]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/17/2018
+.\"    Manual: LTSmin Manual
+.\"    Source: LTSmin 3.0.2
+.\"  Language: English
+.\"
+.TH "LTSMIN\-TYPE\-SYSTEM" "5" "12/17/2018" "LTSmin 3\&.0\&.2" "LTSmin Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ltsmin-type-system \- The LTSmin type system\&.
+.SH "SYNOPSIS"
+.sp
+Description of LTSmin\(cqs type system used in the property language\&.
+.SH "DESCRIPTION"
+.sp
+This man page describes LTSmin\(cqs type system, used in the property language\&. Specifically this manpage can help users writing atomic predicates, used in invariants, LTL, CTL, CTL* and mu\-calculus formulas\&. It will also help the user resolving any type checking errors\&.
+.sp
+In principle, LTSmin\(cqs type system is a meta type system for all language front\-ends\&. Meaning that whatever type a language defines, there is always a corresponding meta type\&. Such a meta type is also refered to in LTSmin as a type format\&. Every type format is associated with a very similar type in the C language, and an enum definition in lts\-type\&.h, called data_format_t\&. A type format is associated with a state variable, edge variable in an instantation of an LTS, and the result of unary, and binary operators such as ||,+,!, but also temporal operators such as neXt etc\&.
+.sp
+To find out what kind of type formats are associated with each state variable and edge variable you can use the \-\-labels option\&. For example, to view the type formats of a Petri\-net, you could type pnml2lts\-sym <Petri\-net>\&.pnml \-\-labels\&. The list of available type formats is as follows\&.
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.B Table\ \&1.\ \&Type formats
+.TS
+allbox tab(:);
+ltB ctB ctB ltB.
+T{
+Name
+T}:T{
+C type
+T}:T{
+data_format_t
+T}:T{
+Description
+T}
+.T&
+lt ct ct lt
+lt ct ct lt
+lt ct ct lt
+lt ct ct lt
+lt ct ct lt
+lt ct ct lt
+lt ct ct lt.
+T{
+.sp
+direct
+T}:T{
+.sp
+void
+T}:T{
+.sp
+LTStypedirect
+T}:T{
+.sp
+A 32\-bit type, with simple semantics\&.
+T}
+T{
+.sp
+range
+T}:T{
+.sp
+void
+T}:T{
+.sp
+LTStyperange
+T}:T{
+.sp
+A 32\-bit type, with a lowerbound and upperbound, and simple semantics\&.
+T}
+T{
+.sp
+chunk
+T}:T{
+.sp
+void*
+T}:T{
+.sp
+LTStypechunk
+T}:T{
+.sp
+A 32\-bit pointer to data with simple semantics\&.
+T}
+T{
+.sp
+enum
+T}:T{
+.sp
+void*
+T}:T{
+.sp
+LTStypeenum
+T}:T{
+.sp
+A 32\-bit pointer to predefined data with simple semantics\&.
+T}
+T{
+.sp
+Bool
+T}:T{
+.sp
+bool
+T}:T{
+.sp
+LTStypeBool
+T}:T{
+.sp
+A Boolean value, with the semantics of a Boolean\&.
+T}
+T{
+.sp
+trilean
+T}:T{
+.sp
+int
+T}:T{
+.sp
+LTStypetrilean
+T}:T{
+.sp
+A trilean, or three\-valued type, similar to Boolean, with extra maybe constant\&.
+T}
+T{
+.sp
+signed integer
+T}:T{
+.sp
+int
+T}:T{
+.sp
+LTStypeSInt32
+T}:T{
+.sp
+A 32\-bit integer value, with integer semantics, that may not underflow or overflow\&.
+T}
+.TE
+.sp 1
+.sp
+The key feature of direct, and range is that only simple operators are defined for those, such as equality and inequality\&. The difference between chunk, and enum is that the values for enums are fixed; during state space generation values may not be added to enum types\&. The difference between Bool, and trilean is that a trilean may also have the value maybe\&. This value is typically useful for language front\-ends that have guards that may not always evaluate to true or false, e\&.g\&. in process algebras\&. The difference between direct, and signed integer is that for a signed integer basic arithmatic operators are defined\&.
+.sp
+The result of applying unary and binary operators on type formats is defined in the following tables (see also file ltsmin\-type\-system\&.h)\&. Some operators are not commutative, for the semantics of each operator see ltsmin\-pred, ltsmin\-ltl, ltsmin\-ctl, and ltsmin\-mu\&.
+.sp
+The following table defines the result of applying some binary math operators\&. They are only defined when both the LHS and RHS are signed integers\&.
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.B Table\ \&2.\ \&Atomic binary math operators: *, /, %, +, \-
+.TS
+allbox tab(:);
+ltB ctB ctB ctB ctB ctB ctB ctB.
+T{
+
+T}:T{
+direct
+T}:T{
+range
+T}:T{
+chunk
+T}:T{
+enum
+T}:T{
+Bool
+T}:T{
+trilean
+T}:T{
+signed integer
+T}
+.T&
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct.
+T{
+.sp
+\fBdirect\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBrange\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBchunk\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBenum\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBBool\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBtrilean\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBsigned integer\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+signed integer
+T}
+.TE
+.sp 1
+.sp
+The following table defines the result of applying standard Boolean operators\&. They are only defined when both the LHS and RHS are Bools\&.
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.B Table\ \&3.\ \&Non atomic binary Boolean operators: ||, &&, <==>, =>, R, W, U
+.TS
+allbox tab(:);
+ltB ctB ctB ctB ctB ctB ctB ctB.
+T{
+
+T}:T{
+direct
+T}:T{
+range
+T}:T{
+chunk
+T}:T{
+enum
+T}:T{
+Bool
+T}:T{
+trilean
+T}:T{
+signed integer
+T}
+.T&
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct.
+T{
+.sp
+\fBdirect\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBrange\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBchunk\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBenum\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBBool\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBtrilean\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBsigned integer\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+.TE
+.sp 1
+.sp
+The following table defines the result of applying order operators\&. They are currently only defined when both the LHS and RHS are signed integers\&.
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.B Table\ \&4.\ \&Non atomic binary order operators: <, <=, >, >=
+.TS
+allbox tab(:);
+ltB ctB ctB ctB ctB ctB ctB ctB.
+T{
+
+T}:T{
+direct
+T}:T{
+range
+T}:T{
+chunk
+T}:T{
+enum
+T}:T{
+Bool
+T}:T{
+trilean
+T}:T{
+signed integer
+T}
+.T&
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct.
+T{
+.sp
+\fBdirect\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBrange\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBchunk\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBenum\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBBool\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBtrilean\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBsigned integer\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+Bool
+T}
+.TE
+.sp 1
+.sp
+The following table defines the result of applying equality, inequality, and the enabledness operator\&.
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.B Table\ \&5.\ \&Non atomic binary relational operators: == !=, ??
+.TS
+allbox tab(:);
+ltB ctB ctB ctB ctB ctB ctB ctB.
+T{
+
+T}:T{
+direct
+T}:T{
+range
+T}:T{
+chunk
+T}:T{
+enum
+T}:T{
+Bool
+T}:T{
+trilean
+T}:T{
+signed integer
+T}
+.T&
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct
+lt ct ct ct ct ct ct ct.
+T{
+.sp
+\fBdirect\fR
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+Bool
+T}
+T{
+.sp
+\fBrange\fR
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+Bool
+T}
+T{
+.sp
+\fBchunk\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBenum\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBBool\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBtrilean\fR
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+error
+T}
+T{
+.sp
+\fBsigned integer\fR
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+Bool
+T}
+.TE
+.sp 1
+.sp
+The following table defines the result of applying several Boolean operators\&.
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.B Table\ \&6.\ \&Non atomic unary Boolean operators: !, mu, nu, [], <>, X, A, E
+.TS
+allbox tab(:);
+ctB ctB ctB ctB ctB ctB ctB.
+T{
+direct
+T}:T{
+range
+T}:T{
+chunk
+T}:T{
+enum
+T}:T{
+Bool
+T}:T{
+trilean
+T}:T{
+signed integer
+T}
+.T&
+ct ct ct ct ct ct ct.
+T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}:T{
+.sp
+Bool
+T}:T{
+.sp
+error
+T}:T{
+.sp
+error
+T}
+.TE
+.sp 1
+.SH "SEE ALSO"
+.sp
+\fBltsmin-pred\fR(5) \fBltsmin-ltl\fR(5) \fBltsmin-ctl\fR(5) \fBltsmin-mu\fR(5)

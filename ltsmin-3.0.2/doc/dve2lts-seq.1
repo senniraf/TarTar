@@ -1,0 +1,1250 @@
+'\" t
+.\"     Title: dve2lts-seq
+.\"    Author: [FIXME: author] [see http://www.docbook.org/tdg5/en/html/author]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/17/2018
+.\"    Manual: LTSmin Manual
+.\"    Source: LTSmin 3.0.2
+.\"  Language: English
+.\"
+.TH "DVE2LTS\-SEQ" "1" "12/17/2018" "LTSmin 3\&.0\&.2" "LTSmin Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+dve2lts-seq \- Sequential state space generator for DIVINE models\&.
+.SH "SYNOPSIS"
+.sp
+\fBdve2lts\-seq\fR [OPTION]\&... \fIinput\fR[\fI\&.dve\fR|\fI\&.dve2C\fR] <[\fIoutput\&.fmt\fR]>
+.SH "DESCRIPTION"
+.sp
+dve2lts\-seq generates a labelled transition system from a specification provided in \fIinput\&.dve\fR or \fIinput\&.dve2C\fR by enumerative reachability analysis using a general state expanding algorithm\&. \fIoutput\&.fmt\fR specifies the name of the output archive\&. The desired format is deduced from the filename extension\&. Available formats are described below\&.
+.SH "DIVINE"
+.sp
+Compile a DVE input model with divine:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+divine compile \-l input\&.dve
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+The command results in a compiled model \fIinput\&.dve2C\fR\&.
+.sp
+If an LTL property is present in the model, a buchi automaton is created\&. LTSmin can directly perform LTL model checking on such models:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+dve2lts\-mc \-\-strategy=cndfs \-\-threads=16 anderson\&.6\&.prop4\&.dve2C
+dve2lts\-seq \-\-por \-\-proviso=color \-\-strategy=scc anderson\&.6\&.prop4\&.dve
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+These two examples perform LTL model checking using: multi\-core NDFS (cndfs), and a sequential SCC\-based algorithm with partial order reduction (\-\-por and \-\-proviso, where different provisos are available)\&. Again one can provide additional options to store traces, etc\&.
+.sp
+Note that this requires a modified version of the DiVinE toolset, which adds an LTSmin compilation backend (option \-l)\&. For availability, refer to the \m[blue]\fBLTSmin website\fR\m[]\&\s-2\u[1]\d\s+2\&.
+.SH "OPTIONS"
+.PP
+\fB\-\-strategy\fR=\fITYPE\fR
+.RS 4
+Select exploration strategy\&.
+\fITYPE\fR
+can be one of the following options:
+.PP
+bfs
+.RS 4
+explore state space in breadth\-first order (default)\&.
+.RE
+.PP
+dfs
+.RS 4
+explore state space in depth\-first order\&.
+.RE
+.PP
+scc
+.RS 4
+perform LTL model checking based on Buchi automata with Couvreur\(cqs algorithm (accepting cycle detection)\&. This requires an accepting state label to be present\&. See below\&.
+.RE
+.RE
+.PP
+\fB\-\-state\fR=\fITYPE\fR
+.RS 4
+Select type of data structure for storing visited states\&.
+\fITYPE\fR
+can be one of the following options:
+.PP
+tree
+.RS 4
+use a tree\-compressed hash table (default)\&.
+.RE
+.PP
+table
+.RS 4
+use a hash table\&.
+.RE
+.PP
+vset
+.RS 4
+use a vector set (decision diagram)\&.
+.RE
+.RE
+.PP
+\fB\-\-max\fR=\fIDEPTH\fR
+.RS 4
+Maximum search depth, search until
+\fIDEPTH\fR\&.
+.RE
+.PP
+\fB\-\-proviso\fR=\fIclosedset|stack|color\fR
+.RS 4
+Change the proviso implementation for partial order reduction (ltl)
+.sp
+Change the proviso used to detect that an accepting cycle is closed\&. Three options are available, the default is
+\fIclosedset\fR\&.
+.PP
+closedset
+.RS 4
+The closed set proviso is the default proviso which requires almost no extra work/memory\&. It might however result in less reduction than the
+\fIstack\fR
+or
+\fIcolor\fR
+proviso\&. It works with both the dfs\- and bfs exploration strategy\&.
+.RE
+.PP
+stack
+.RS 4
+The stack proviso is the proviso used for example by the spin model checker\&. It requires some extra work/memory but may result in a better reduction than
+\fIclosedset\fR\&. It works only for a dfs/scc search strategy (since bfs has no stack)\&.
+.RE
+.PP
+color
+.RS 4
+The color proviso requires a lot of extra work and memory but can significantly improve the reduction\&. It too works only with the dfs/scc search strategies\&.
+.RE
+.RE
+.PP
+\fB\-n\fR, \fB\-\-no\-exit\fR
+.RS 4
+Do not exit when an error is found\&. Just count errors\&. Error counts are printed with
+\-v\&.
+.RE
+.PP
+\fB\-d\fR, \fB\-\-deadlock\fR
+.RS 4
+Find state with no outgoing transitions\&. Returns with exit code 1 if a deadlock is found, 0 or 255 (error) otherwise\&.
+.RE
+.PP
+\fB\-i\fR, \fB\-\-invariant\fR=\fIPREDFILE|PREDEXPRESSION\fR
+.RS 4
+Find state where the invariant is violated\&. The file
+\fIPREDFILE\fR
+contains an expression in a simple predicate language (see
+\fBltsmin-pred\fR(5))\&. Its contents can also be entered directly as a
+\fIPREDEXPRESSION\fR\&. Returns with exit code 1 if a violation is found, 0 or 255 (error) otherwise\&.
+.RE
+.PP
+\fB\-a\fR, \fB\-\-action\fR=\fISTRING\fR
+.RS 4
+Find state with an outgoing transition of type
+\fISTRING\fR\&. Returns with exit code 1 if the action is found, 0 or 255 (error) otherwise\&.
+.RE
+.PP
+\fB\-\-trace\fR=\*(AqFILE\*(Aq\fI\&.gcf\fR
+.RS 4
+When finding a deadlock state or a transition labelled with a certain action, write a trace to \*(AqFILE\*(Aq\fI\&.gcf\fR, beginning from the initial state\&. Traces can be pretty\-printed with
+\fBltsmin-printtrace\fR(1)\&.
+.RE
+.SS "PINS Options"
+.PP
+\fB\-\-labels\fR
+.RS 4
+Print state variable, type and value names, and state and action labels\&. Then exit\&. Useful for writing predicate (\-\-invariant), LTL (\-\-ltl), CTL/CTL* (\-\-ctl), and mu\-calculus (\-\-mu) expressions\&.
+.RE
+.PP
+\fB\-\-matrix\fR
+.RS 4
+Print the dependency matrix and exit\&.
+.RE
+.PP
+\fB\-c\fR, \fB\-\-cache\fR
+.RS 4
+Enable caching of greybox calls\&.
+.sp
+If this option is used, the state space generator makes calls to the short version of the greybox next\-state function and memoizes the results\&. If the next\-state function is expensive this will yield substantial speedups\&.
+.RE
+.PP
+\fB\-\-pins\-guards\fR
+.RS 4
+Use guards in combination with the long next\-state function to speed up the next\-state function\&.
+.RE
+.PP
+\fB\-\-allow\-undefined\-edges\fR
+.RS 4
+Allow values for edge variables in atomic predicates to be unreachable\&.
+.RE
+.PP
+\fB\-\-allow\-undefined\-values\fR
+.RS 4
+Allow undefined values in atomic predicates for enums\&.
+.RE
+.PP
+\fB\-r\fR, \fB\-\-regroup\fR=\fISPEC\fR
+.RS 4
+Enable regrouping optimizations on the dependency matrix\&.
+.sp
+\fISPEC\fR
+is a comma\-separated sequence of transformations
+\fI<(\fR\fI\fIT\fR\fR\fI,)+>\fR
+which are applied in this order to the dependency matrix\&. The following transformations
+\fIT\fR
+are available:
+.PP
+gs
+.RS 4
+Group Safely; macro for "\fBgc\fR,\fBgr\fR,\fBcw\fR,\fBrs\fR"; almost always a win\&.
+.RE
+.PP
+ga
+.RS 4
+Group Aggressively (row subsumption); macro for "\fBgc\fR,\fBrs\fR,\fBru\fR,\fBcw\fR,\fBrs\fR"; can be a huge win, but in some cases causes slower state space generation\&.
+.RE
+.PP
+gsa
+.RS 4
+Group Simulated Annealing; macro for "\fBgc\fR,\fBgr\fR,\fBcsa\fR,\fBrs\fR"; almost always a win; usually better than
+\fBgs\fR\&.
+.RE
+.PP
+gc
+.RS 4
+Group Columns; macro for "\fBcs\fR,\fBcn\fR"\&.
+.RE
+.PP
+gr
+.RS 4
+Group Rows; macro for "\fBrs\fR,\fBrn\fR"\&.
+.RE
+.PP
+cs
+.RS 4
+Column Sort; sort columns lexicographically\&.
+.RE
+.PP
+cn
+.RS 4
+Column Nub; (temporarily) group duplicate columns, thereby making
+\fIca\fR
+more tractable\&. Requires
+\fBcs\fR\&.
+.RE
+.PP
+cw
+.RS 4
+Column sWap; minimize distance between columns by swapping them heuristically\&. This reordering improves performance of the symbolic data structures\&.
+.RE
+.PP
+ca
+.RS 4
+Column All permutations; try to find the column permutation with the best cost metric\&. Potentially, this is an expensive operation\&.
+.RE
+.PP
+csa
+.RS 4
+Column Simulated Annealing; minimize distance between columns by swapping them using simulated annealing\&.
+.RE
+.PP
+rs
+.RS 4
+Row Sort; sort rows lexicographically\&.
+.RE
+.PP
+rn
+.RS 4
+Row Nub; remove duplicate rows from the dependency matrix\&. This is always a win\&. Requires
+\fBrs\fR\&.
+.RE
+.PP
+ru
+.RS 4
+Row sUbsume; try to remove more rows than nubbing, thereby trading speed for memory\&. Requires
+\fBrs\fR\&.
+.RE
+.PP
+w2W
+.RS 4
+Over\-approximate all must\-write to may\-write\&. May\-write supports the copy (\-) dependency\&.
+.RE
+.PP
+r2+
+.RS 4
+Over\-approximate read to read+write\&. Allows read dependencies to also subsume write dependencies\&.
+.RE
+.PP
+w2+
+.RS 4
+Over\-approximate must\-write to read+write\&. Allows must\-write dependencies to also subsume read dependencies\&.
+.RE
+.PP
+W2+
+.RS 4
+Over\-approximate may\-write to read+write\&. Allows must\-write dependencies to also subsume read dependencies\&.
+.RE
+.PP
+\-2r
+.RS 4
+Over\-approximate copy to read\&. May be useful for testing whether the dependency matrix is correct\&.
+.RE
+.PP
+rb4w
+.RS 4
+Use special heuristics to move read dependencies before write dependences\&. Often a win in symbolic state space generation\&.
+.RE
+.PP
+mm
+.RS 4
+Writes metrics of the selected (\fBsr\fR,
+\fBsw\fR,
+\fBsc\fR) matrix to stdout\&. The following metrics are printed:
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+Event span: the total distance between the minimum and maximum column of rows\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+Normalized event span: the event span divided by the size of the matrix (rows x columns)\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 3.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  3." 4.2
+.\}
+Weighted event span: the weighted event span, the event span, including a moment signifying the location of the span\&. See, Siminiceanu et al\&., we use moment 1\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 4.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  4." 4.2
+.\}
+Normalized weighted event span: the weighted event span divided by the size of the matrix (rows x column)\&.
+.RE
+.RE
+.PP
+sr
+.RS 4
+Select the read matrix for
+\fBcs\fR,
+\fBcsa\fR,
+\fBcw\fR,
+\fBca\fR,
+\fBrs\fR,
+\fBbcm\fR,
+\fBbs\fR,
+\fBbk\fR,
+\fBvcm\fR,
+\fBvacm\fR,
+\fBvgps\fR
+and
+\fBmm\fR\&.
+.RE
+.PP
+sw
+.RS 4
+Select the write matrix (default) for
+\fBcs\fR,
+\fBcsa\fR,
+\fBcw\fR,
+\fBca\fR,
+\fBrs\fR,
+\fBbcm\fR,
+\fBbs\fR,
+\fBbk\fR,
+\fBvcm\fR,
+\fBvacm\fR,
+\fBvgps\fR
+and
+\fBmm\fR\&. The write matrix is the default selection, because only write dependencies can create new nodes in decision diagrams\&. A bad variable order in the write matrix thus leads to a large number of peak nodes during reachability analysis\&. A bad variable order in the read matrix can also lead to a slow reachability analysis, but typically not as severe as a bad variable order in the write matrix\&. Slow reachability analysis due to a bad variable order in the read matrix causes many recursive calls to the relational product operation\&. Typically it is best that read dependencies are moved to the top DD level, thus left most in the read matrix\&.
+.RE
+.PP
+sc
+.RS 4
+Select the combined matrix for
+\fBcs\fR,
+\fBcsa\fR,
+\fBcw\fR,
+\fBca\fR,
+\fBrs\fR,
+\fBbcm\fR,
+\fBbs\fR,
+\fBbk\fR,
+\fBvcm\fR,
+\fBvacm\fR,
+\fBvgps\fR
+and
+\fBmm\fR\&. The combined matrix is the logical or of the read and write matrix\&.
+.RE
+.PP
+bg
+.RS 4
+Use a bipartite graph (default) for
+\fBbcm\fR,
+\fBbk\fR,
+\fBbs\fR,
+\fBvcm\fR,
+\fBvacm\fR
+and
+\fBvgps\fR\&.
+.RE
+.PP
+tg
+.RS 4
+Create a total graph of the bipartite graph for
+\fBbcm\fR,
+\fBbk\fR,
+\fBbs\fR,
+\fBvcm\fR,
+\fBvacm\fR
+and
+\fBvgps\fR\&. This adds more vertices and edges thus increasing computation time, but sometimes provides a better ordering\&.
+.RE
+.sp
+Below, the sparse matrix algorithms prefixed with
+\fBb\fR
+are only available when LTSmin is compiled with Boost\&. Algorithms prefixed with
+\fBv\fR
+are only available when LTSmin is compiled with ViennaCL\&.
+.PP
+bcm
+.RS 4
+Apply Boost\(cqs Cuthill\-McKee ordering\&.
+.RE
+.PP
+bk
+.RS 4
+Apply Boost\(cqs King ordering\&.
+.RE
+.PP
+bs
+.RS 4
+Apply Boost\(cqs Sloan ordering\&.
+.RE
+.PP
+vcm
+.RS 4
+Apply ViennaCL\(cqs Cuthill\-McKee ordering\&.
+.RE
+.PP
+vacm
+.RS 4
+Apply ViennaCL\(cqs advanced Cuthill\-McKee ordering\&.
+.RE
+.PP
+vgps
+.RS 4
+Apply ViennaCl\(cqs Gibbs\-Poole\-Stockmeyer ordering\&.
+.RE
+.PP
+f
+.RS 4
+Apply FORCE ordering\&.
+.RE
+.RE
+.PP
+\fB\-\-row\-perm\fR=\fIPERM\fR
+.RS 4
+Apply row permutation
+\fIPERM\fR, where
+\fIPERM\fR
+is a sequence of row numbers, separated by a comma\&. E\&.g\&. the vector 2,1,0 will swap row 2 with row 0\&.
+.RE
+.PP
+\fB\-\-col\-perm\fR=\fIPERM\fR
+.RS 4
+Apply column permutation
+\fIPERM\fR, where
+\fIPERM\fR
+is a sequence of column numbers, separated by a comma\&. E\&.g\&. the vector 2,1,0 will swap column 2 with column 0\&.
+.RE
+.PP
+\fB\-\-col\-ins\fR=\fIPAIRS\fR
+.RS 4
+Insert columns before other columns in the dependency matrix\&.
+.sp
+\fIPAIRS\fR
+is a comma\-separated sequence of pairs
+\fI<(C\&.C\fR,)+>\*(Aq\&. E\&.g\&.
+\fB\-\-col\-ins=1\&.0\fR
+will insert column
+\fB1\fR
+before column
+\fB0\fR\&. Each pair contains a source column
+\fBC\fR
+and a target column
+\fBC\*(Aq\fR\&. During the application of the whole sequence,
+\fBC\fR
+will always be the column number that corresponds with the column before the application of the whole sequence\&. The column number
+\fBC\*(Aq\fR
+will always be the column during the application of the whole sequence\&. This means that in for example
+\fB\-\-col\-ins=2\&.0,1\&.0\fR, first column
+\fB2\fR
+is inserted at position
+\fB0\fR, then column
+\fB1\fR
+is inserted at position
+\fB0\fR\&. The result will be that the original column
+\fB2\fR
+will be at position
+\fB1\fR\&. Another important detail is that when
+\fB\-\-col\-ins\fR
+is used, all source columns will temporarily be "removed" during reordering from the dependency matrix, i\&.e\&. when the
+\fB\-r\fR,\fB\-\-regroup\fR
+option is given\&. After reordering is done, the columns will be inserted at the desired target position\&. In other words, reordering algorithms given by the option
+\fB\-r\fR,\fB\-\-regroup\fR, will only be applied on the dependency matrix with source columns removed\&.
+.RE
+.PP
+\fB\-\-sloan\-w1\fR=\fIWEIGHT1\fR
+.RS 4
+Use
+\fIWEIGHT1\fR
+as the first weight for the Sloan algorithm, see
+\m[blue]\fBhttps://www\&.boost\&.org/doc/libs/1_66_0/libs/graph/doc/sloan_ordering\&.htm\fR\m[]\&.
+.RE
+.PP
+\fB\-\-sloan\-w2\fR=\fIWEIGHT2\fR
+.RS 4
+Use
+\fIWEIGHT2\fR
+as the second weight for the Sloan algorithm, see
+\m[blue]\fBhttps://www\&.boost\&.org/doc/libs/1_66_0/libs/graph/doc/sloan_ordering\&.htm\fR\m[]\&.
+.RE
+.PP
+\fB\-\-graph\-metrics\fR
+.RS 4
+Print Boost\(cqs and ViennaCL\(cqs graph metrics (only available when LTSmin is compiled with Boost or ViennaCL)\&.
+.RE
+.PP
+\fB\-\-regroup\-exit\fR
+.RS 4
+Exit with 0 when regrouping is done\&.
+.RE
+.PP
+\fB\-\-regroup\-time\fR
+.RS 4
+Print timing information of each transformation, given in sequence
+\fB\-\-regroup\fR
+(\fB\-r\fR)\&.
+.RE
+.PP
+\fB\-\-mucalc\fR=\fIFILE\fR|\fIFORMULA\fR
+.RS 4
+Compute a parity game for the mu\-calculus formula\&.
+.sp
+The mu\-calculus formula is provided in the file
+\fIFILE\fR
+or directly as a string
+\fIFORMULA\fR\&. The syntax and tool support are described in
+\fBltsmin-mucalc\fR(5)\&.
+.RE
+.PP
+\fB\-\-ltl\fR=\fILTLFILE|LTLFORMULA\fR
+.RS 4
+Compute cross\-product of a Buchi automaton and the specification
+.sp
+\fILTLFILE\fR
+is a file containing an Linear Temporal Logic formula (see
+\fBltsmin-ltl\fR(5))\&. Which content can also be provided directly as
+\fILTLFORMULA\fR\&. This formula will be converted to a Buchi automaton\&. Then the synchronous cross product with the original specification is computed on\-the\-fly\&. A state label is added to encode accepting states\&.
+.RE
+.PP
+\fB\-\-ltl\-semantics\fR=\fIspin|textbook|ltsmin\fR
+.RS 4
+Change the semantics of the crossproduct generated using
+\fI\-\-ltl\fR
+.sp
+Three options are available, the default is automatically chosen based on the atomic predicates in the formula\&.
+.PP
+spin
+.RS 4
+Use semantics equal to the spin model checker\&. From the
+\fIsource\fR
+state all transitions are generated\&. Then, state predicates are evaluated on the
+\fIsource\fR
+state\&. The Buchi automaton now moves according to these predicates\&. Deadlocks in the LTS cause the Buchi to progress independently\&. This option is incompatible with edge\-based atomic predicates\&. This option is the default if no edge\-based atomic predicates are found in the LTL formula\&.
+.RE
+.PP
+textbook
+.RS 4
+Use textbook semantics\&. A new initial state is generated with an outgoing transition to the initial state\&. Now, predicates are evaluated on the
+\fItarget\fR
+state and the Buchi automaton moves according to these predicates\&. Deadlocks in the LTS do NOT cause the Buchi to progress independently\&. This option is incompatible with edge\-based atomic predicates\&.
+.RE
+.PP
+ltsmin
+.RS 4
+Same as spin semantics, but now deadlocks in the LTS do NOT cause the Buchi to progress independently\&. This option is the default if edge\-based atomic predicates are found in the LTL formula\&.
+.RE
+.RE
+.PP
+\fB\-\-por\fR=\fIheur|del\fR
+.RS 4
+Activate partial\-order reduction
+.sp
+Partial\-Order Reduction (POR) can reduce the state space when searching for deadlocks (\-d) or accepting cycles (\-\-ltl)\&. Two POR algorithms are available:
+.PP
+heur
+.RS 4
+Uses a cost\-based heuristic beam\-search to find the smallest stubborn set
+.RE
+.PP
+del
+.RS 4
+Uses Valmari\(cqs deletion algorithm to find the smallest stubborn set by iteratively removing transitions while maintaining the constraints\&.
+.RE
+.RE
+.PP
+\fB\-\-weak\fR
+.RS 4
+Use weak commutativity in partial\-order reduction\&. Possibly yielding better reductions\&.
+.RE
+.PP
+\fB\-\-leap\fR
+.RS 4
+Use leaping partial\-order reduction, by combining several disjoint stubborn sets sequentially\&.
+.RE
+.SH "ENVIRONMENT VARIABLES"
+.sp
+LTSmin supports the following list of environment variables\&.
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.B Table\ \&1.\ \&Environment Variables:
+.TS
+allbox tab(:);
+ltB ltB ltB.
+T{
+Name
+T}:T{
+Unit
+T}:T{
+Description
+T}
+.T&
+lt lt lt
+lt lt lt.
+T{
+.sp
+LTSMIN_MEM_SIZE
+T}:T{
+.sp
+bytes
+T}:T{
+.sp
+Sets the amount of system memory to the given value\&.
+T}
+T{
+.sp
+LTSMIN_NUM_CPUS
+T}:T{
+.sp
+constant
+T}:T{
+.sp
+Sets the amount of CPUs to the given value\&.
+T}
+.TE
+.sp 1
+.sp
+The variables \fBLTSMIN_MEM_SIZE\fR, and \fBLTSMIN_NUM_CPUS\fR are particularly relevant when neither \fBsysconf(3)\fR nor \fBcgroups(7)\fR is able to properly detect these limits, e\&.g\&. when LTSmin runs on Travis CI in a docker container\&.
+.SS "Vector Set Options"
+.PP
+\fB\-\-vset\fR=\fITYPE\fR
+.RS 4
+Select type of vector set:
+\fIldd64\fR,
+\fIldd\fR,
+\fIlist\fR,
+\fItree\fR,
+\fIfdd\fR,
+\fIddd\fR,
+\fIsylvan\fR, or
+\fIlddmc\fR\&. With
+\fIldd64\fR, the 64\-bit ListDD list encoding is used (non\-ATerm based)\&. With
+\fIldd\fR, the 32\-bit ListDD list encoding is used (non\-ATerm based)\&. With
+\fIlist\fR, ATermDD with list encoding is used\&. With
+\fItree\fR, ATermDD with tree encoding is used\&. With
+\fIfdd\fR, BuDDy FDDs are used\&. With
+\fIddd\fR, libDDD SDDs are used\&. With
+\fIsylvan\fR, the parallel BDD package Sylvan is used\&. With
+\fIlddmc\fR, the parallel LDD package LDDmc is used\&. Defaults to first available type in the list\&.
+.RE
+.PP
+\fBvset\-cache\-diff\fR=\fIdiff\fR
+.RS 4
+Influences the size of operations cache when counting precisely with bignums: cache size = floor((2log(\fInodes\-to\-count\fR) + <diff>)^2)\&. More precisely; LTSmin will bitshift <diff> bits to the left or right on the number of nodes in the vector set, depending on the signedness of <diff>\&. The default is
+\fB0\fR, meaning that if the cache is full the number of bignums in memory will be equal to the number of nodes in the vector set\&. The default value seems to work well, even when the number vectors in the vector set is very large relative to the number of nodes\&. If the number of vectors relative to the number of nodes is lower, <diff> may be decreased\&. The user may want to set <diff> as low as possible (to save memory), while keeping the operations cache effective\&. Bignums are not floating point numbers and may thus consume a lot of memory\&.
+.RE
+.SS "ListDD Options"
+.PP
+\fB\-\-ldd32\-step\fR=\fISTEP\fR
+.RS 4
+The internal tables of ListDD resize according to the Fibonacci series\&. This option sets the initial size to the Fibonacci number
+\fISTEP\fR\&. Defaults to 30\&.
+.RE
+.PP
+\fB\-\-ldd32\-cache\fR=\fIDIFF\fR
+.RS 4
+Set Fibonacci difference
+\fIDIFF\fR
+between the cache and nodes (DIFF may be negative)\&. Defaults to 1\&.
+.RE
+.SS "ListDD Options"
+.PP
+\fB\-\-ldd\-step\fR=\fISTEP\fR
+.RS 4
+The internal tables of ListDD resize according to the Fibonacci series\&. This option sets the initial size to the Fibonacci number
+\fISTEP\fR\&. Defaults to 30\&.
+.RE
+.PP
+\fB\-\-ldd\-cache\fR=\fIDIFF\fR
+.RS 4
+Set Fibonacci difference
+\fIDIFF\fR
+between the cache and nodes (DIFF may be negative)\&. Defaults to 1\&.
+.RE
+.SS "BuDDy Options"
+.PP
+\fB\-\-cache\-ratio\fR=\fIRATIO\fR
+.RS 4
+Set cache ration\&. Defaults to 64\&.
+.RE
+.PP
+\fB\-\-max\-increase\fR=\fINUMBER\fR
+.RS 4
+Set maximum increase\&. Defaults to 1,000,000\&.
+.RE
+.PP
+\fB\-\-min\-free\-nodes\fR=\fIPERCENTAGE\fR
+.RS 4
+Sets the minimum percentage of free nodes as integer between 0 and 100\&. Defaults to 20\&.
+.RE
+.PP
+\fB\-\-fdd\-bits\fR=\fIBITS\fR
+.RS 4
+Sets the number of bits for each FDD variable\&. Defaults to 16\&.
+.RE
+.PP
+\fB\-\-fdd\-reorder\fR=\fISTRATEGY\fR
+.RS 4
+Sets the strategy for dynamic variable reordering\&. Valid options are
+\fInone\fR,
+\fIwin2\fR,
+\fIwin2ite\fR,
+\fIwin3\fR,
+\fIwin3ite\fR,
+\fIsift\fR,
+\fIsiftite\fR,
+\fIrandom\fR\&. Refer to the
+\m[blue]\fBBuDDy manual\fR\m[]\&\s-2\u[2]\d\s+2
+for details\&. Defaults to
+\fInone\fR\&.
+.RE
+.SS "Sylvan Options"
+.PP
+\fB\-\-sylvan\-threads\fR=\fINUMBER\fR
+.RS 4
+Set number of workers\&. Defaults to 1\&.
+.RE
+.sp
+*\-\-sylvan\-dqsize Sets the size of the (static) task queue for work stealing in Wool to N\&. Defaults to 100000\&.
+.PP
+\fB\-\-sylvan\-tablesize\fR=\fINUMBER\fR
+.RS 4
+Sets the size of the BDD table to 1<<N nodes\&. Defaults to 23\&. Maximum of 29\&.
+.RE
+.PP
+\fB\-\-sylvan\-cachesize\fR=\fINUMBER\fR
+.RS 4
+Set the size of the memoization table to 1<<N entries\&. Defaults to 23\&.
+.RE
+.PP
+\fB\-\-sylvan\-bits\fR=\fIBITS\fR
+.RS 4
+Sets the number of bits for each integer in the state vector\&. Defaults to 16\&.
+.RE
+.PP
+\fB\-\-sylvan\-granularity\fR=\fINUMBER\fR
+.RS 4
+Controls memoization table usage\&. Only use the memoization table every 1/N BDD levels\&. Defaults to 1, i\&.e\&., always use the table\&.
+.RE
+.SS "LDDmc Options"
+.PP
+\fB\-\-lddmc\-tablesize\fR=\fINUMBER\fR
+.RS 4
+Sets the size of the BDD table to 1<<N nodes\&. Defaults to 23\&. Maximum of 29\&.
+.RE
+.PP
+\fB\-\-lddmc\-cachesize\fR=\fINUMBER\fR
+.RS 4
+Set the size of the memoization table to 1<<N entries\&. Defaults to 23\&.
+.RE
+.SS "Lace Options"
+.PP
+\fB\-\-lace\-workers\fR=\fINUMBER\fR
+.RS 4
+Set number of Lace workers (threads for parallelization)\&. Defaults to the number of available cores if parallel algorithms are used, 1 otherwise\&.
+.RE
+.PP
+\fB\-\-lace\-dqsize\fR=\fINUMBER\fR
+.RS 4
+Set length of Lace task queue\&. Defaults to 40960000\&.
+.RE
+.PP
+\fB\-\-lace\-stacksize\fR=\fINUMBER\fR
+.RS 4
+Set size of program stack in kilo bytes\&. Defaults to 0, which means using the default stack size\&.
+.RE
+.SS "LTS I/O Options"
+.PP
+\fB\-\-block\-size\fR=\fIBYTES\fR
+.RS 4
+Size of a block in bytes\&. Defaults to 32,768\&.
+.RE
+.PP
+\fB\-\-cluster\-size\fR=\fIBLOCKS\fR
+.RS 4
+Number of blocks in a cluster\&. Defaults to 32\&.
+.RE
+.SS "Development Options"
+.PP
+\fB\-\-grey\fR
+.RS 4
+Make use of
+GetTransitionsLong
+calls\&.
+.sp
+A language module can have three next state calls:
+GetTransitionsAll,
+GetTransitionsLong
+and
+GetTransitionsShort\&. The first call is used by default, the second call is used when this flag is passed and the third form is used if
+\fB\-\-cache\fR
+is enabled\&. This allows all three calls in a language module to be tested\&.
+.RE
+.PP
+\fB\-\-write\-state\fR
+.RS 4
+Write the full state vector\&.
+.RE
+.SS "General Options"
+.PP
+\fB\-v\fR
+.RS 4
+Increase the level of verbosity
+.RE
+.PP
+\fB\-q\fR
+.RS 4
+Be quiet; do not print anything to the terminal\&.
+.RE
+.PP
+\fB\-\-debug=<file\&.c>\fR
+.RS 4
+Enable debugging output for file\&.c (option allowed multiple times)\&.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+Print version string of this tool\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print help text
+.RE
+.PP
+\fB\-\-usage\fR
+.RS 4
+Print short usage summary\&.
+.RE
+.SH "FILE FORMATS"
+.sp
+The following file formats are supported:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Directory format (\fI*\&.dir\fR,
+\fI*\&.dz\fR
+and
+\fI*\&.gcf\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Vector format (\fI*\&.dir\fR,
+\fI*\&.gcd\fR,
+\fI*\&.gcf\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Binary Coded Graphs (\fI*\&.bcg\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Aldebaran Format (\fI*\&.aut\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+FSM Format (\fI*\&.fsm\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+MRMC/Prism (\fI*\&.tra\fR+\fI*\&.lab\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+PGSolver format (\fI*\&.pg\fR)
+.RE
+.sp
+If a tool operates in streaming mode then support for file formats is limited, as can be seen in the following table:
+.TS
+allbox tab(:);
+ltB ltB ltB.
+T{
+Format
+T}:T{
+Streaming mode
+T}:T{
+Load/Store mode
+T}
+.T&
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt.
+T{
+.sp
+DIR
+T}:T{
+.sp
+R/W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+VEC
+T}:T{
+.sp
+R/W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+BCG
+T}:T{
+.sp
+W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+AUT
+T}:T{
+.sp
+W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+FSM
+T}:T{
+.sp
+W
+T}:T{
+.sp
+W
+T}
+T{
+.sp
+TRA
+T}:T{
+.sp
+\-
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+PG
+T}:T{
+.sp
+\-
+T}:T{
+.sp
+W
+T}
+.TE
+.sp 1
+.sp
+The directory format uses multiple files to store an LTS\&. The various extension explain how these files are stored in the underlying file system\&. The \fI*\&.dir\fR format uses multiple files in a directory without compression\&. If the LTS has one edge label, no state labels and does not store state vectors then these files are backwards compatible\&. Neither the \fI*\&.dz\fR nor the \fI*\&.gcf\fR formats are backwards compatible\&. Both formats use compression\&. The first uses a directory for the files, second interleaves files into a single file\&.
+.sp
+If you try to open a \fI*\&.dir\fR with the old mCRL tools and you get the error message:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+wrong file version: 0
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+then the directory is probably compressed\&. If that happens then you may convert the directory by typing the command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ltsmin\-convert bad\&.dir good\&.dir
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SH "LTL MODEL CHECKING"
+.sp
+LTL model checking requires a Buchi cross product with accepting states marked with accepting state labels, and a search strategy which takes these labels into account (see ndfs / scc strategies of the sequential and multi\-core tools)\&.
+.sp
+For generating a cross product, the following options are supported:
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+The input specification is already combined with a Buchi automaton, and states are appropriately marked with accepting labels\&. Currently two frontends support this functionality: SpinS (see documentation on
+prom
+tools), and DiVinE (see documentation on
+dve
+tools)\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+LTSmin tools can build the cross product of input specification and Buchi automaton (through a PINS2PINS layer enabled with the \-\-ltl option) themselves, and will annotate cross\-product states appropriately when they are accepting\&. See also
+\-\-labels
+option in the PINS tools\&.
+.RE
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+.sp
+Combination with the Partial Order Reduction PINS2PINS layer (\-\-por) requires the latter option\&.
+.sp .5v
+.RE
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+.sp
+As of LTSmin release 1\&.9, our default LTL semantics mimics those of SPIN/DiVinE\&. Before that, LTSmin implemented textbook semantics\&. See the documentation on the enumerative tools for more information\&.
+.sp .5v
+.RE
+.SH "EXIT STATUS"
+.PP
+\fB0\fR
+.RS 4
+Successful termination\&.
+.RE
+.PP
+\fB1\fR
+.RS 4
+Counter example found\&.
+.RE
+.PP
+\fB255\fR
+.RS 4
+Some error occurred\&.
+.RE
+.SH "SUPPORT"
+.sp
+Send questions, bug reports, comments and feature suggestions to the \m[blue]\fBLTSmin Support Team\fR\m[]\&\s-2\u[3]\d\s+2\&.
+.SH "SEE ALSO"
+.sp
+\fBltsmin\fR(7), \fBltsmin-convert\fR(1), \fBltsmin-printtrace\fR(1), \fBltsmin-ltl\fR(5), \fBltsmin-mucalc\fR(5), \fBetf\fR(5), \m[blue]\fBmuCRL\fR\m[]\&\s-2\u[4]\d\s+2, \m[blue]\fBmCRL2\fR\m[]\&\s-2\u[5]\d\s+2, \m[blue]\fBDiVinE 2\fR\m[]\&\s-2\u[6]\d\s+2, \m[blue]\fBprom\fR\m[]\&\s-2\u[7]\d\s+2, and \m[blue]\fBProB\fR\m[]\&\s-2\u[8]\d\s+2
+.SH "NOTES"
+.IP " 1." 4
+LTSmin website
+.RS 4
+\%http://fmt.cs.utwente.nl/tools/ltsmin/
+.RE
+.IP " 2." 4
+BuDDy manual
+.RS 4
+\%http://buddy.sourceforge.net/manual/group__reorder.html
+.RE
+.IP " 3." 4
+LTSmin Support Team
+.RS 4
+\%mailto:ltsmin-support@lists.utwente.nl
+.RE
+.IP " 4." 4
+muCRL
+.RS 4
+\%http://www.cwi.nl/~mcrl/
+.RE
+.IP " 5." 4
+mCRL2
+.RS 4
+\%http://www.mcrl2.org/
+.RE
+.IP " 6." 4
+DiVinE 2
+.RS 4
+\%http://divine.fi.muni.cz/
+.RE
+.IP " 7." 4
+prom
+.RS 4
+\%http://eprints.eemcs.utwente.nl/22042/
+.RE
+.IP " 8." 4
+ProB
+.RS 4
+\%https://www3.hhu.de/stups/prob/index.php/Main_Page
+.RE

@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+import sys
+import os
+
+from mpi4py import MPI
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+if __name__ != "__main__":
+    print "Error: should be run!"
+    sys.exit(1)
+
+#Slave process? {{{
+if rank != 0:
+    from opaal.distributed import MPINode
+    print "Slave", rank, "initing"
+    #wait for model and query
+    (model, query) = comm.bcast(None, root=0)
+
+    #start model checking
+    node = MPINode(model, query)
+    #Profiling?
+    if False:
+        import cProfile
+        cProfile.run('node.slave()', '/tmp/opaal_prof%d.txt' % (rank))
+    else:
+        node.slave()
+    sys.exit(0)
+#}}}
+
+import pyuppaal
+import gtk
+from opaal.model_parsers.pyuppaal import SuccessorGenerator, GoalChecker
+from opaal.gui.distributed import MasterGui
+
+def createOptionParser():
+    from optparse import OptionParser, OptionGroup
+    parser = OptionParser(usage="usage: %prog [options] [uppaalmodel.xml [query]]")
+    parser.add_option("-v", "--verbose",
+              action="store_true", dest="verbose", default=False,
+              help="Print warnings")
+    return parser
+
+parser = createOptionParser()
+(options, args) = parser.parse_args()
+
+if not len(args) in [0, 2]:
+    parser.error("incorrect number of arguments")
+
+if len(args) > 0:
+    model_filename = args[0]
+else:
+    model_filename = None
+
+if len(args) > 1:
+    query = args[1]
+else:
+    query = ""
+
+myGUI = MasterGui(model_filename, query)
+gtk.main()
+
+# vim:ts=4:sw=4:expandtab

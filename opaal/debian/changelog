@@ -1,0 +1,18 @@
+opaal (0.2) maverick; urgency=low
+
+  * New release, lattice stuff
+
+ -- Mads Chr. Olesen <mads@mchro.dk>  Mon, 03 Jan 2011 15:35:23 +0100
+
+opaal (0.1ubuntu1) karmic; urgency=low
+
+  * Add dependency on mpi4py
+  * Allow to run the gui without specifying a filename
+
+ -- Mads Chr. Olesen <mads@mchro.dk>  Tue, 16 Feb 2010 17:27:42 +0100
+
+opaal (0.1) karmic; urgency=low
+
+  * Initial release.
+
+ -- Mads Chr. Olesen <mads@mchro.dk>  Tue, 16 Feb 2010 12:45:13 +0100

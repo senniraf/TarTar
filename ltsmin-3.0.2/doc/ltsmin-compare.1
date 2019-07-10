@@ -1,0 +1,142 @@
+'\" t
+.\"     Title: ltsmin-compare
+.\"    Author: [FIXME: author] [see http://www.docbook.org/tdg5/en/html/author]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/17/2018
+.\"    Manual: LTSmin Manual
+.\"    Source: LTSmin 3.0.2
+.\"  Language: English
+.\"
+.TH "LTSMIN\-COMPARE" "1" "12/17/2018" "LTSmin 3\&.0\&.2" "LTSmin Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ltsmin-compare \- comparison of labelled transition systems modulo bisimulation
+.SH "SYNOPSIS"
+.sp
+ltsmin\-compare [OPTIONS] <input 1> <input 2>
+.SH "OPTIONS"
+.PP
+\fB\-s\fR, \fB\-\-strong\fR
+.RS 4
+Compare modulo strong bisimulation using the default implementation\&.
+.RE
+.PP
+\fB\-b\fR, \fB\-\-branching\fR
+.RS 4
+Compare modulo branching bisimulation using the default implementation\&.
+.RE
+.PP
+\fB\-l\fR, \fB\-\-lump\fR
+.RS 4
+Compare modulo CTMC lumping\&.
+.RE
+.PP
+\fB\-t\fR, \fB\-\-trace\fR
+.RS 4
+Compare the two LTSs modulo (optionally stuttering) trace equivalence\&. This happens in multiple steps\&. First, the LTSs are compared modulo strong bisimulation (or silent step bisimulation if the stutter option is given)\&. If the resulting LTSs are not equal, the LTSs are made deterministic and compared modulo strong bisimulation\&.
+.RE
+.PP
+\fB\-\-stutter\fR
+.RS 4
+Compare module stuttering during trace equivalence comparison\&.
+.RE
+.SS "LTS I/O Options"
+.PP
+\fB\-\-block\-size\fR=\fIBYTES\fR
+.RS 4
+Size of a block in bytes\&. Defaults to 32,768\&.
+.RE
+.PP
+\fB\-\-cluster\-size\fR=\fIBLOCKS\fR
+.RS 4
+Number of blocks in a cluster\&. Defaults to 32\&.
+.RE
+.SS "General Options"
+.PP
+\fB\-v\fR
+.RS 4
+Increase the level of verbosity
+.RE
+.PP
+\fB\-q\fR
+.RS 4
+Be quiet; do not print anything to the terminal\&.
+.RE
+.PP
+\fB\-\-debug=\fR\fB\fIfile\fR\fR
+.RS 4
+Enable debugging output for
+\fIfile\fR\&.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+Print version string of this tool\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print help text
+.RE
+.PP
+\fB\-\-usage\fR
+.RS 4
+Print short usage summary\&.
+.RE
+.PP
+\fB\-\-stats\fR
+.RS 4
+Enable statistics gathering/printing\&.
+.RE
+.PP
+\fB\-\-timeout=INT\fR
+.RS 4
+Terminate after the given amount of seconds\&.
+.RE
+.PP
+\fB\-\-where\fR
+.RS 4
+Include file and line number in debug messages\&.
+.RE
+.PP
+\fB\-\-when\fR
+.RS 4
+Include the wall time since program start in all messages\&.
+.RE
+.SH "EXIT STATUS"
+.PP
+0
+.RS 4
+Successful termination: LTSs are equivalent\&.
+.RE
+.PP
+1
+.RS 4
+LTSs are not equivalent\&.
+.RE
+.PP
+255
+.RS 4
+Some error occurred\&.
+.RE
+.SH "SEE ALSO"
+.sp
+\fBltsmin-reduce-dist\fR(1), \fBltsmin-reduce\fR(1)

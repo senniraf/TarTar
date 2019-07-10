@@ -1,0 +1,368 @@
+'\" t
+.\"     Title: ltsmin-convert
+.\"    Author: [FIXME: author] [see http://www.docbook.org/tdg5/en/html/author]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/17/2018
+.\"    Manual: LTSmin Manual
+.\"    Source: LTSmin 3.0.2
+.\"  Language: English
+.\"
+.TH "LTSMIN\-CONVERT" "1" "12/17/2018" "LTSmin 3\&.0\&.2" "LTSmin Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ltsmin-convert \- convert file formats for labelled transition systems\&.
+.SH "SYNOPSIS"
+.sp
+\fBltsmin\-convert\fR [OPTIONS]\&... \fIinput\fR \fIoutput\fR
+.SH "DESCRIPTION"
+.sp
+This tool copies \fIinput\fR to \fIoutput\fR and changes the archive format on\-the\-fly\&. Both input and output format are detected by pattern matching\&. See the File Formats section for details\&.
+.SH "OPTIONS"
+.PP
+\fB\-\-copy\fR
+.RS 4
+Perform a streaming copy from <input> to <output>\&.
+.RE
+.PP
+\fB\-\-rdwr\fR
+.RS 4
+Perform a load/store copy from <input> to <output>\&.
+.RE
+.PP
+\fB\-\-index\fR
+.RS 4
+Transform the vector based <input> to indexed <output>\&.
+.RE
+.PP
+\fB\-\-segments=\fR\fB\fIN\fR\fR
+.RS 4
+Set the number of segments in the output file\&. If the output format does not support segmentation (BCG) then the default is 1 and specifying any number other than 1 is an error\&. Otherwise, the default is the same number of segments as the input\&. Please note that the algorithm used for changing the number of segments is simple\&. It guarantees that the number of states in the output is balanced, but not much more\&. E\&.g\&., if the input is in BFS order and just one segment then then the output will still be in BFS order\&. However, if the input has more than one segment then BFS order is lost\&.
+.RE
+.PP
+\fB\-\-encode\fR
+.RS 4
+Encode any LTS as a single edge label LTS during a load/store copy\&.
+.RE
+.PP
+\fB\-\-bfs\fR
+.RS 4
+Change the indexing of the LTS to match BFS exploration order during a load/store copy\&. Note that the current version cannot reorder the LTS if it has state vectors\&.
+.RE
+.SS "LTS I/O Options"
+.PP
+\fB\-\-block\-size\fR=\fIBYTES\fR
+.RS 4
+Size of a block in bytes\&. Defaults to 32,768\&.
+.RE
+.PP
+\fB\-\-cluster\-size\fR=\fIBLOCKS\fR
+.RS 4
+Number of blocks in a cluster\&. Defaults to 32\&.
+.RE
+.SS "General Options"
+.PP
+\fB\-v\fR
+.RS 4
+Increase the level of verbosity
+.RE
+.PP
+\fB\-q\fR
+.RS 4
+Be quiet; do not print anything to the terminal\&.
+.RE
+.PP
+\fB\-\-debug=\fR\fB\fIfile\fR\fR
+.RS 4
+Enable debugging output for
+\fIfile\fR\&.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+Print version string of this tool\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print help text
+.RE
+.PP
+\fB\-\-usage\fR
+.RS 4
+Print short usage summary\&.
+.RE
+.PP
+\fB\-\-stats\fR
+.RS 4
+Enable statistics gathering/printing\&.
+.RE
+.PP
+\fB\-\-timeout=INT\fR
+.RS 4
+Terminate after the given amount of seconds\&.
+.RE
+.PP
+\fB\-\-where\fR
+.RS 4
+Include file and line number in debug messages\&.
+.RE
+.PP
+\fB\-\-when\fR
+.RS 4
+Include the wall time since program start in all messages\&.
+.RE
+.SH "FILE FORMATS"
+.sp
+The following file formats are supported:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Directory format (\fI*\&.dir\fR,
+\fI*\&.dz\fR
+and
+\fI*\&.gcf\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Vector format (\fI*\&.dir\fR,
+\fI*\&.gcd\fR,
+\fI*\&.gcf\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Binary Coded Graphs (\fI*\&.bcg\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Aldebaran Format (\fI*\&.aut\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+FSM Format (\fI*\&.fsm\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+MRMC/Prism (\fI*\&.tra\fR+\fI*\&.lab\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+PGSolver format (\fI*\&.pg\fR)
+.RE
+.sp
+If a tool operates in streaming mode then support for file formats is limited, as can be seen in the following table:
+.TS
+allbox tab(:);
+ltB ltB ltB.
+T{
+Format
+T}:T{
+Streaming mode
+T}:T{
+Load/Store mode
+T}
+.T&
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt.
+T{
+.sp
+DIR
+T}:T{
+.sp
+R/W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+VEC
+T}:T{
+.sp
+R/W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+BCG
+T}:T{
+.sp
+W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+AUT
+T}:T{
+.sp
+W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+FSM
+T}:T{
+.sp
+W
+T}:T{
+.sp
+W
+T}
+T{
+.sp
+TRA
+T}:T{
+.sp
+\-
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+PG
+T}:T{
+.sp
+\-
+T}:T{
+.sp
+W
+T}
+.TE
+.sp 1
+.sp
+The directory format uses multiple files to store an LTS\&. The various extension explain how these files are stored in the underlying file system\&. The \fI*\&.dir\fR format uses multiple files in a directory without compression\&. If the LTS has one edge label, no state labels and does not store state vectors then these files are backwards compatible\&. Neither the \fI*\&.dz\fR nor the \fI*\&.gcf\fR formats are backwards compatible\&. Both formats use compression\&. The first uses a directory for the files, second interleaves files into a single file\&.
+.sp
+If you try to open a \fI*\&.dir\fR with the old mCRL tools and you get the error message:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+wrong file version: 0
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+then the directory is probably compressed\&. If that happens then you may convert the directory by typing the command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ltsmin\-convert bad\&.dir good\&.dir
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SH "EXIT STATUS"
+.PP
+\fB0\fR
+.RS 4
+Successful termination\&.
+.RE
+.PP
+\fB255\fR
+.RS 4
+Some error occurred\&. == SEE ALSO
+\fBltsmin\fR(7),
+\fBltsmin-compare\fR(1),
+\fBltsmin-reduce\fR(1),
+\fBltsmin-reduce-dist\fR(1),
+\fBlpo2lts-dist\fR(1),
+\fBlpo2lts-mc\fR(1),
+\fBlpo2lts-seq\fR(1),
+\fBlpo2lts-sym\fR(1),
+\m[blue]\fBCADP\fR\m[]\&\s-2\u[1]\d\s+2,
+\m[blue]\fBBCG\fR\m[]\&\s-2\u[2]\d\s+2
+.RE
+.SH "NOTES"
+.IP " 1." 4
+CADP
+.RS 4
+\%http://www.inrialpes.fr/vasy/cadp/
+.RE
+.IP " 2." 4
+BCG
+.RS 4
+\%http://www.inrialpes.fr/vasy/cadp/man/bcg.html
+.RE

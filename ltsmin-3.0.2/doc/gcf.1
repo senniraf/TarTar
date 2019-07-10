@@ -1,0 +1,253 @@
+'\" t
+.\"     Title: gcf
+.\"    Author: [FIXME: author] [see http://www.docbook.org/tdg5/en/html/author]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/17/2018
+.\"    Manual: LTSmin Manual
+.\"    Source: LTSmin 3.0.2
+.\"  Language: English
+.\"
+.TH "GCF" "1" "12/17/2018" "LTSmin 3\&.0\&.2" "LTSmin Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+gcf \- Build and extract GCF archives\&.
+.SH "SYNOPSIS"
+.sp
+gcf \-\-create <gcf> [input1 [input2 [\&...]]]
+.sp
+gcf \-\-extract <gcf> [\-\-output=<dir>] \&...
+.sp
+gcf \-\-list <gcf>
+.sp
+gcf \-\-copy <gcf_source> <gcf_target>
+.sp
+gcf \-\-compress (<file>|<dir>)*
+.sp
+gcf \-\-decompress (<file>|<dir>)*
+.sp
+gcf \-\-to\-zip <gcf_source> <zip_target>
+.sp
+gcf \-\-from\-zip <zip_source> <gcf_target>
+.SH "DESCRIPTION"
+.sp
+This tool can build a GCF archive from a given list of files and files within given directories\&. It can extract the files from a GCF archive and write them to a directory or to a set of files given by a pattern\&.
+.sp
+A GCF archive provides interleaved storage of multiple large files within one very large file\&. The GCF file structure was designed with distributed file systems and distributed applications in mind\&. The key points of the structure are that a GCF file contains one or more clusters and each of those clusters contains 2 or more blocks\&. One block in each cluster is reserved for meta data\&.
+.SH "OPERATIONS"
+.PP
+\fB\-\-create\fR
+.RS 4
+Create a GCF archive in a file\&. This is the default\&.
+.RE
+.PP
+\fB\-x\fR, \fB\-\-extract\fR
+.RS 4
+Extract files from GCF archive\&. By default files are extracted into the working directory\&. This behaviour can be changed with the
+\fB\-\-output\fR
+option\&. When no additional arguments are given, all fields are extracted\&. If additional arguments are given only files matching one of the arguments are extracted\&.
+.RE
+.PP
+\fB\-l\fR, \fB\-\-list\fR
+.RS 4
+List the files contained within the archive\&.
+.RE
+.PP
+\fB\-\-copy\fR
+.RS 4
+Create a new archive by copying the contents of an existing archive\&. This is useful to change the compression policy for an archive\&.
+.RE
+.PP
+\fB\-c\fR, \fB\-\-compress\fR
+.RS 4
+For every argument
+name
+that is a file, the file is compressed according to the policy and written as
+name\&.gzf\&. For every argument
+name
+that is a directory, the contents are compressed into the GCF archive
+name\&.gcf\&.
+.RE
+.PP
+\fB\-d\fR, \fB\-\-decompress\fR
+.RS 4
+Reverse operation of
+\fB\-\-compress\fR\&.
+.RE
+.PP
+\fB\-\-to\-zip\fR
+.RS 4
+Copy the contents of the GCF archive to a ZIP archive\&.
+.RE
+.PP
+\fB\-\-from\-zip\fR
+.RS 4
+Copy the contents of the ZIP archive to a GCF archive\&.
+.RE
+.SH "OPTIONS"
+.PP
+\fB\-f\fR, \fB\-\-force\fR
+.RS 4
+By default extraction to a directory fails is a file or directory already exists\&. If this flag is used any existing file or directory is removed\&.
+.RE
+.PP
+\fB\-\-block\-size\fR=\fIBYTES\fR
+.RS 4
+Size of a block in bytes\&. Defaults to 32,768\&.
+.RE
+.PP
+\fB\-\-cluster\-size\fR=\fIBLOCKS\fR
+.RS 4
+Number of blocks in a cluster\&. Defaults to 32\&.
+.RE
+.PP
+\fB\-z\fR, \fB\-\-compression\fR=\fI<policy>\fR
+.RS 4
+Set the compression policy used in the archive\&. The default is to apply gzip to every file\&. On specifying compression policies, see below\&.
+.RE
+.PP
+\fB\-o\fR, \fB\-\-output\fR=\fISTRING\fR
+.RS 4
+Specify the directory into which the
+\fB\-\-extract\fR
+should write the extracted files\&.
+.RE
+.PP
+\fB\-\-zip\-code\fR=\fI<policy>\fR
+.RS 4
+Set the compression policy used for ZIP archives\&. The default is no encoding\&. On specifying compression policies, see below\&.
+.RE
+.SS "General Options"
+.PP
+\fB\-v\fR
+.RS 4
+Increase the level of verbosity
+.RE
+.PP
+\fB\-q\fR
+.RS 4
+Be quiet; do not print anything to the terminal\&.
+.RE
+.PP
+\fB\-\-debug=<file\&.c>\fR
+.RS 4
+Enable debugging output for file\&.c (option allowed multiple times)\&.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+Print version string of this tool\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print help text
+.RE
+.PP
+\fB\-\-usage\fR
+.RS 4
+Print short usage summary\&.
+.RE
+.SH "COMPRESSION POLICIES"
+.sp
+The grammer for compression policies is:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+<policy>      ::= ( <pattern> ":" <compression> ";" ) *  <compression>
+<pattern>     ::= \*(Aqshell wildcard pattern\*(Aq
+<compression> ::= "" | "none" | (<filter> "|") * <filter>
+<filter>      ::= "diff32" | ("gzip" [("1"|\&.\&.\&.|"9")])
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+The list of <pattern>":"<compression> pairs are rules that specify specific compression methods for files matching certain patterns\&. The final <compression> is the default\&.
+.sp
+A compression method is built from zero or more filters\&. The empty sequence can be denoted with an emtpy string or with the word none\&. Known compression filters are
+.PP
+diff32
+.RS 4
+Difference ecoding on 32 bit integers\&.
+.RE
+.PP
+gzip[level]
+.RS 4
+Standard gzip compression with an optional level\&.
+.RE
+.sp
+When compressing labeled transition systems that were obtained using BFS exploration order, it is a good idea to apply difference encoding to state numbers before compression them\&. This leads to a default compression strategy of
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+src*:diff32|gzip;dest*:diff32|gzip;gzip
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+For the legacy directory format and
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+*ofs:diff32|gzip;gzip
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+For the state label extended directory format\&.
+.SH "EXAMPLE"
+.sp
+Given a GCF archive \fIgenerated\&.gcf\fR that contains an LTS, we can extract a dir as follows:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+gcf \-x generated\&.gcf generated\&.dir
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+The inverse (transforming \fIgenerated\&.dir\fR to \fIgenerated\&.gcf\fR) is also possible, but it is better to use \fBltsmin-convert\fR(1) for this task because the best compression is achieved by applying different compressions to different files, which cannot be specified with \fI\-z\fR\&.
+.SH "EXIT STATUS"
+.PP
+0
+.RS 4
+Successful termination\&.
+.RE
+.PP
+>0
+.RS 4
+Some error occurred\&.
+.RE

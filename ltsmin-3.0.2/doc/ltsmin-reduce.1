@@ -1,0 +1,148 @@
+'\" t
+.\"     Title: ltsmin-reduce
+.\"    Author: [FIXME: author] [see http://www.docbook.org/tdg5/en/html/author]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/17/2018
+.\"    Manual: LTSmin Manual
+.\"    Source: LTSmin 3.0.2
+.\"  Language: English
+.\"
+.TH "LTSMIN\-REDUCE" "1" "12/17/2018" "LTSmin 3\&.0\&.2" "LTSmin Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ltsmin-reduce \- sequential reduction of labelled transition systems modulo bisimulation
+.SH "SYNOPSIS"
+.sp
+ltsmin\-reduce [OPTIONS] <input> [<output>]
+.SH "OPTIONS"
+.PP
+\fB\-s\fR, \fB\-\-strong\fR
+.RS 4
+Minimize modulo strong bisimulation using the default implementation\&.
+.RE
+.PP
+\fB\-b\fR, \fB\-\-branching\fR
+.RS 4
+Minimize modulo branching bisimulation using the default implementation\&.
+.RE
+.PP
+\fB\-\-divergence\fR
+.RS 4
+When used in combination with branching bisimulation, the result is divergence preserving branching bisimulation\&.
+.RE
+.PP
+\fB\-c\fR, \fB\-\-copy\fR
+.RS 4
+Perform a load/store copy\&.
+.RE
+.PP
+\fB\-l\fR, \fB\-\-lump\fR
+.RS 4
+Minimize modulo CTMC lumping\&.
+.RE
+.PP
+\fB\-\-silent\fR
+.RS 4
+Minimize modulo silent step bisimulation\&. This bisimulation is a generalization of tau * a bisimulation to arbitrary LTSs\&.
+.RE
+.PP
+\fB\-\-cycle\fR
+.RS 4
+Minimize the lts modulo strongly connected components of silent steps\&.
+.RE
+.PP
+\fB\-\-determinize\fR
+.RS 4
+Compute a deterministic version of the given LTS\&.
+.RE
+.PP
+\fB\-\-segments=\fR\fB\fIN\fR\fR
+.RS 4
+Use
+\fIN\fR
+segments in the output file\&.
+.RE
+.SS "LTS I/O Options"
+.PP
+\fB\-\-block\-size\fR=\fIBYTES\fR
+.RS 4
+Size of a block in bytes\&. Defaults to 32,768\&.
+.RE
+.PP
+\fB\-\-cluster\-size\fR=\fIBLOCKS\fR
+.RS 4
+Number of blocks in a cluster\&. Defaults to 32\&.
+.RE
+.SS "General Options"
+.PP
+\fB\-v\fR
+.RS 4
+Increase the level of verbosity
+.RE
+.PP
+\fB\-q\fR
+.RS 4
+Be quiet; do not print anything to the terminal\&.
+.RE
+.PP
+\fB\-\-debug=\fR\fB\fIfile\fR\fR
+.RS 4
+Enable debugging output for
+\fIfile\fR\&.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+Print version string of this tool\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print help text
+.RE
+.PP
+\fB\-\-usage\fR
+.RS 4
+Print short usage summary\&.
+.RE
+.PP
+\fB\-\-stats\fR
+.RS 4
+Enable statistics gathering/printing\&.
+.RE
+.PP
+\fB\-\-timeout=INT\fR
+.RS 4
+Terminate after the given amount of seconds\&.
+.RE
+.PP
+\fB\-\-where\fR
+.RS 4
+Include file and line number in debug messages\&.
+.RE
+.PP
+\fB\-\-when\fR
+.RS 4
+Include the wall time since program start in all messages\&.
+.RE
+.SH "SEE ALSO"
+.sp
+\fBltsmin-compare\fR(1), \fBltsmin-reduce-dist\fR(1)

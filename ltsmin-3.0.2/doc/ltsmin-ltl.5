@@ -1,0 +1,230 @@
+'\" t
+.\"     Title: ltsmin-ltl
+.\"    Author: [FIXME: author] [see http://www.docbook.org/tdg5/en/html/author]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/17/2018
+.\"    Manual: LTSmin Manual
+.\"    Source: LTSmin 3.0.2
+.\"  Language: English
+.\"
+.TH "LTSMIN\-LTL" "5" "12/17/2018" "LTSmin 3\&.0\&.2" "LTSmin Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ltsmin-ltl \- Linear Temporal Logic
+.SH "SYNOPSIS"
+.sp
+LTSmin syntax for Linear Temporal Logic formulas
+.SH "DESCRIPTION"
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.B Table\ \&1.\ \&LTL operators and priority
+.TS
+allbox tab(:);
+ltB ltB ltB.
+T{
+Priority
+T}:T{
+Operator
+T}:T{
+Meaning
+T}
+.T&
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt.
+T{
+.sp
+0
+T}:T{
+.sp
+true
+T}:T{
+.sp
+constant true
+T}
+T{
+.sp
+0
+T}:T{
+.sp
+false
+T}:T{
+.sp
+constant false
+T}
+T{
+.sp
+1
+T}:T{
+.sp
+==
+T}:T{
+.sp
+test operator (\fIstate variable name\fR==\fInumber\fR)
+T}
+T{
+.sp
+2
+T}:T{
+.sp
+!
+T}:T{
+.sp
+Logical negation
+T}
+T{
+.sp
+3
+T}:T{
+.sp
+[]
+T}:T{
+.sp
+Globally (Always) operator
+T}
+T{
+.sp
+3
+T}:T{
+.sp
+<>
+T}:T{
+.sp
+Finally (Eventually) operator
+T}
+T{
+.sp
+3
+T}:T{
+.sp
+X
+T}:T{
+.sp
+neXt operator
+T}
+T{
+.sp
+4
+T}:T{
+.sp
+&&
+T}:T{
+.sp
+Logical and
+T}
+T{
+.sp
+5
+T}:T{
+.sp
+||
+T}:T{
+.sp
+Logical or
+T}
+T{
+.sp
+6
+T}:T{
+.sp
+<\->
+T}:T{
+.sp
+Logical equivalence
+T}
+T{
+.sp
+7
+T}:T{
+.sp
+\->
+T}:T{
+.sp
+Logical implication
+T}
+T{
+.sp
+8
+T}:T{
+.sp
+U
+T}:T{
+.sp
+Until operator
+T}
+T{
+.sp
+8
+T}:T{
+.sp
+R
+T}:T{
+.sp
+Release operator
+T}
+.TE
+.sp 1
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBCaution\fR
+.ps -1
+.br
+.sp
+Using the letters X,U or R as state label name might confuse the parser\&.
+.sp .5v
+.RE
+.SH "EXAMPLE"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+! ([] ( (phil_0 == 1) \-> <> phil_0 == 2) )
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+For variable naming consult the \-\-labels option in the PINS tools\&.
+.SH "SEE ALSO"
+.sp
+\fBltsmin\fR(7), \fBdve2lts-seq\fR(1), \fBdve2lts-mc\fR(1), \fBetf2lts-seq\fR(1), \fBetf2lts-mc\fR(1), \fBprom2lts-seq\fR(1), \fBprom2lts-mc\fR(1) \fBltsmin-type-system\fR(5)

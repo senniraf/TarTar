@@ -1,0 +1,1225 @@
+'\" t
+.\"     Title: prom2lts-mc
+.\"    Author: [FIXME: author] [see http://www.docbook.org/tdg5/en/html/author]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/17/2018
+.\"    Manual: LTSmin Manual
+.\"    Source: LTSmin 3.0.2
+.\"  Language: English
+.\"
+.TH "PROM2LTS\-MC" "1" "12/17/2018" "LTSmin 3\&.0\&.2" "LTSmin Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+prom2lts-mc \- Concurrent state space generator for SpinS models\&.
+.SH "SYNOPSIS"
+.sp
+\fBprom2lts\-mc\fR [OPTION]\&... \fIinput\&.prom\fR
+.SH "DESCRIPTION"
+.sp
+prom2lts\-mc performs multi\-core reachability and LTL model checking on the labelled transition system from a compiled specification provided in \fIinput\&.prom\fR or \fIinput\&.prom\&.spins\fR\&. LTS output is not supported by this tool, use the distributed tools instead\&.
+.SH "SPINS"
+.sp
+Use SpinS (distributed as submodule LTSmin) to compile PROMELA model \fIleader\&.pm\fR to \fIleader\&.pm\&.spins\fR:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+spins \-o3 leader\&.pm
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+The optional flag \-o3 turns off control flow optimizations\&.
+.sp
+On the resulting compiled SpinS module, all SpinS\-related LTSmin tools can be used:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+prom2lts\-sym \-rgs \-\-order=chain leader\&.pm\&.spins leader\&.etf
+prom2lts\-mc \-\-assert \-prr \-\-threads=16 leader\&.pm\&.spins
+prom2lts\-seq \-\-por \-d \-\-trace=t\&.gcf leader\&.pm\&.spins
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+These three examples perform: full symbolic reachability with chaining order (\-\-order) and reordering (\-rgs) storing the state space in ETF format, doing a randomized (\-prr) parallel (\-\-threads) search for assertion violations (\-\-assert) in the model, and searching for deadlocks (\-d) storing the first counter example in \fIt\&.gcf\fR (\-\-trace)\&.
+.sp
+If a never claim is present in the model, a Buchi automaton is created\&. LTSmin can directly perform LTL model checking on such models:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+prom2lts\-mc \-\-strategy=cndfs \-\-threads=16 leader\-never\&.pm\&.spins
+prom2lts\-seq \-\-por \-\-proviso=color \-\-strategy=scc leader\-never\&.pm\&.spins
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+These two examples perform LTL model checking using: multi\-core NDFS (cndfs), and a sequential SCC\-based algorithm with partial order reduction (\-\-por and \-\-proviso, where different provisos are available)\&. Again one can provide additional options to store traces, etc\&.
+.sp
+See the man pages of the respective tools for further options\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+.sp
+SpinS is an adaptation of the SpinJa model checker, which generates C code implementing the PINS interface instead of Java code\&.
+.sp .5v
+.RE
+.SH "OPTIONS"
+.PP
+\fB\-\-threads\fR=\fINUMBER\fR
+.RS 4
+Number of threads to use for state space exploration (default: NUMBER=NUM_CORES)\&. Maximum is 64\&.
+.RE
+.PP
+\fB\-\-strategy\fR=\fITYPE\fR
+.RS 4
+Select an exploration strategy\&. Two kinds of algorithms are available: LTL model checking and reachability\&. The multi\-core LTL algorithms (Nested DFS) are implemented in a swarmed fashion, however with a shared state storage\&. On top of that, MCNDFS and ENDFS offer work sharing between threads and can deliver speedups for some models\&. Note that the LTL algorithms require buchi automata as input\&. Such a model can be provided directly by the language frontend, i\&.e\&., DiVinE property models are supported, or by the LTL layer (see \-\-ltl)\&. Note finally that strict reachability exploration orders are not guaranteed by all multi\-core search strategies\&.
+\fITYPE\fR
+can be one of the following options:
+.PP
+bfs
+.RS 4
+explore state space in breadth\-first order (default)\&.
+.RE
+.PP
+sbfs
+.RS 4
+explore state space in strict breadth\-first order (default)\&.
+.RE
+.PP
+dfs
+.RS 4
+explore state space in relaxed depth\-first order\&. Relaxed meaning that the inclusion check on the set of visited states is executed immediately after generating a state\&. This saves stack space and improves performance of the parallel reachability analysis\&.
+.RE
+.PP
+ndfs
+.RS 4
+multi\-core swarmed Nested Depth\-First Search (Courcoubetis et al\&.)\&.
+.RE
+.PP
+nndfs
+.RS 4
+multi\-core swarmed New Nested Depth\-First Search (Schwoon, Esparza)\&.
+.RE
+.PP
+ldfs
+.RS 4
+Multi\-Core Nested Depth\-First Search (Laarman, Langerak, van de Pol, Weber, Wijs)\&.
+.RE
+.PP
+endfs
+.RS 4
+Multi\-Core Nested Depth\-First Search by Evangelista et al\&. The algorithm has been adapted with the cyan color encoding and early cycle detection, as described in "Variations on Multi\-Core Nested Depth\-First Search" (Laarman, van de Pol)\&. Note that ENDFS requires a repair procedure, NNDFS is chosen by default\&. Alternatives can be chosen by providing a list of strategies, for example: "endfs,mcndfs", yields the NMC\-NDFS algorithm as described in the Variations paper (with load balancing)\&. Finally, we also allow multiple levels of ENDFS to be combined: "endfs,endfs,nndfs"\&.
+.RE
+.PP
+cndfs
+.RS 4
+New CNDFS algorithm\&. Multi\-Core Nested Depth\-First Search (Evangelista, Laarman, Petrucci, van de Pol)\&.
+.RE
+.PP
+tarjan
+.RS 4
+Tarjan\(cqs sequential SCC algorithm\&. Depth\-First Search and Linear Graph Algorithms (Tarjan)\&.
+.RE
+.PP
+renault
+.RS 4
+Renault\(cqs SCC algorithm\&. Parallel Explicit Model Checking for Generalized B\(:uchi Automata (Renault et al\&.)\&.
+.RE
+.PP
+ufscc
+.RS 4
+The UFSCC SCC algorithm\&. Multi\-Core On\-The\-Fly SCC Decomposition (Bloemen, Laarman, van de Pol)\&.
+.RE
+.PP
+dfsfifo
+.RS 4
+DFS\-FIFO detect non\-progress cycles if the front\-end provides a progress state or transitions label\&. Additionally, it verifies weak LTL properties with superior scalability to the *NDFS algorithms\&. LTSmin automatically identifies weak LTL formulae when provided with a property (via the \-\-ltl option)\&.
+.RE
+.RE
+.PP
+\fB\-\-perm\fR=\fITYPE\fR
+.RS 4
+Select the transition permutation, which is used to guide different threads to different parts of the state space\&. A good permutation can significantly speed up bug hunting\&.
+\fITYPE\fR
+can be one of the following options, each has different properties in terms of performance and effectiveness summarized as (perf\&./eff\&.) :
+.PP
+dynamic
+.RS 4
+use "fresh successor heuristics" described in "Variations on Multi\-Core Nested Depth\-First Search" (Laarman, van de Pol)\&. (decent/very good for bug hunting)\&. Default for LTL\&.
+.RE
+.PP
+sort
+.RS 4
+sort on the unique id of the successor state (decent/good)
+.RE
+.PP
+random
+.RS 4
+use multiple fixed random permutation schemes per worker (decent/good)\&.
+.RE
+.PP
+rr
+.RS 4
+randomized using a full random sort order on the states\&. This is more random than the previous option, but requires more pre\-computation time for the random array (decent/almost perfect)\&.
+.RE
+.PP
+shift
+.RS 4
+shift the order of transitions by a fixed value per worker (fast/decent)\&.
+.RE
+.PP
+otf
+.RS 4
+sort according to a dynamic permutation scheme (slow/perfect)\&.
+.RE
+.PP
+none
+.RS 4
+use the same exploration order for all workers\&. Default for reachability\&.
+.RE
+.RE
+.PP
+\fB\-\-state\fR=\fITYPE\fR
+.RS 4
+Select type of data structure for storing visited states\&.
+\fITYPE\fR
+can be one of the following options:
+.PP
+table
+.RS 4
+use a lockless hash table\&.
+.RE
+.PP
+tree
+.RS 4
+use a lockless tree\-compressed table\&. In many cases the tree can compress states to two integers regardless of their length\&. To efficiently accommodate more than 4*10^9 states, the table is split in a root and a leaf table whose respective size can be adjusted using the \-\-ratio option (default)\&.
+.RE
+.PP
+cleary\-tree
+.RS 4
+use a lockless tree\-compressed hash table with a parallel Cleary table to store roots\&. The compressed size of a state can approach one integer with this approach\&. The leafs table is stored as a standard tree table (two integers per subtree), which typically can be much smaller (up to the square root of the root table size)\&. To control the respective size of the leaf table use the \-\-ratio option\&.
+.RE
+.RE
+.PP
+\fB\-\-ratio\fR=\fINUMBER\fR
+.RS 4
+Log_2 ratio between root and leaf table in tree compression\&. The ratio can theoretically be as low as the square root of the root table size (see \-\-size)\&. This will however only work if the state vectors are perfectly combinatorial wrt their variable values\&. In most cases the leaf table will grow larger, but find found that a factor four (\-\-ratio=2) works well for over 75% of the BEEM models\&. (default: NUMBER=2)\&.
+.RE
+.PP
+\fB\-\-size\fR=\fINUMBER\fR
+.RS 4
+Log_2 hash table size in elements (default: NUMBER=24)\&. This is also used for the internal node table of the tree\&.
+.RE
+.PP
+\fB\-\-zobrist\fR=\fINUMBER\fR
+.RS 4
+Save time by using zobrist incremental state hashing\&. NUMBER defines the (log_2) size of the random number table (default: 0=OFF)\&. Large tables mean better hash distributions, but more cache misses due to memory size\&. Experiments have shown that small tables (2^6) suffice for good distributions (equal or better than Jenkin\(cqs hash)\&. Improvements are only noticable for fast state generators, like DiVinE 2\&.2 (\fBdve22lts-mc\fR(1))\&.
+.RE
+.PP
+\fB\-\-max\fR=\fINUMBER\fR
+.RS 4
+Maximum search depth\&.
+.RE
+.PP
+\fB\-\-progress\-states\fR
+.RS 4
+Forcess DFS\-FIFO to use progress state labels, even if progress transition labels are present\&.
+.RE
+.PP
+\fB\-\-strict\fR
+.RS 4
+Forces DFS\-FIFO to use strict BFS ordering for finding shorter lassos\&.
+.RE
+.PP
+\fB\-\-proviso\fR=\fIPROVISO\fR
+.RS 4
+Change the proviso implementation for partial order reduction in presence of safety properties or liveness properties\&. Parallel LTL is only supported with the cndfs proviso in the cndfs search strategy\&. Sequentially, LTL is also supported with the stack proviso in the ndfs search strategy\&. PROVISO can be either:
+.PP
+force\-none
+.RS 4
+Disables the ignoring proviso check (only useful for benchmarking or bug hunting)\&.
+.RE
+.PP
+closed\-set
+.RS 4
+The closed set proviso is the default proviso which requires almost no extra work/memory\&. It might however result in less reduction than the
+\fIstack\fR
+proviso\&. It works with both the dfs and (p/s)bfs exploration strategies\&.
+.RE
+.PP
+stack
+.RS 4
+The stack proviso is the proviso used for example by the spin model checker\&. It requires some extra work/memory but may result in a better reduction than
+\fIclosedset\fR\&. It works only for a dfs or ndfs search strategy (for resp\&. safety or LTL properties)\&.
+.RE
+.PP
+cndfs
+.RS 4
+A special parallel cycle proviso is used to enable POR with multi\-core LTL model checking using the cndfs search strategy\&.
+.RE
+.RE
+.PP
+\fB\-n\fR, \fB\-\-no\-exit\fR
+.RS 4
+Do not exit when an error is found\&. Just count errors\&. Error counts are printed with
+\-v\&.
+.RE
+.PP
+\fB\-d\fR, \fB\-\-deadlock\fR
+.RS 4
+Find state with no outgoing transitions\&. Returns with exit code 1 if a deadlock is found, 0 or 255 (error) otherwise\&.
+.RE
+.PP
+\fB\-i\fR, \fB\-\-invariant\fR=\fIPREDFILE|PREDEXPRESSION\fR
+.RS 4
+Find state where the invariant is violated\&. The file
+\fIPREDFILE\fR
+contains an expression in a simple predicate language (see
+\fBltsmin-pred\fR(5))\&. Its contents can also be entered directly as a
+\fIPREDEXPRESSION\fR\&. Returns with exit code 1 if a violation is found, 0 or 255 (error) otherwise\&.
+.RE
+.PP
+\fB\-a\fR, \fB\-\-action\fR=\fISTRING\fR
+.RS 4
+Find state with an outgoing transition of type
+\fISTRING\fR\&. Returns with exit code 1 if the action is found, 0 or 255 (error) otherwise\&.
+.RE
+.PP
+\fB\-\-trace\fR=\*(AqFILE\*(Aq\fI\&.gcf\fR
+.RS 4
+When finding a deadlock state or a transition labelled with a certain action, write a trace to \*(AqFILE\*(Aq\fI\&.gcf\fR, beginning from the initial state\&. Traces can be pretty\-printed with
+\fBltsmin-printtrace\fR(1)\&.
+.RE
+.SS "PINS Options"
+.PP
+\fB\-\-labels\fR
+.RS 4
+Print state variable, type and value names, and state and action labels\&. Then exit\&. Useful for writing predicate (\-\-invariant), LTL (\-\-ltl), CTL/CTL* (\-\-ctl), and mu\-calculus (\-\-mu) expressions\&.
+.RE
+.PP
+\fB\-\-matrix\fR
+.RS 4
+Print the dependency matrix and exit\&.
+.RE
+.PP
+\fB\-c\fR, \fB\-\-cache\fR
+.RS 4
+Enable caching of greybox calls\&.
+.sp
+If this option is used, the state space generator makes calls to the short version of the greybox next\-state function and memoizes the results\&. If the next\-state function is expensive this will yield substantial speedups\&.
+.RE
+.PP
+\fB\-\-pins\-guards\fR
+.RS 4
+Use guards in combination with the long next\-state function to speed up the next\-state function\&.
+.RE
+.PP
+\fB\-\-allow\-undefined\-edges\fR
+.RS 4
+Allow values for edge variables in atomic predicates to be unreachable\&.
+.RE
+.PP
+\fB\-\-allow\-undefined\-values\fR
+.RS 4
+Allow undefined values in atomic predicates for enums\&.
+.RE
+.PP
+\fB\-r\fR, \fB\-\-regroup\fR=\fISPEC\fR
+.RS 4
+Enable regrouping optimizations on the dependency matrix\&.
+.sp
+\fISPEC\fR
+is a comma\-separated sequence of transformations
+\fI<(\fR\fI\fIT\fR\fR\fI,)+>\fR
+which are applied in this order to the dependency matrix\&. The following transformations
+\fIT\fR
+are available:
+.PP
+gs
+.RS 4
+Group Safely; macro for "\fBgc\fR,\fBgr\fR,\fBcw\fR,\fBrs\fR"; almost always a win\&.
+.RE
+.PP
+ga
+.RS 4
+Group Aggressively (row subsumption); macro for "\fBgc\fR,\fBrs\fR,\fBru\fR,\fBcw\fR,\fBrs\fR"; can be a huge win, but in some cases causes slower state space generation\&.
+.RE
+.PP
+gsa
+.RS 4
+Group Simulated Annealing; macro for "\fBgc\fR,\fBgr\fR,\fBcsa\fR,\fBrs\fR"; almost always a win; usually better than
+\fBgs\fR\&.
+.RE
+.PP
+gc
+.RS 4
+Group Columns; macro for "\fBcs\fR,\fBcn\fR"\&.
+.RE
+.PP
+gr
+.RS 4
+Group Rows; macro for "\fBrs\fR,\fBrn\fR"\&.
+.RE
+.PP
+cs
+.RS 4
+Column Sort; sort columns lexicographically\&.
+.RE
+.PP
+cn
+.RS 4
+Column Nub; (temporarily) group duplicate columns, thereby making
+\fIca\fR
+more tractable\&. Requires
+\fBcs\fR\&.
+.RE
+.PP
+cw
+.RS 4
+Column sWap; minimize distance between columns by swapping them heuristically\&. This reordering improves performance of the symbolic data structures\&.
+.RE
+.PP
+ca
+.RS 4
+Column All permutations; try to find the column permutation with the best cost metric\&. Potentially, this is an expensive operation\&.
+.RE
+.PP
+csa
+.RS 4
+Column Simulated Annealing; minimize distance between columns by swapping them using simulated annealing\&.
+.RE
+.PP
+rs
+.RS 4
+Row Sort; sort rows lexicographically\&.
+.RE
+.PP
+rn
+.RS 4
+Row Nub; remove duplicate rows from the dependency matrix\&. This is always a win\&. Requires
+\fBrs\fR\&.
+.RE
+.PP
+ru
+.RS 4
+Row sUbsume; try to remove more rows than nubbing, thereby trading speed for memory\&. Requires
+\fBrs\fR\&.
+.RE
+.PP
+w2W
+.RS 4
+Over\-approximate all must\-write to may\-write\&. May\-write supports the copy (\-) dependency\&.
+.RE
+.PP
+r2+
+.RS 4
+Over\-approximate read to read+write\&. Allows read dependencies to also subsume write dependencies\&.
+.RE
+.PP
+w2+
+.RS 4
+Over\-approximate must\-write to read+write\&. Allows must\-write dependencies to also subsume read dependencies\&.
+.RE
+.PP
+W2+
+.RS 4
+Over\-approximate may\-write to read+write\&. Allows must\-write dependencies to also subsume read dependencies\&.
+.RE
+.PP
+\-2r
+.RS 4
+Over\-approximate copy to read\&. May be useful for testing whether the dependency matrix is correct\&.
+.RE
+.PP
+rb4w
+.RS 4
+Use special heuristics to move read dependencies before write dependences\&. Often a win in symbolic state space generation\&.
+.RE
+.PP
+mm
+.RS 4
+Writes metrics of the selected (\fBsr\fR,
+\fBsw\fR,
+\fBsc\fR) matrix to stdout\&. The following metrics are printed:
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+Event span: the total distance between the minimum and maximum column of rows\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+Normalized event span: the event span divided by the size of the matrix (rows x columns)\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 3.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  3." 4.2
+.\}
+Weighted event span: the weighted event span, the event span, including a moment signifying the location of the span\&. See, Siminiceanu et al\&., we use moment 1\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 4.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  4." 4.2
+.\}
+Normalized weighted event span: the weighted event span divided by the size of the matrix (rows x column)\&.
+.RE
+.RE
+.PP
+sr
+.RS 4
+Select the read matrix for
+\fBcs\fR,
+\fBcsa\fR,
+\fBcw\fR,
+\fBca\fR,
+\fBrs\fR,
+\fBbcm\fR,
+\fBbs\fR,
+\fBbk\fR,
+\fBvcm\fR,
+\fBvacm\fR,
+\fBvgps\fR
+and
+\fBmm\fR\&.
+.RE
+.PP
+sw
+.RS 4
+Select the write matrix (default) for
+\fBcs\fR,
+\fBcsa\fR,
+\fBcw\fR,
+\fBca\fR,
+\fBrs\fR,
+\fBbcm\fR,
+\fBbs\fR,
+\fBbk\fR,
+\fBvcm\fR,
+\fBvacm\fR,
+\fBvgps\fR
+and
+\fBmm\fR\&. The write matrix is the default selection, because only write dependencies can create new nodes in decision diagrams\&. A bad variable order in the write matrix thus leads to a large number of peak nodes during reachability analysis\&. A bad variable order in the read matrix can also lead to a slow reachability analysis, but typically not as severe as a bad variable order in the write matrix\&. Slow reachability analysis due to a bad variable order in the read matrix causes many recursive calls to the relational product operation\&. Typically it is best that read dependencies are moved to the top DD level, thus left most in the read matrix\&.
+.RE
+.PP
+sc
+.RS 4
+Select the combined matrix for
+\fBcs\fR,
+\fBcsa\fR,
+\fBcw\fR,
+\fBca\fR,
+\fBrs\fR,
+\fBbcm\fR,
+\fBbs\fR,
+\fBbk\fR,
+\fBvcm\fR,
+\fBvacm\fR,
+\fBvgps\fR
+and
+\fBmm\fR\&. The combined matrix is the logical or of the read and write matrix\&.
+.RE
+.PP
+bg
+.RS 4
+Use a bipartite graph (default) for
+\fBbcm\fR,
+\fBbk\fR,
+\fBbs\fR,
+\fBvcm\fR,
+\fBvacm\fR
+and
+\fBvgps\fR\&.
+.RE
+.PP
+tg
+.RS 4
+Create a total graph of the bipartite graph for
+\fBbcm\fR,
+\fBbk\fR,
+\fBbs\fR,
+\fBvcm\fR,
+\fBvacm\fR
+and
+\fBvgps\fR\&. This adds more vertices and edges thus increasing computation time, but sometimes provides a better ordering\&.
+.RE
+.sp
+Below, the sparse matrix algorithms prefixed with
+\fBb\fR
+are only available when LTSmin is compiled with Boost\&. Algorithms prefixed with
+\fBv\fR
+are only available when LTSmin is compiled with ViennaCL\&.
+.PP
+bcm
+.RS 4
+Apply Boost\(cqs Cuthill\-McKee ordering\&.
+.RE
+.PP
+bk
+.RS 4
+Apply Boost\(cqs King ordering\&.
+.RE
+.PP
+bs
+.RS 4
+Apply Boost\(cqs Sloan ordering\&.
+.RE
+.PP
+vcm
+.RS 4
+Apply ViennaCL\(cqs Cuthill\-McKee ordering\&.
+.RE
+.PP
+vacm
+.RS 4
+Apply ViennaCL\(cqs advanced Cuthill\-McKee ordering\&.
+.RE
+.PP
+vgps
+.RS 4
+Apply ViennaCl\(cqs Gibbs\-Poole\-Stockmeyer ordering\&.
+.RE
+.PP
+f
+.RS 4
+Apply FORCE ordering\&.
+.RE
+.RE
+.PP
+\fB\-\-row\-perm\fR=\fIPERM\fR
+.RS 4
+Apply row permutation
+\fIPERM\fR, where
+\fIPERM\fR
+is a sequence of row numbers, separated by a comma\&. E\&.g\&. the vector 2,1,0 will swap row 2 with row 0\&.
+.RE
+.PP
+\fB\-\-col\-perm\fR=\fIPERM\fR
+.RS 4
+Apply column permutation
+\fIPERM\fR, where
+\fIPERM\fR
+is a sequence of column numbers, separated by a comma\&. E\&.g\&. the vector 2,1,0 will swap column 2 with column 0\&.
+.RE
+.PP
+\fB\-\-col\-ins\fR=\fIPAIRS\fR
+.RS 4
+Insert columns before other columns in the dependency matrix\&.
+.sp
+\fIPAIRS\fR
+is a comma\-separated sequence of pairs
+\fI<(C\&.C\fR,)+>\*(Aq\&. E\&.g\&.
+\fB\-\-col\-ins=1\&.0\fR
+will insert column
+\fB1\fR
+before column
+\fB0\fR\&. Each pair contains a source column
+\fBC\fR
+and a target column
+\fBC\*(Aq\fR\&. During the application of the whole sequence,
+\fBC\fR
+will always be the column number that corresponds with the column before the application of the whole sequence\&. The column number
+\fBC\*(Aq\fR
+will always be the column during the application of the whole sequence\&. This means that in for example
+\fB\-\-col\-ins=2\&.0,1\&.0\fR, first column
+\fB2\fR
+is inserted at position
+\fB0\fR, then column
+\fB1\fR
+is inserted at position
+\fB0\fR\&. The result will be that the original column
+\fB2\fR
+will be at position
+\fB1\fR\&. Another important detail is that when
+\fB\-\-col\-ins\fR
+is used, all source columns will temporarily be "removed" during reordering from the dependency matrix, i\&.e\&. when the
+\fB\-r\fR,\fB\-\-regroup\fR
+option is given\&. After reordering is done, the columns will be inserted at the desired target position\&. In other words, reordering algorithms given by the option
+\fB\-r\fR,\fB\-\-regroup\fR, will only be applied on the dependency matrix with source columns removed\&.
+.RE
+.PP
+\fB\-\-sloan\-w1\fR=\fIWEIGHT1\fR
+.RS 4
+Use
+\fIWEIGHT1\fR
+as the first weight for the Sloan algorithm, see
+\m[blue]\fBhttps://www\&.boost\&.org/doc/libs/1_66_0/libs/graph/doc/sloan_ordering\&.htm\fR\m[]\&.
+.RE
+.PP
+\fB\-\-sloan\-w2\fR=\fIWEIGHT2\fR
+.RS 4
+Use
+\fIWEIGHT2\fR
+as the second weight for the Sloan algorithm, see
+\m[blue]\fBhttps://www\&.boost\&.org/doc/libs/1_66_0/libs/graph/doc/sloan_ordering\&.htm\fR\m[]\&.
+.RE
+.PP
+\fB\-\-graph\-metrics\fR
+.RS 4
+Print Boost\(cqs and ViennaCL\(cqs graph metrics (only available when LTSmin is compiled with Boost or ViennaCL)\&.
+.RE
+.PP
+\fB\-\-regroup\-exit\fR
+.RS 4
+Exit with 0 when regrouping is done\&.
+.RE
+.PP
+\fB\-\-regroup\-time\fR
+.RS 4
+Print timing information of each transformation, given in sequence
+\fB\-\-regroup\fR
+(\fB\-r\fR)\&.
+.RE
+.PP
+\fB\-\-mucalc\fR=\fIFILE\fR|\fIFORMULA\fR
+.RS 4
+Compute a parity game for the mu\-calculus formula\&.
+.sp
+The mu\-calculus formula is provided in the file
+\fIFILE\fR
+or directly as a string
+\fIFORMULA\fR\&. The syntax and tool support are described in
+\fBltsmin-mucalc\fR(5)\&.
+.RE
+.PP
+\fB\-\-ltl\fR=\fILTLFILE|LTLFORMULA\fR
+.RS 4
+Compute cross\-product of a Buchi automaton and the specification
+.sp
+\fILTLFILE\fR
+is a file containing an Linear Temporal Logic formula (see
+\fBltsmin-ltl\fR(5))\&. Which content can also be provided directly as
+\fILTLFORMULA\fR\&. This formula will be converted to a Buchi automaton\&. Then the synchronous cross product with the original specification is computed on\-the\-fly\&. A state label is added to encode accepting states\&.
+.RE
+.PP
+\fB\-\-ltl\-semantics\fR=\fIspin|textbook|ltsmin\fR
+.RS 4
+Change the semantics of the crossproduct generated using
+\fI\-\-ltl\fR
+.sp
+Three options are available, the default is automatically chosen based on the atomic predicates in the formula\&.
+.PP
+spin
+.RS 4
+Use semantics equal to the spin model checker\&. From the
+\fIsource\fR
+state all transitions are generated\&. Then, state predicates are evaluated on the
+\fIsource\fR
+state\&. The Buchi automaton now moves according to these predicates\&. Deadlocks in the LTS cause the Buchi to progress independently\&. This option is incompatible with edge\-based atomic predicates\&. This option is the default if no edge\-based atomic predicates are found in the LTL formula\&.
+.RE
+.PP
+textbook
+.RS 4
+Use textbook semantics\&. A new initial state is generated with an outgoing transition to the initial state\&. Now, predicates are evaluated on the
+\fItarget\fR
+state and the Buchi automaton moves according to these predicates\&. Deadlocks in the LTS do NOT cause the Buchi to progress independently\&. This option is incompatible with edge\-based atomic predicates\&.
+.RE
+.PP
+ltsmin
+.RS 4
+Same as spin semantics, but now deadlocks in the LTS do NOT cause the Buchi to progress independently\&. This option is the default if edge\-based atomic predicates are found in the LTL formula\&.
+.RE
+.RE
+.PP
+\fB\-\-por\fR=\fIheur|del\fR
+.RS 4
+Activate partial\-order reduction
+.sp
+Partial\-Order Reduction (POR) can reduce the state space when searching for deadlocks (\-d) or accepting cycles (\-\-ltl)\&. Two POR algorithms are available:
+.PP
+heur
+.RS 4
+Uses a cost\-based heuristic beam\-search to find the smallest stubborn set
+.RE
+.PP
+del
+.RS 4
+Uses Valmari\(cqs deletion algorithm to find the smallest stubborn set by iteratively removing transitions while maintaining the constraints\&.
+.RE
+.RE
+.PP
+\fB\-\-weak\fR
+.RS 4
+Use weak commutativity in partial\-order reduction\&. Possibly yielding better reductions\&.
+.RE
+.PP
+\fB\-\-leap\fR
+.RS 4
+Use leaping partial\-order reduction, by combining several disjoint stubborn sets sequentially\&.
+.RE
+.SH "ENVIRONMENT VARIABLES"
+.sp
+LTSmin supports the following list of environment variables\&.
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.B Table\ \&1.\ \&Environment Variables:
+.TS
+allbox tab(:);
+ltB ltB ltB.
+T{
+Name
+T}:T{
+Unit
+T}:T{
+Description
+T}
+.T&
+lt lt lt
+lt lt lt.
+T{
+.sp
+LTSMIN_MEM_SIZE
+T}:T{
+.sp
+bytes
+T}:T{
+.sp
+Sets the amount of system memory to the given value\&.
+T}
+T{
+.sp
+LTSMIN_NUM_CPUS
+T}:T{
+.sp
+constant
+T}:T{
+.sp
+Sets the amount of CPUs to the given value\&.
+T}
+.TE
+.sp 1
+.sp
+The variables \fBLTSMIN_MEM_SIZE\fR, and \fBLTSMIN_NUM_CPUS\fR are particularly relevant when neither \fBsysconf(3)\fR nor \fBcgroups(7)\fR is able to properly detect these limits, e\&.g\&. when LTSmin runs on Travis CI in a docker container\&.
+.SS "Development Options"
+.PP
+\fB\-\-grey\fR
+.RS 4
+Make use of
+GetTransitionsLong
+calls\&.
+.sp
+A language module can have three next state calls:
+GetTransitionsAll,
+GetTransitionsLong
+and
+GetTransitionsShort\&. The first call is used by default, the second call is used when this flag is passed and the third form is used if
+\fB\-\-cache\fR
+is enabled\&. This allows all three calls in a language module to be tested\&.
+.RE
+.PP
+\fB\-\-write\-state\fR
+.RS 4
+Write the full state vector\&.
+.RE
+.SS "General Options"
+.PP
+\fB\-v\fR
+.RS 4
+Increase the level of verbosity
+.RE
+.PP
+\fB\-q\fR
+.RS 4
+Be quiet; do not print anything to the terminal\&.
+.RE
+.PP
+\fB\-\-debug=<file\&.c>\fR
+.RS 4
+Enable debugging output for file\&.c (option allowed multiple times)\&.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+Print version string of this tool\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print help text
+.RE
+.PP
+\fB\-\-usage\fR
+.RS 4
+Print short usage summary\&.
+.RE
+.SH "FILE FORMATS"
+.sp
+The following file formats are supported:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Directory format (\fI*\&.dir\fR,
+\fI*\&.dz\fR
+and
+\fI*\&.gcf\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Vector format (\fI*\&.dir\fR,
+\fI*\&.gcd\fR,
+\fI*\&.gcf\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Binary Coded Graphs (\fI*\&.bcg\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Aldebaran Format (\fI*\&.aut\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+FSM Format (\fI*\&.fsm\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+MRMC/Prism (\fI*\&.tra\fR+\fI*\&.lab\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+PGSolver format (\fI*\&.pg\fR)
+.RE
+.sp
+If a tool operates in streaming mode then support for file formats is limited, as can be seen in the following table:
+.TS
+allbox tab(:);
+ltB ltB ltB.
+T{
+Format
+T}:T{
+Streaming mode
+T}:T{
+Load/Store mode
+T}
+.T&
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt.
+T{
+.sp
+DIR
+T}:T{
+.sp
+R/W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+VEC
+T}:T{
+.sp
+R/W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+BCG
+T}:T{
+.sp
+W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+AUT
+T}:T{
+.sp
+W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+FSM
+T}:T{
+.sp
+W
+T}:T{
+.sp
+W
+T}
+T{
+.sp
+TRA
+T}:T{
+.sp
+\-
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+PG
+T}:T{
+.sp
+\-
+T}:T{
+.sp
+W
+T}
+.TE
+.sp 1
+.sp
+The directory format uses multiple files to store an LTS\&. The various extension explain how these files are stored in the underlying file system\&. The \fI*\&.dir\fR format uses multiple files in a directory without compression\&. If the LTS has one edge label, no state labels and does not store state vectors then these files are backwards compatible\&. Neither the \fI*\&.dz\fR nor the \fI*\&.gcf\fR formats are backwards compatible\&. Both formats use compression\&. The first uses a directory for the files, second interleaves files into a single file\&.
+.sp
+If you try to open a \fI*\&.dir\fR with the old mCRL tools and you get the error message:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+wrong file version: 0
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+then the directory is probably compressed\&. If that happens then you may convert the directory by typing the command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ltsmin\-convert bad\&.dir good\&.dir
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SH "LTL MODEL CHECKING"
+.sp
+LTL model checking requires a Buchi cross product with accepting states marked with accepting state labels, and a search strategy which takes these labels into account (see ndfs / scc strategies of the sequential and multi\-core tools)\&.
+.sp
+For generating a cross product, the following options are supported:
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+The input specification is already combined with a Buchi automaton, and states are appropriately marked with accepting labels\&. Currently two frontends support this functionality: SpinS (see documentation on
+prom
+tools), and DiVinE (see documentation on
+dve
+tools)\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+LTSmin tools can build the cross product of input specification and Buchi automaton (through a PINS2PINS layer enabled with the \-\-ltl option) themselves, and will annotate cross\-product states appropriately when they are accepting\&. See also
+\-\-labels
+option in the PINS tools\&.
+.RE
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+.sp
+Combination with the Partial Order Reduction PINS2PINS layer (\-\-por) requires the latter option\&.
+.sp .5v
+.RE
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBNote\fR
+.ps -1
+.br
+.sp
+As of LTSmin release 1\&.9, our default LTL semantics mimics those of SPIN/DiVinE\&. Before that, LTSmin implemented textbook semantics\&. See the documentation on the enumerative tools for more information\&.
+.sp .5v
+.RE
+.SH "EXIT STATUS"
+.PP
+\fB0\fR
+.RS 4
+Successful termination\&.
+.RE
+.PP
+\fB1\fR
+.RS 4
+Counter example found\&.
+.RE
+.PP
+\fB255\fR
+.RS 4
+Some error occurred\&.
+.RE
+.SH "SUPPORT"
+.sp
+Send questions, bug reports, comments and feature suggestions to the \m[blue]\fBLTSmin Support Team\fR\m[]\&\s-2\u[1]\d\s+2\&.
+.SH "SEE ALSO"
+.sp
+\fBltsmin\fR(7), \fBltsmin-printtrace\fR(1), \fBltsmin-mucalc\fR(5), \fBetf\fR(5), \m[blue]\fBDiVinE\-2\&.2\fR\m[]\&\s-2\u[2]\d\s+2, \m[blue]\fBopaal\fR\m[]\&\s-2\u[3]\d\s+2, \m[blue]\fBuppaal\fR\m[]\&\s-2\u[4]\d\s+2, and \m[blue]\fBprom\fR\m[]\&\s-2\u[5]\d\s+2\&.
+.SH "NOTES"
+.IP " 1." 4
+LTSmin Support Team
+.RS 4
+\%mailto:ltsmin-support@lists.utwente.nl
+.RE
+.IP " 2." 4
+DiVinE-2.2
+.RS 4
+\%http://divine.fi.muni.cz/
+.RE
+.IP " 3." 4
+opaal
+.RS 4
+\%https://code.launchpad.net/~opaal-developers/opaal/opaal-ltsmin-succgen
+.RE
+.IP " 4." 4
+uppaal
+.RS 4
+\%http://www.uppaal.org
+.RE
+.IP " 5." 4
+prom
+.RS 4
+\%http://eprints.eemcs.utwente.nl/22042/
+.RE

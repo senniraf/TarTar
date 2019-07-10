@@ -1,0 +1,140 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+### BEGIN LICENSE
+# Copyright (C) 2010 Mads Chr. Olesen <mchro@cs.aau.dk>
+#This program is free software: you can redistribute it and/or modify it 
+#under the terms of the GNU General Public License version 3, as published 
+#by the Free Software Foundation.
+#
+#This program is distributed in the hope that it will be useful, but 
+#WITHOUT ANY WARRANTY; without even the implied warranties of 
+#MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR 
+#PURPOSE.  See the GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License along 
+#with this program.  If not, see <http://www.gnu.org/licenses/>.
+### END LICENSE
+
+from mpi4py import MPI
+import sys
+import os
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+print "Rank", rank, "on host", os.uname()[1]
+import modelcheck
+from messages import *
+
+if rank != 0:
+    #wait for model and query
+    (model, query) = comm.bcast(None, root=0)
+
+    #start model checking
+    node = modelcheck.Node(model, query)
+    #Profiling?
+    if False:
+        import cProfile
+        cProfile.run('node.slave()', '/tmp/opaal_prof%d.txt' % (rank))
+    else:
+        node.slave()
+    sys.exit(0)
+
+import pyuppaal
+import datetime
+import time
+
+class MasterCli:
+    def __init__(self, filename, query):
+        self.loadFile(filename, query)
+
+    def loadFile(self, filename, query):
+        model_file = open(filename, "r")
+        self.model = pyuppaal.NTA.from_xml(model_file)
+        self.node = modelcheck.Node(self.model, query)
+        comm.bcast((self.model, query), root=0)
+
+    def start(self):
+        initstate = self.node.succgen.get_initialstate()
+        comm.send(initstate, dest=self.node.homenode(initstate), tag=MSG_STATE)
+        self.node.init_termination_detection()
+        self.start_time = datetime.datetime.now()
+
+    def status_loop(self):
+        goal_reached = False
+        i = 0
+        while True:
+            #Check for termination
+            self.node.master_termination_detection()
+            #Check for goal
+            if self.node.master_goal_detection():
+                if not goal_reached:
+                    print "="*20, "Goal reached!", "="*20
+                    goal_reached = True
+            #i += 1
+            #if i % 10 == 0:
+            #    self.showstatus()
+            time.sleep(1)
+
+    def showstatus(self):
+        statuses = []
+        elapsed = (datetime.datetime.now() - self.start_time).seconds or 1
+        totalwaiting = 0
+        totalpassed = 0
+        totaltotal = 0
+        for i in range(1, size):
+            curstatus = None
+            #print "Sending to", i
+            comm.send(None, dest=i, tag=MSG_STATUS)
+            #print "Recving from", i
+            (numwaiting, numpassed, numtotal) = comm.recv(None, source=i, tag=MSG_STATUS)
+            msg = str(numwaiting) + " waiting " + \
+                str(numpassed) + " passed " + \
+                str(int(float(numtotal) / elapsed)) + \
+                " states/sec"
+            totalwaiting += numwaiting
+            totalpassed += numpassed
+            totaltotal += numtotal
+            statuses += ["Slave " + str(i) + ": " + msg]
+        #sys.stdout.flush()
+        #total
+        msg = str(totalwaiting) + " waiting " + \
+                str(totalpassed) + " passed " + \
+                str(int(float(totaltotal) / elapsed)) + \
+                " states/sec"
+        statuses += ["="*50]
+        statuses += ["Total: " + msg]
+
+        print "\n".join(statuses)
+        print "Walltime:", ((datetime.datetime.now() - self.start_time).seconds), "secs"
+
+    def prompt_loop(self):
+        cmd = None
+        while cmd != 'quit':
+            print "\rU=> ",
+            sys.stdout.flush()
+            cmd = raw_input()
+            #print "\r"
+            if cmd == "status" or cmd == 's':
+                self.showstatus()
+            elif cmd in ['quit', 'q']:
+                cmd = 'quit'
+            elif cmd == "":
+                pass
+            else:
+                print "Unknown command"
+
+            #Check for termination
+            self.node.master_termination_detection()
+                
+        #abort
+        for i in range(1, size):
+            comm.send(None, dest=i, tag=MSG_ABORT)
+
+
+if __name__ == "__main__":
+    m = MasterCli(sys.argv[1], sys.argv[2])
+    m.start()
+    m.status_loop()
+
+# vim:ts=4:sw=4:expandtab

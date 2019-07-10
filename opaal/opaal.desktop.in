@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=opaal
+Comment=opaal model checker
+Categories=GNOME;Utility;
+Exec=opaal
+Icon=opaal
+Terminal=false
+Type=Application

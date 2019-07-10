@@ -1,0 +1,287 @@
+'\" t
+.\"     Title: ltsminmucalc
+.\"    Author: [FIXME: author] [see http://www.docbook.org/tdg5/en/html/author]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/17/2018
+.\"    Manual: LTSmin Manual
+.\"    Source: LTSmin 3.0.2
+.\"  Language: English
+.\"
+.TH "LTSMINMUCALC" "5" "12/17/2018" "LTSmin 3\&.0\&.2" "LTSmin Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ltsmin-mucalc \- Mu\-calculus layer
+.SH "SYNOPSIS"
+.sp
+Syntax for mu\-calculus formulas, used by the LTSmin toolset to generate parity games\&.
+.SH "DESCRIPTION"
+.sp
+A mu\-calculus formula f can be passed to the reachability tools, together with a model M in any of the supported languages, which will generate a parity game that encodes M |= f\&. For the symbolic tools (pins2lts\-sym), a symbolic parity game solver \fBspgsolver\fR(1) is available\&. The explicit state tools (pins2lts\-seq, pins2lts\-mc, pins2lts\-dist) generate a parity game that can be converted by \fBltsmin-convert\fR(1) to a format that is readable by the solvers \m[blue]\fBPGSolver\fR\m[]\&\s-2\u[1]\d\s+2 and \m[blue]\fBpbespgsolve\fR\m[]\&\s-2\u[2]\d\s+2 (part of \m[blue]\fBmCRL2\fR\m[]\&\s-2\u[3]\d\s+2)\&.
+.SS "Syntax"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+f ::= true | false | {v=e} | !{v=e} | f1 && f2 | f1 || f2 |
+nu Z \&. f | mu Z \&. f | [a]f | <a>f
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+Propositions are of the form {v=e}, where v is a state variable and e a value\&. A value is either a number or a quoted string\&. The modal operators [] and <> can either be empty or contain an action expression a, which is a quoted string that is equal to the action label it should match\&.
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.B Table\ \&1.\ \&Mu\-calculus operators and priorities
+.TS
+allbox tab(:);
+ltB ltB ltB.
+T{
+Priority
+T}:T{
+Operator
+T}:T{
+Meaning
+T}
+.T&
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt.
+T{
+.sp
+0
+T}:T{
+.sp
+true
+T}:T{
+.sp
+Constant true
+T}
+T{
+.sp
+0
+T}:T{
+.sp
+false
+T}:T{
+.sp
+Constant false
+T}
+T{
+.sp
+0
+T}:T{
+.sp
+{v=e}
+T}:T{
+.sp
+Proposition
+T}
+T{
+.sp
+1
+T}:T{
+.sp
+!{v=e}
+T}:T{
+.sp
+Negated proposition
+T}
+T{
+.sp
+2
+T}:T{
+.sp
+f1 && f2
+T}:T{
+.sp
+Logical conjunction (and)
+T}
+T{
+.sp
+3
+T}:T{
+.sp
+f1 || f2
+T}:T{
+.sp
+Logical disjunction (or)
+T}
+T{
+.sp
+4
+T}:T{
+.sp
+nu Z\&. f
+T}:T{
+.sp
+Greatest fixpoint operator
+T}
+T{
+.sp
+5
+T}:T{
+.sp
+mu Z\&. f
+T}:T{
+.sp
+Least fixpoint operator
+T}
+T{
+.sp
+6
+T}:T{
+.sp
+[a]f
+T}:T{
+.sp
+Necessity modality (must)
+T}
+T{
+.sp
+7
+T}:T{
+.sp
+<a>f
+T}:T{
+.sp
+Possibility modality (may)
+T}
+.TE
+.sp 1
+.SH "EXAMPLES"
+.SS "Basic formulae"
+.sp
+Absence of deadlocks:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+nu Z\&. <>true && []Z
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+Invariance:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+mu Z\&. {x=1} && []Z
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SS "Liveness and reachability"
+.sp
+From every state, a state where x=2 holds should be reachable:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+nu Z\&. []Z && (mu Y\&. {x=2} || <>Y)
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+After every (finite) a\-path, there should be an infinite b\-path:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+mu Z\&. ["a"](Z && nu Y\&. <"b">true && ["b"]Y)
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SS "Usage"
+.sp
+Explicit\-state tools:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+pins2lts\-mc \-\-mucalc=<formula>\&.mcf <model> <game>\&.dir
+ltsmin\-convert \-\-rdwr <game>\&.dir <game>\&.pg
+pbespgsolve \-ipgsolver <game>\&.pg
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+Symbolic tools:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+pins2lts\-sym [vset\-options] \-\-mucalc=<formula>\&.mcf <model> \-\-pg\-write=<game>\&.spg
+spgsolver [vset\-options] <game>\&.spg
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+For variable naming consult the \-\-labels option in the PINS tools\&.
+.SH "SEE ALSO"
+.sp
+\fBltsmin\fR(7), \fBetf2lts-seq\fR(1), \fBetf2lts-sym\fR(1), \fBetf2lts-sym\fR(1), \fBspgsolver\fR(1), \fBltsmin-convert\fR(1)
+.SH "NOTES"
+.IP " 1." 4
+PGSolver
+.RS 4
+\%https://github.com/tcsprojects/pgsolver
+.RE
+.IP " 2." 4
+pbespgsolve
+.RS 4
+\%http://mcrl2.org/release/user_manual/tools/pbespgsolve.html
+.RE
+.IP " 3." 4
+mCRL2
+.RS 4
+\%http://mcrl2.org
+.RE

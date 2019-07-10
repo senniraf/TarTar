@@ -1,0 +1,1058 @@
+'\" t
+.\"     Title: pnml2lts-dist
+.\"    Author: [FIXME: author] [see http://www.docbook.org/tdg5/en/html/author]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/17/2018
+.\"    Manual: LTSmin Manual
+.\"    Source: LTSmin 3.0.2
+.\"  Language: English
+.\"
+.TH "PNML2LTS\-DIST" "1" "12/17/2018" "LTSmin 3\&.0\&.2" "LTSmin Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+pnml2lts-dist \- Distributed state space generator for PNML models\&.
+.SH "SYNOPSIS"
+.sp
+\fBpnml2lts\-dist\fR [OPTIONS]\&... \fIPetri\-net\&.pnml\fR [\fIoutput\&.fmt\fR]
+.SH "DESCRIPTION"
+.sp
+pnml2lts\-dist generates a labelled transition system from a specification provided in \fIPetri\-net\&.pnml\fR\&. \fIoutput\&.fmt\fR specifies the name of the output archive\&. The desired format is deduced from the filename extension\&. Available formats are described below\&.
+.sp
+Using the option \fI\-\-workers=N\fR, this tool starts the command \fImpirun\fR silently in the background with the suitable options, i\&.e\&. \fI\-np 4\fR\&. Alternatively, one may wish to call \fImpirun\fR with additional options\&. This can be done using the \fI\-\-mpi\fR option, e\&.g\&.:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+mpirun \-np 4 \-mca btl tcp,self {manname} \-\-mpi
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SH "PNML"
+.sp
+The PNML front\-end for LTSmin currently supports ordinary (unfolded) Petri nets: \m[blue]\fBhttp://www\&.pnml\&.org/version\-2009/grammar/ptnet\&.pntd\fR\m[]\&. Further information can be found at: \m[blue]\fBhttp://www\&.pnml\&.org/version\-2009/version\-2009\&.php\fR\m[]\&.
+.SS "Front\-end specific features"
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+After reachability analysis the
+\fBpnml2lts\-dist\fR
+will report the maximum number of tokens over all places\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+Support for 1\-safe Petri nets, by means of the NUPN toolspecific syntax:
+\m[blue]\fBhttp://cadp\&.inria\&.fr/man/nupn\&.html\fR\m[]\&.
+.RE
+.SH "OPTIONS"
+.PP
+\fB\-\-nice\fR=\fILEVEL\fR
+.RS 4
+Set the nice level of all worker processes\&. This is useful when running on other people\(cqs workstations\&.
+.RE
+.PP
+\fB\-\-write\-state\fR
+.RS 4
+Write the full state vector\&.
+.RE
+.PP
+\fB\-\-filter\fR=\fI<patternlist>\fR
+.RS 4
+Select the labels to be written to file from the state vector elements, state labels and edge labels\&. The argument is a semicolon separated list of shell file patterns\&. Each pattern may be prefixed with "!" to exclude a set of labels\&. If none of the patterns matches the default is to exclude the label\&. Hence, all labels starting with an "x" are specified as "x*"\&. The complement all labels, except those starting with an "x" are specified as "!x*;*"\&.
+.RE
+.PP
+\fB\-\-cost\fR=\fI<edge label>\fR
+.RS 4
+The given edge labels defines the cost of an edge\&. Based on this cost, the lowest cost for reaching every state is computed\&. Moreover, the order in which states are explored is such that lower cost states are explored before higher costs ones\&. The levels reported when this options is in effect are cost levels\&. The counter\-example traces are guaranteed to be a lowest cost path\&. However, the length of the trace may not be minimal\&.
+.RE
+.PP
+\fB\-n\fR, \fB\-\-no\-exit\fR
+.RS 4
+Do not exit when an error is found\&. Just count errors\&. Error counts are printed with
+\-v\&.
+.RE
+.PP
+\fB\-d\fR, \fB\-\-deadlock\fR
+.RS 4
+Find state with no outgoing transitions\&. Returns with exit code 1 if a deadlock is found, 0 or 255 (error) otherwise\&.
+.RE
+.PP
+\fB\-i\fR, \fB\-\-invariant\fR=\fIPREDFILE|PREDEXPRESSION\fR
+.RS 4
+Find state where the invariant is violated\&. The file
+\fIPREDFILE\fR
+contains an expression in a simple predicate language (see
+\fBltsmin-pred\fR(5))\&. Its contents can also be entered directly as a
+\fIPREDEXPRESSION\fR\&. Returns with exit code 1 if a violation is found, 0 or 255 (error) otherwise\&.
+.RE
+.PP
+\fB\-a\fR, \fB\-\-action\fR=\fISTRING\fR
+.RS 4
+Find state with an outgoing transition of type
+\fISTRING\fR\&. Returns with exit code 1 if the action is found, 0 or 255 (error) otherwise\&.
+.RE
+.PP
+\fB\-\-trace\fR=\*(AqFILE\*(Aq\fI\&.gcf\fR
+.RS 4
+When finding a deadlock state or a transition labelled with a certain action, write a trace to \*(AqFILE\*(Aq\fI\&.gcf\fR, beginning from the initial state\&. Traces can be pretty\-printed with
+\fBltsmin-printtrace\fR(1)\&.
+.RE
+.SS "PNML Options"
+.PP
+\fB\-\-noack\fR=\fI1|2\fR
+.RS 4
+Set the Noack order to apply\&.
+.RE
+.PP
+\fB\-\-edge\-label\fR=\fIid|name\fR
+.RS 4
+Set what to use as edge label\&. This only affects Petri nets written in PNML, not those written in e\&.g\&. ANDL\&. When value
+\fIid\fR
+is given, the transition identifier will be used as edge label\&. When value
+\fIname\fR
+is given the transition\(cqs name will be used as edge label\&. This mostly affects how atomic propositions are interpreted\&.
+.RE
+.PP
+\fB\-n\fR, \fB\-\-no\-exit\fR
+.RS 4
+Do not exit when an error is found\&. Just count errors\&. Error counts are printed with
+\-v\&.
+.RE
+.PP
+\fB\-d\fR, \fB\-\-deadlock\fR
+.RS 4
+Find state with no outgoing transitions\&. Returns with exit code 1 if a deadlock is found, 0 or 255 (error) otherwise\&.
+.RE
+.PP
+\fB\-i\fR, \fB\-\-invariant\fR=\fIPREDFILE|PREDEXPRESSION\fR
+.RS 4
+Find state where the invariant is violated\&. The file
+\fIPREDFILE\fR
+contains an expression in a simple predicate language (see
+\fBltsmin-pred\fR(5))\&. Its contents can also be entered directly as a
+\fIPREDEXPRESSION\fR\&. Returns with exit code 1 if a violation is found, 0 or 255 (error) otherwise\&.
+.RE
+.PP
+\fB\-a\fR, \fB\-\-action\fR=\fISTRING\fR
+.RS 4
+Find state with an outgoing transition of type
+\fISTRING\fR\&. Returns with exit code 1 if the action is found, 0 or 255 (error) otherwise\&.
+.RE
+.PP
+\fB\-\-trace\fR=\*(AqFILE\*(Aq\fI\&.gcf\fR
+.RS 4
+When finding a deadlock state or a transition labelled with a certain action, write a trace to \*(AqFILE\*(Aq\fI\&.gcf\fR, beginning from the initial state\&. Traces can be pretty\-printed with
+\fBltsmin-printtrace\fR(1)\&.
+.RE
+.SS "PINS Options"
+.PP
+\fB\-\-labels\fR
+.RS 4
+Print state variable, type and value names, and state and action labels\&. Then exit\&. Useful for writing predicate (\-\-invariant), LTL (\-\-ltl), CTL/CTL* (\-\-ctl), and mu\-calculus (\-\-mu) expressions\&.
+.RE
+.PP
+\fB\-\-matrix\fR
+.RS 4
+Print the dependency matrix and exit\&.
+.RE
+.PP
+\fB\-c\fR, \fB\-\-cache\fR
+.RS 4
+Enable caching of greybox calls\&.
+.sp
+If this option is used, the state space generator makes calls to the short version of the greybox next\-state function and memoizes the results\&. If the next\-state function is expensive this will yield substantial speedups\&.
+.RE
+.PP
+\fB\-\-pins\-guards\fR
+.RS 4
+Use guards in combination with the long next\-state function to speed up the next\-state function\&.
+.RE
+.PP
+\fB\-\-allow\-undefined\-edges\fR
+.RS 4
+Allow values for edge variables in atomic predicates to be unreachable\&.
+.RE
+.PP
+\fB\-\-allow\-undefined\-values\fR
+.RS 4
+Allow undefined values in atomic predicates for enums\&.
+.RE
+.PP
+\fB\-r\fR, \fB\-\-regroup\fR=\fISPEC\fR
+.RS 4
+Enable regrouping optimizations on the dependency matrix\&.
+.sp
+\fISPEC\fR
+is a comma\-separated sequence of transformations
+\fI<(\fR\fI\fIT\fR\fR\fI,)+>\fR
+which are applied in this order to the dependency matrix\&. The following transformations
+\fIT\fR
+are available:
+.PP
+gs
+.RS 4
+Group Safely; macro for "\fBgc\fR,\fBgr\fR,\fBcw\fR,\fBrs\fR"; almost always a win\&.
+.RE
+.PP
+ga
+.RS 4
+Group Aggressively (row subsumption); macro for "\fBgc\fR,\fBrs\fR,\fBru\fR,\fBcw\fR,\fBrs\fR"; can be a huge win, but in some cases causes slower state space generation\&.
+.RE
+.PP
+gsa
+.RS 4
+Group Simulated Annealing; macro for "\fBgc\fR,\fBgr\fR,\fBcsa\fR,\fBrs\fR"; almost always a win; usually better than
+\fBgs\fR\&.
+.RE
+.PP
+gc
+.RS 4
+Group Columns; macro for "\fBcs\fR,\fBcn\fR"\&.
+.RE
+.PP
+gr
+.RS 4
+Group Rows; macro for "\fBrs\fR,\fBrn\fR"\&.
+.RE
+.PP
+cs
+.RS 4
+Column Sort; sort columns lexicographically\&.
+.RE
+.PP
+cn
+.RS 4
+Column Nub; (temporarily) group duplicate columns, thereby making
+\fIca\fR
+more tractable\&. Requires
+\fBcs\fR\&.
+.RE
+.PP
+cw
+.RS 4
+Column sWap; minimize distance between columns by swapping them heuristically\&. This reordering improves performance of the symbolic data structures\&.
+.RE
+.PP
+ca
+.RS 4
+Column All permutations; try to find the column permutation with the best cost metric\&. Potentially, this is an expensive operation\&.
+.RE
+.PP
+csa
+.RS 4
+Column Simulated Annealing; minimize distance between columns by swapping them using simulated annealing\&.
+.RE
+.PP
+rs
+.RS 4
+Row Sort; sort rows lexicographically\&.
+.RE
+.PP
+rn
+.RS 4
+Row Nub; remove duplicate rows from the dependency matrix\&. This is always a win\&. Requires
+\fBrs\fR\&.
+.RE
+.PP
+ru
+.RS 4
+Row sUbsume; try to remove more rows than nubbing, thereby trading speed for memory\&. Requires
+\fBrs\fR\&.
+.RE
+.PP
+w2W
+.RS 4
+Over\-approximate all must\-write to may\-write\&. May\-write supports the copy (\-) dependency\&.
+.RE
+.PP
+r2+
+.RS 4
+Over\-approximate read to read+write\&. Allows read dependencies to also subsume write dependencies\&.
+.RE
+.PP
+w2+
+.RS 4
+Over\-approximate must\-write to read+write\&. Allows must\-write dependencies to also subsume read dependencies\&.
+.RE
+.PP
+W2+
+.RS 4
+Over\-approximate may\-write to read+write\&. Allows must\-write dependencies to also subsume read dependencies\&.
+.RE
+.PP
+\-2r
+.RS 4
+Over\-approximate copy to read\&. May be useful for testing whether the dependency matrix is correct\&.
+.RE
+.PP
+rb4w
+.RS 4
+Use special heuristics to move read dependencies before write dependences\&. Often a win in symbolic state space generation\&.
+.RE
+.PP
+mm
+.RS 4
+Writes metrics of the selected (\fBsr\fR,
+\fBsw\fR,
+\fBsc\fR) matrix to stdout\&. The following metrics are printed:
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+Event span: the total distance between the minimum and maximum column of rows\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+Normalized event span: the event span divided by the size of the matrix (rows x columns)\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 3.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  3." 4.2
+.\}
+Weighted event span: the weighted event span, the event span, including a moment signifying the location of the span\&. See, Siminiceanu et al\&., we use moment 1\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 4.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  4." 4.2
+.\}
+Normalized weighted event span: the weighted event span divided by the size of the matrix (rows x column)\&.
+.RE
+.RE
+.PP
+sr
+.RS 4
+Select the read matrix for
+\fBcs\fR,
+\fBcsa\fR,
+\fBcw\fR,
+\fBca\fR,
+\fBrs\fR,
+\fBbcm\fR,
+\fBbs\fR,
+\fBbk\fR,
+\fBvcm\fR,
+\fBvacm\fR,
+\fBvgps\fR
+and
+\fBmm\fR\&.
+.RE
+.PP
+sw
+.RS 4
+Select the write matrix (default) for
+\fBcs\fR,
+\fBcsa\fR,
+\fBcw\fR,
+\fBca\fR,
+\fBrs\fR,
+\fBbcm\fR,
+\fBbs\fR,
+\fBbk\fR,
+\fBvcm\fR,
+\fBvacm\fR,
+\fBvgps\fR
+and
+\fBmm\fR\&. The write matrix is the default selection, because only write dependencies can create new nodes in decision diagrams\&. A bad variable order in the write matrix thus leads to a large number of peak nodes during reachability analysis\&. A bad variable order in the read matrix can also lead to a slow reachability analysis, but typically not as severe as a bad variable order in the write matrix\&. Slow reachability analysis due to a bad variable order in the read matrix causes many recursive calls to the relational product operation\&. Typically it is best that read dependencies are moved to the top DD level, thus left most in the read matrix\&.
+.RE
+.PP
+sc
+.RS 4
+Select the combined matrix for
+\fBcs\fR,
+\fBcsa\fR,
+\fBcw\fR,
+\fBca\fR,
+\fBrs\fR,
+\fBbcm\fR,
+\fBbs\fR,
+\fBbk\fR,
+\fBvcm\fR,
+\fBvacm\fR,
+\fBvgps\fR
+and
+\fBmm\fR\&. The combined matrix is the logical or of the read and write matrix\&.
+.RE
+.PP
+bg
+.RS 4
+Use a bipartite graph (default) for
+\fBbcm\fR,
+\fBbk\fR,
+\fBbs\fR,
+\fBvcm\fR,
+\fBvacm\fR
+and
+\fBvgps\fR\&.
+.RE
+.PP
+tg
+.RS 4
+Create a total graph of the bipartite graph for
+\fBbcm\fR,
+\fBbk\fR,
+\fBbs\fR,
+\fBvcm\fR,
+\fBvacm\fR
+and
+\fBvgps\fR\&. This adds more vertices and edges thus increasing computation time, but sometimes provides a better ordering\&.
+.RE
+.sp
+Below, the sparse matrix algorithms prefixed with
+\fBb\fR
+are only available when LTSmin is compiled with Boost\&. Algorithms prefixed with
+\fBv\fR
+are only available when LTSmin is compiled with ViennaCL\&.
+.PP
+bcm
+.RS 4
+Apply Boost\(cqs Cuthill\-McKee ordering\&.
+.RE
+.PP
+bk
+.RS 4
+Apply Boost\(cqs King ordering\&.
+.RE
+.PP
+bs
+.RS 4
+Apply Boost\(cqs Sloan ordering\&.
+.RE
+.PP
+vcm
+.RS 4
+Apply ViennaCL\(cqs Cuthill\-McKee ordering\&.
+.RE
+.PP
+vacm
+.RS 4
+Apply ViennaCL\(cqs advanced Cuthill\-McKee ordering\&.
+.RE
+.PP
+vgps
+.RS 4
+Apply ViennaCl\(cqs Gibbs\-Poole\-Stockmeyer ordering\&.
+.RE
+.PP
+f
+.RS 4
+Apply FORCE ordering\&.
+.RE
+.RE
+.PP
+\fB\-\-row\-perm\fR=\fIPERM\fR
+.RS 4
+Apply row permutation
+\fIPERM\fR, where
+\fIPERM\fR
+is a sequence of row numbers, separated by a comma\&. E\&.g\&. the vector 2,1,0 will swap row 2 with row 0\&.
+.RE
+.PP
+\fB\-\-col\-perm\fR=\fIPERM\fR
+.RS 4
+Apply column permutation
+\fIPERM\fR, where
+\fIPERM\fR
+is a sequence of column numbers, separated by a comma\&. E\&.g\&. the vector 2,1,0 will swap column 2 with column 0\&.
+.RE
+.PP
+\fB\-\-col\-ins\fR=\fIPAIRS\fR
+.RS 4
+Insert columns before other columns in the dependency matrix\&.
+.sp
+\fIPAIRS\fR
+is a comma\-separated sequence of pairs
+\fI<(C\&.C\fR,)+>\*(Aq\&. E\&.g\&.
+\fB\-\-col\-ins=1\&.0\fR
+will insert column
+\fB1\fR
+before column
+\fB0\fR\&. Each pair contains a source column
+\fBC\fR
+and a target column
+\fBC\*(Aq\fR\&. During the application of the whole sequence,
+\fBC\fR
+will always be the column number that corresponds with the column before the application of the whole sequence\&. The column number
+\fBC\*(Aq\fR
+will always be the column during the application of the whole sequence\&. This means that in for example
+\fB\-\-col\-ins=2\&.0,1\&.0\fR, first column
+\fB2\fR
+is inserted at position
+\fB0\fR, then column
+\fB1\fR
+is inserted at position
+\fB0\fR\&. The result will be that the original column
+\fB2\fR
+will be at position
+\fB1\fR\&. Another important detail is that when
+\fB\-\-col\-ins\fR
+is used, all source columns will temporarily be "removed" during reordering from the dependency matrix, i\&.e\&. when the
+\fB\-r\fR,\fB\-\-regroup\fR
+option is given\&. After reordering is done, the columns will be inserted at the desired target position\&. In other words, reordering algorithms given by the option
+\fB\-r\fR,\fB\-\-regroup\fR, will only be applied on the dependency matrix with source columns removed\&.
+.RE
+.PP
+\fB\-\-sloan\-w1\fR=\fIWEIGHT1\fR
+.RS 4
+Use
+\fIWEIGHT1\fR
+as the first weight for the Sloan algorithm, see
+\m[blue]\fBhttps://www\&.boost\&.org/doc/libs/1_66_0/libs/graph/doc/sloan_ordering\&.htm\fR\m[]\&.
+.RE
+.PP
+\fB\-\-sloan\-w2\fR=\fIWEIGHT2\fR
+.RS 4
+Use
+\fIWEIGHT2\fR
+as the second weight for the Sloan algorithm, see
+\m[blue]\fBhttps://www\&.boost\&.org/doc/libs/1_66_0/libs/graph/doc/sloan_ordering\&.htm\fR\m[]\&.
+.RE
+.PP
+\fB\-\-graph\-metrics\fR
+.RS 4
+Print Boost\(cqs and ViennaCL\(cqs graph metrics (only available when LTSmin is compiled with Boost or ViennaCL)\&.
+.RE
+.PP
+\fB\-\-regroup\-exit\fR
+.RS 4
+Exit with 0 when regrouping is done\&.
+.RE
+.PP
+\fB\-\-regroup\-time\fR
+.RS 4
+Print timing information of each transformation, given in sequence
+\fB\-\-regroup\fR
+(\fB\-r\fR)\&.
+.RE
+.PP
+\fB\-\-mucalc\fR=\fIFILE\fR|\fIFORMULA\fR
+.RS 4
+Compute a parity game for the mu\-calculus formula\&.
+.sp
+The mu\-calculus formula is provided in the file
+\fIFILE\fR
+or directly as a string
+\fIFORMULA\fR\&. The syntax and tool support are described in
+\fBltsmin-mucalc\fR(5)\&.
+.RE
+.PP
+\fB\-\-por\fR=\fIheur|del\fR
+.RS 4
+Activate partial\-order reduction
+.sp
+Partial\-Order Reduction (POR) can reduce the state space when searching for deadlocks (\-d) or accepting cycles (\-\-ltl)\&. Two POR algorithms are available:
+.PP
+heur
+.RS 4
+Uses a cost\-based heuristic beam\-search to find the smallest stubborn set
+.RE
+.PP
+del
+.RS 4
+Uses Valmari\(cqs deletion algorithm to find the smallest stubborn set by iteratively removing transitions while maintaining the constraints\&.
+.RE
+.RE
+.PP
+\fB\-\-weak\fR
+.RS 4
+Use weak commutativity in partial\-order reduction\&. Possibly yielding better reductions\&.
+.RE
+.PP
+\fB\-\-leap\fR
+.RS 4
+Use leaping partial\-order reduction, by combining several disjoint stubborn sets sequentially\&.
+.RE
+.SH "ENVIRONMENT VARIABLES"
+.sp
+LTSmin supports the following list of environment variables\&.
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.B Table\ \&1.\ \&Environment Variables:
+.TS
+allbox tab(:);
+ltB ltB ltB.
+T{
+Name
+T}:T{
+Unit
+T}:T{
+Description
+T}
+.T&
+lt lt lt
+lt lt lt.
+T{
+.sp
+LTSMIN_MEM_SIZE
+T}:T{
+.sp
+bytes
+T}:T{
+.sp
+Sets the amount of system memory to the given value\&.
+T}
+T{
+.sp
+LTSMIN_NUM_CPUS
+T}:T{
+.sp
+constant
+T}:T{
+.sp
+Sets the amount of CPUs to the given value\&.
+T}
+.TE
+.sp 1
+.sp
+The variables \fBLTSMIN_MEM_SIZE\fR, and \fBLTSMIN_NUM_CPUS\fR are particularly relevant when neither \fBsysconf(3)\fR nor \fBcgroups(7)\fR is able to properly detect these limits, e\&.g\&. when LTSmin runs on Travis CI in a docker container\&.
+.SS "LTS I/O Options"
+.PP
+\fB\-\-block\-size\fR=\fIBYTES\fR
+.RS 4
+Size of a block in bytes\&. Defaults to 32,768\&.
+.RE
+.PP
+\fB\-\-cluster\-size\fR=\fIBLOCKS\fR
+.RS 4
+Number of blocks in a cluster\&. Defaults to 32\&.
+.RE
+.SS "Hybrid Runtime Options"
+.sp
+The Hybrid Runtime Environment provides startup options for several parallel architectures\&.
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBPosix threads options\fR
+.RS 4
+.sp
+If the application supports it and Posix threads are supported by the OS then the following option is available:
+.PP
+\fB\-\-threads[=\fR\fB\fIcount\fR\fR\fB]\fR
+.RS 4
+Start
+\fIcount\fR
+worker threads\&. The default count is the number of CPU\(cqs in the system\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBPosix processes options\fR
+.RS 4
+.sp
+If the application supports it and Posix shared memory is supported by the OS then the following option is available:
+.PP
+\fB\-\-procs[=\fR\fB\fIcount\fR\fR\fB]\fR
+.RS 4
+Fork
+\fIcount\fR
+worker processes\&. The default count is the number of CPUs in the system\&.
+.RE
+.sp
+Note that MacOS X only supports Posix shared memory from version 10\&.7 (Lion) onwards\&.
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBMPI options\fR
+.RS 4
+.sp
+If the application supports it and MPI support was compiled into the binary then the following options are available:
+.PP
+\fB\-\-workers=\fR\fB\fIcount\fR\fR
+.RS 4
+Start the program with
+\fIcount\fR
+MPI workers\&.
+.RE
+.PP
+\fB\-\-mpirun=\fR\fB\fImpirun arguments\fR\fR
+.RS 4
+Invoke mpirun with the given arguments\&.
+.RE
+.PP
+\fB\-\-mpi\fR
+.RS 4
+Ignore
+\fB\-\-workers\fR
+and
+\fB\-\-mpirun\fR
+options and start the MPI runtime\&.
+.RE
+.RE
+.SS "General Options"
+.PP
+\fB\-v\fR
+.RS 4
+Increase the level of verbosity
+.RE
+.PP
+\fB\-q\fR
+.RS 4
+Be quiet; do not print anything to the terminal\&.
+.RE
+.PP
+\fB\-\-debug=\fR\fB\fIfile\fR\fR
+.RS 4
+Enable debugging output for
+\fIfile\fR\&.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+Print version string of this tool\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print help text
+.RE
+.PP
+\fB\-\-usage\fR
+.RS 4
+Print short usage summary\&.
+.RE
+.PP
+\fB\-\-stats\fR
+.RS 4
+Enable statistics gathering/printing\&.
+.RE
+.PP
+\fB\-\-timeout=INT\fR
+.RS 4
+Terminate after the given amount of seconds\&.
+.RE
+.PP
+\fB\-\-where\fR
+.RS 4
+Include file and line number in debug messages\&.
+.RE
+.PP
+\fB\-\-when\fR
+.RS 4
+Include the wall time since program start in all messages\&.
+.RE
+.SH "FILE FORMATS"
+.sp
+The following file formats are supported:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Directory format (\fI*\&.dir\fR,
+\fI*\&.dz\fR
+and
+\fI*\&.gcf\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Vector format (\fI*\&.dir\fR,
+\fI*\&.gcd\fR,
+\fI*\&.gcf\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Binary Coded Graphs (\fI*\&.bcg\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Aldebaran Format (\fI*\&.aut\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+FSM Format (\fI*\&.fsm\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+MRMC/Prism (\fI*\&.tra\fR+\fI*\&.lab\fR)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+PGSolver format (\fI*\&.pg\fR)
+.RE
+.sp
+If a tool operates in streaming mode then support for file formats is limited, as can be seen in the following table:
+.TS
+allbox tab(:);
+ltB ltB ltB.
+T{
+Format
+T}:T{
+Streaming mode
+T}:T{
+Load/Store mode
+T}
+.T&
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt
+lt lt lt.
+T{
+.sp
+DIR
+T}:T{
+.sp
+R/W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+VEC
+T}:T{
+.sp
+R/W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+BCG
+T}:T{
+.sp
+W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+AUT
+T}:T{
+.sp
+W
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+FSM
+T}:T{
+.sp
+W
+T}:T{
+.sp
+W
+T}
+T{
+.sp
+TRA
+T}:T{
+.sp
+\-
+T}:T{
+.sp
+R/W
+T}
+T{
+.sp
+PG
+T}:T{
+.sp
+\-
+T}:T{
+.sp
+W
+T}
+.TE
+.sp 1
+.sp
+The directory format uses multiple files to store an LTS\&. The various extension explain how these files are stored in the underlying file system\&. The \fI*\&.dir\fR format uses multiple files in a directory without compression\&. If the LTS has one edge label, no state labels and does not store state vectors then these files are backwards compatible\&. Neither the \fI*\&.dz\fR nor the \fI*\&.gcf\fR formats are backwards compatible\&. Both formats use compression\&. The first uses a directory for the files, second interleaves files into a single file\&.
+.sp
+If you try to open a \fI*\&.dir\fR with the old mCRL tools and you get the error message:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+wrong file version: 0
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.sp
+then the directory is probably compressed\&. If that happens then you may convert the directory by typing the command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+ltsmin\-convert bad\&.dir good\&.dir
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SH "EXIT STATUS"
+.PP
+\fB0\fR
+.RS 4
+Successful termination\&.
+.RE
+.PP
+\fB1\fR
+.RS 4
+Counter example found\&.
+.RE
+.PP
+\fB255\fR
+.RS 4
+Some error occurred\&.
+.RE
+.SH "SUPPORT"
+.sp
+Send questions, bug reports, comments and feature suggestions to the \m[blue]\fBLTSmin Support Team\fR\m[]\&\s-2\u[1]\d\s+2\&.
+.SH "SEE ALSO"
+.sp
+\fBltsmin\fR(7), \fBltsmin-convert\fR(1), \fBltsmin-printtrace\fR(1), \fBltsmin-ltl\fR(5), \fBltsmin-mucalc\fR(5), \fBetf\fR(5), \m[blue]\fBmuCRL\fR\m[]\&\s-2\u[2]\d\s+2, \m[blue]\fBmCRL2\fR\m[]\&\s-2\u[3]\d\s+2, \m[blue]\fBDiVinE 2\fR\m[]\&\s-2\u[4]\d\s+2, \m[blue]\fBprom\fR\m[]\&\s-2\u[5]\d\s+2, and \m[blue]\fBProB\fR\m[]\&\s-2\u[6]\d\s+2
+.SH "NOTES"
+.IP " 1." 4
+LTSmin Support Team
+.RS 4
+\%mailto:ltsmin-support@lists.utwente.nl
+.RE
+.IP " 2." 4
+muCRL
+.RS 4
+\%http://www.cwi.nl/~mcrl/
+.RE
+.IP " 3." 4
+mCRL2
+.RS 4
+\%http://www.mcrl2.org/
+.RE
+.IP " 4." 4
+DiVinE 2
+.RS 4
+\%http://divine.fi.muni.cz/
+.RE
+.IP " 5." 4
+prom
+.RS 4
+\%http://eprints.eemcs.utwente.nl/22042/
+.RE
+.IP " 6." 4
+ProB
+.RS 4
+\%https://www3.hhu.de/stups/prob/index.php/Main_Page
+.RE

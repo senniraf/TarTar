@@ -1,0 +1,275 @@
+'\" t
+.\"     Title: spgsolver
+.\"    Author: [FIXME: author] [see http://www.docbook.org/tdg5/en/html/author]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/17/2018
+.\"    Manual: LTSmin Manual
+.\"    Source: LTSmin 3.0.2
+.\"  Language: English
+.\"
+.TH "SPGSOLVER" "1" "12/17/2018" "LTSmin 3\&.0\&.2" "LTSmin Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+spgsolver \- symbolic parity game solver\&.
+.SH "SYNOPSIS"
+.sp
+spgsolver [OPTIONS] <game>
+.SH "OPTIONS"
+.SS "Symbolic Parity Game Solver Options"
+.PP
+\fB\-\-attr\fR=\fIdefault\fR|\fIchain\fR|\fIpar\fR|\fIpar2\fR
+.RS 4
+Choose attractor function\&.
+.sp
+Available attractor functions:
+.PP
+\fIdefault\fR
+.RS 4
+Straightforward attractor computation\&.
+.RE
+.PP
+\fIchain\fR
+.RS 4
+Chaining attractor, applies transition groups in a different order than
+\fIdefault\fR
+in computing an attractor level\&.
+.RE
+.PP
+\fIpar\fR
+.RS 4
+Spawns parallel tasks to compute forward and backward steps for each attractor level\&.
+.RE
+.PP
+\fIpar2\fR
+.RS 4
+Spawns more parallel tasks than
+\fIpar\fR, by applying forward steps in parallel to the result of the backward steps of the different transition groups\&.
+.RE
+.RE
+.PP
+\fB\-\-saturating\-attractor\fR
+.RS 4
+Use saturation in the chaining attractor\&.
+.RE
+.PP
+\fB\-\-pg\-write\-dot\fR
+.RS 4
+Write dot files to disk during parity game solving for debugging\&.
+.RE
+.SS "Vector Set Options"
+.PP
+\fB\-\-vset\fR=\fITYPE\fR
+.RS 4
+Select type of vector set:
+\fIldd64\fR,
+\fIldd\fR,
+\fIlist\fR,
+\fItree\fR,
+\fIfdd\fR,
+\fIddd\fR,
+\fIsylvan\fR, or
+\fIlddmc\fR\&. With
+\fIldd64\fR, the 64\-bit ListDD list encoding is used (non\-ATerm based)\&. With
+\fIldd\fR, the 32\-bit ListDD list encoding is used (non\-ATerm based)\&. With
+\fIlist\fR, ATermDD with list encoding is used\&. With
+\fItree\fR, ATermDD with tree encoding is used\&. With
+\fIfdd\fR, BuDDy FDDs are used\&. With
+\fIddd\fR, libDDD SDDs are used\&. With
+\fIsylvan\fR, the parallel BDD package Sylvan is used\&. With
+\fIlddmc\fR, the parallel LDD package LDDmc is used\&. Defaults to first available type in the list\&.
+.RE
+.PP
+\fBvset\-cache\-diff\fR=\fIdiff\fR
+.RS 4
+Influences the size of operations cache when counting precisely with bignums: cache size = floor((2log(\fInodes\-to\-count\fR) + <diff>)^2)\&. More precisely; LTSmin will bitshift <diff> bits to the left or right on the number of nodes in the vector set, depending on the signedness of <diff>\&. The default is
+\fB0\fR, meaning that if the cache is full the number of bignums in memory will be equal to the number of nodes in the vector set\&. The default value seems to work well, even when the number vectors in the vector set is very large relative to the number of nodes\&. If the number of vectors relative to the number of nodes is lower, <diff> may be decreased\&. The user may want to set <diff> as low as possible (to save memory), while keeping the operations cache effective\&. Bignums are not floating point numbers and may thus consume a lot of memory\&.
+.RE
+.SS "ListDD Options"
+.PP
+\fB\-\-ldd32\-step\fR=\fISTEP\fR
+.RS 4
+The internal tables of ListDD resize according to the Fibonacci series\&. This option sets the initial size to the Fibonacci number
+\fISTEP\fR\&. Defaults to 30\&.
+.RE
+.PP
+\fB\-\-ldd32\-cache\fR=\fIDIFF\fR
+.RS 4
+Set Fibonacci difference
+\fIDIFF\fR
+between the cache and nodes (DIFF may be negative)\&. Defaults to 1\&.
+.RE
+.SS "ListDD Options"
+.PP
+\fB\-\-ldd\-step\fR=\fISTEP\fR
+.RS 4
+The internal tables of ListDD resize according to the Fibonacci series\&. This option sets the initial size to the Fibonacci number
+\fISTEP\fR\&. Defaults to 30\&.
+.RE
+.PP
+\fB\-\-ldd\-cache\fR=\fIDIFF\fR
+.RS 4
+Set Fibonacci difference
+\fIDIFF\fR
+between the cache and nodes (DIFF may be negative)\&. Defaults to 1\&.
+.RE
+.SS "BuDDy Options"
+.PP
+\fB\-\-cache\-ratio\fR=\fIRATIO\fR
+.RS 4
+Set cache ration\&. Defaults to 64\&.
+.RE
+.PP
+\fB\-\-max\-increase\fR=\fINUMBER\fR
+.RS 4
+Set maximum increase\&. Defaults to 1,000,000\&.
+.RE
+.PP
+\fB\-\-min\-free\-nodes\fR=\fIPERCENTAGE\fR
+.RS 4
+Sets the minimum percentage of free nodes as integer between 0 and 100\&. Defaults to 20\&.
+.RE
+.PP
+\fB\-\-fdd\-bits\fR=\fIBITS\fR
+.RS 4
+Sets the number of bits for each FDD variable\&. Defaults to 16\&.
+.RE
+.PP
+\fB\-\-fdd\-reorder\fR=\fISTRATEGY\fR
+.RS 4
+Sets the strategy for dynamic variable reordering\&. Valid options are
+\fInone\fR,
+\fIwin2\fR,
+\fIwin2ite\fR,
+\fIwin3\fR,
+\fIwin3ite\fR,
+\fIsift\fR,
+\fIsiftite\fR,
+\fIrandom\fR\&. Refer to the
+\m[blue]\fBBuDDy manual\fR\m[]\&\s-2\u[1]\d\s+2
+for details\&. Defaults to
+\fInone\fR\&.
+.RE
+.SS "Sylvan Options"
+.PP
+\fB\-\-sylvan\-threads\fR=\fINUMBER\fR
+.RS 4
+Set number of workers\&. Defaults to 1\&.
+.RE
+.sp
+*\-\-sylvan\-dqsize Sets the size of the (static) task queue for work stealing in Wool to N\&. Defaults to 100000\&.
+.PP
+\fB\-\-sylvan\-tablesize\fR=\fINUMBER\fR
+.RS 4
+Sets the size of the BDD table to 1<<N nodes\&. Defaults to 23\&. Maximum of 29\&.
+.RE
+.PP
+\fB\-\-sylvan\-cachesize\fR=\fINUMBER\fR
+.RS 4
+Set the size of the memoization table to 1<<N entries\&. Defaults to 23\&.
+.RE
+.PP
+\fB\-\-sylvan\-bits\fR=\fIBITS\fR
+.RS 4
+Sets the number of bits for each integer in the state vector\&. Defaults to 16\&.
+.RE
+.PP
+\fB\-\-sylvan\-granularity\fR=\fINUMBER\fR
+.RS 4
+Controls memoization table usage\&. Only use the memoization table every 1/N BDD levels\&. Defaults to 1, i\&.e\&., always use the table\&.
+.RE
+.SS "LDDmc Options"
+.PP
+\fB\-\-lddmc\-tablesize\fR=\fINUMBER\fR
+.RS 4
+Sets the size of the BDD table to 1<<N nodes\&. Defaults to 23\&. Maximum of 29\&.
+.RE
+.PP
+\fB\-\-lddmc\-cachesize\fR=\fINUMBER\fR
+.RS 4
+Set the size of the memoization table to 1<<N entries\&. Defaults to 23\&.
+.RE
+.SS "Lace Options"
+.PP
+\fB\-\-lace\-workers\fR=\fINUMBER\fR
+.RS 4
+Set number of Lace workers (threads for parallelization)\&. Defaults to the number of available cores if parallel algorithms are used, 1 otherwise\&.
+.RE
+.PP
+\fB\-\-lace\-dqsize\fR=\fINUMBER\fR
+.RS 4
+Set length of Lace task queue\&. Defaults to 40960000\&.
+.RE
+.PP
+\fB\-\-lace\-stacksize\fR=\fINUMBER\fR
+.RS 4
+Set size of program stack in kilo bytes\&. Defaults to 0, which means using the default stack size\&.
+.RE
+.SS "General Options"
+.PP
+\fB\-v\fR
+.RS 4
+Increase the level of verbosity
+.RE
+.PP
+\fB\-q\fR
+.RS 4
+Be quiet; do not print anything to the terminal\&.
+.RE
+.PP
+\fB\-\-debug=<file\&.c>\fR
+.RS 4
+Enable debugging output for file\&.c (option allowed multiple times)\&.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+Print version string of this tool\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Print help text
+.RE
+.PP
+\fB\-\-usage\fR
+.RS 4
+Print short usage summary\&.
+.RE
+.SH "EXIT STATUS"
+.PP
+0
+.RS 4
+Successful termination\&.
+.RE
+.PP
+255
+.RS 4
+Some error occurred\&.
+.RE
+.SH "SEE ALSO"
+.sp
+\fBpbes2lts-sym\fR(1)
+.SH "NOTES"
+.IP " 1." 4
+BuDDy manual
+.RS 4
+\%http://buddy.sourceforge.net/manual/group__reorder.html
+.RE
