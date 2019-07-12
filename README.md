@@ -50,6 +50,10 @@ To run tests of the installation you can run:
 sh tests/run_tests.sh
 ```
 ### UPPAAL DBM Library
+Download the patched version from:
+```
+wget http://mcc.uppaal.org/opaal/UPPAAL-dbm-2.0.8-opaal3.tar.gz
+```
 Unpack the archive into the tartar directory.
 
 You need the following packages:
