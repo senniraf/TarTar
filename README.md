@@ -4,8 +4,11 @@
 
 ### Table of Contents
 **[License](#license)**
+
 **[Get TarTar](#get-tartar)**
+
 **[Installation](#installation)**
+
 **[Usage Instructions](#usage-instructions)**
 
 ## License
@@ -30,6 +33,7 @@ git clone https://github.com/sen-uni-kn/tartar
 The following instructions were tested on and are written for Ubuntu 18.04.2. 
 ### UPPAAL
 Simply extract the archive into the tartar directory and make sure you have the latest Java Development Kit (JDK).
+
 We used:
 ```
 sudo apt install openjdk-11-jdk
@@ -47,6 +51,7 @@ sh tests/run_tests.sh
 ```
 ### UPPAAL DBM Library
 Unpack the archive into the tartar directory.
+
 You need the following packages:
 ```
 sudo apt install libboost-all-dev
@@ -56,6 +61,7 @@ To install it, after unpacking:
 ./setup.sh
 ```
 Choose build dir, install path, and compiler.
+
 Then
 ```
 make
@@ -67,6 +73,7 @@ You need swig, so:
 sudo apt install swig
 ```
 You should make sure that the install path for the DBM library is correctly set in `setup.py`, we recommend making the path absolute.
+
 To install:
 ```
 python setup.py build
@@ -87,6 +94,7 @@ export PYTHONPATH=BASEDIR/tartar/opaal:BASEDIR/tartar/pyuppaal
 ```
 
 If you followed the above steps, you should now be able to run opaal.
+
 To check everything is alright, you can run the command "nosetests" from the opaal root directory, and you should get only one error (you do not need to install mpi4py).
 
 ### LTSmin
