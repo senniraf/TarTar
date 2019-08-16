@@ -107,10 +107,10 @@ You need the following packages:
 ```
 sudo apt install bison flex zlib1g-dev libpopt-dev ant
 ```
-First you should do:
+First you should execute ltsminreconf, you may have to make it executable first:
 ```
-git submodule update --init
-autoreconf -i
+chmod +x ltsminreconf
+./ltsminreconf
 ```
 Now install with
 ```
