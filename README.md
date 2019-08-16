@@ -62,13 +62,16 @@ To install it, after unpacking:
 ```
 ./setup.sh
 ```
-Choose build dir, install path, and compiler.
+Choose build dir, install path (you will have to use this directory in the setup.py for pydbm later), and compiler.
+Choose compile options "2" and configuration options "6 11".
 
 Then
 ```
 make
 sudo make install
 ```
+You might get an error similar to "unable to find a string literal operator" in this case you need to adjust the used C++ standard in setup.sh. At the bottom of the file add 'std=c++03' to the CFLAGS variable.
+
 ### pydbm
 You need swig, so:
 ```
@@ -92,7 +95,7 @@ sudo apt install libopenmpi-dev python-dev openmpi-bin python-numpy python-matpl
 ```
 At this point you should add the Opaal and pyuppaal directories to you `PYTHONPATH` variable in your `.bashrc`, by adding the line:
 ```
-export PYTHONPATH=BASEDIR/tartar/opaal:BASEDIR/tartar/pyuppaal
+export PYTHONPATH=$BASEDIR/tartar/opaal:$BASEDIR/tartar/pyuppaal
 ```
 
 If you followed the above steps, you should now be able to run opaal.
