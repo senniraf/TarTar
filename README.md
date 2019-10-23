@@ -24,7 +24,7 @@ TarTar itself is licensed by the MIT license.
  - [UPPAAL DBM Library](http://people.cs.aau.dk/~adavid/UDBM/)(download necessary)
 
 ## Get TarTar
-Download TarTar directly from github. You will need to download [Uppaal](http://www.uppaal.org/) (4.1.19) and [Z3](https://github.com/Z3Prover/z3/releases/tag/z3-4.8.3) (4.8.3) from their websites.
+Download TarTar directly from github. You will need to download [Uppaal](http://www.uppaal.org/) (4.1.23) and [Z3](https://github.com/Z3Prover/z3/releases/tag/z3-4.8.3) (4.8.3) from their websites.
 ```
 git clone https://github.com/sen-uni-kn/tartar
 ```
