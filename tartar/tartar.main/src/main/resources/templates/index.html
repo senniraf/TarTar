@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<link rel="icon" href="/favicon.png">
+<title>TarTar</title>
+<link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+</head>
+<body>
+	<div th:include="navigation :: navigation"></div>
+	<div>
+
+		<h1>Welcome to</h1>
+		<h2 th:utext="${message}">..!..</h2>
+
+		<a th:href="@{/uploadXMIFile}">Create new project</a>
+	</div>
+</body>
+
+</html>

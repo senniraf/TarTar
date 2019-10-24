@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<title>New Project</title>
+<link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+</head>
+
+<body>
+	<div th:include="navigation :: navigation"></div>
+	<div style="padding: 10px;">
+		<h1>Upload Uppaal File</h1>
+		<br />
+
+		<form th:object="${UploadForm}" method="POST"
+			enctype="multipart/form-data">
+			<input type="hidden" th:name="${_csrf.parameterName}"
+				th:value="${_csrf.token}" /> <input type="hidden" name="sessionID"
+				th:value="${sessionID}" />
+
+			<div>
+				Select an Uppaal file (max. size 25MB) <br /> <input
+					th:field="*{fileDatas}" type="file" />
+			</div>
+			<br />
+			<div>
+				or choose an example file: <br> <select
+					th:field="*{exampleFile}">
+					<option th:each="dropdownValue: ${fileList}"
+						th:value="${dropdownValue}" th:text="${dropdownValue}"></option>
+				</select>
+			</div>
+			<br /> <br /> <input type="submit" value="Confirm Selection">
+		</form>
+	</div>
+</body>
+</html>

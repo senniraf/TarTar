@@ -1,0 +1,111 @@
+uppaal2smt2
+
+Main work /repair calculation loop is in file "Diagnostic.java"
+
+todo:
+- run webserver with with-dependencies.jar does not work
+- Corruption for reset, urgent not implemented
+
+- Repair computation with invariant property is wrong
+- Not every reset repair is applicable
+- Implement analysis for urgent repairs
+- Urgent repair should be checked for state machine locations
+- Bug: Clocks in declaration "clock x,y" are not detected
+- Bug: Constraint TLRI-TAVI+1 is parsed wrong as TLRI - (TAVI+1)
+
+Future:
+- calculate min/max for possible bound variation repairs
+
+Version 3.0.0
++ split TarTar in several subprojects and adjust layout to JobScheduler style
++ Web: output log messages
++ RepairComputation: keep repaired model files, with index of computation sequence
++ Check if seeded fault is admissible
++ Bug: TDTs without a transition are not repaired
++ Fault Seeding - Reset/Reference: use global and local clocks
++ Fault Seeding - Urgency: remove from states "committed" tag
++ Job_SeedExperiment: create several repairs for a corrupted model
+
+Version 2.7.0
++ Use JobScheduler to create CAV experiments
+
+Version 2.6.0
++ Create GUI for selecting a model file and do an experiment
+
+Version 2.5.2 (Experiments of CAV paper without several Bugs)
++ Bug: Wrong columns are given in experiment result file
+
+Version 2.5.0
++ LTSmin edge with labels to xml file
++ Admissibility check with AutomataLib (from University Dortmund)
++ Ignore constraint in guards and invariants without clock comparisons
++ Ignore in property other conditions than clocks conditions
++ Property for analysis is invariant if invariants contains time guard
++ Bug: Admissibility check did not work for invariants with comments
++ Output memory consumption of z3
++ Create experimental output data
++ Timeout for Z3 can be set
++ Bug: Repairs with division are always inadmissible
++ Add counterexample trace for inadmissibility
++ Fault seeding get maximal constraint comparison 
+
+Version 2.4.0 (Version used for presentation of Grenoble)
++ Parse complex formulas e.g. Bool v "v = c1<2 && ((c2>4) || (v1=2)"
++ Restructured code order
++ Implemented experiment: Corrupt an NTA and find error afterwards
++ Maven creates automatically an jar-file, which can be executed
++ Put names of modification variables (beta, which are soft-asserted), in correspondence with paper
++ Add logger for timed events
++ Delete last transition and state in smt2 trace, since they are not necessary
++ Substitute clock variables by sum of delay since last reset
+- Check if other modification than bound variation works (reset/urgent?)
+- Reuse first variation variables if state or transition is again in a trace (only for boundary)
+- Calculate repairs of bound variation with reals and normalize afterwards
+
+Version 2.3.0
++ Changed way of adding id of constraints
++ Give possibility to call Uppaal to create counterexample trace
+- Create automatically corruption in NTAs
+
+Version 2.2.1
++ Added untimed equivalence test
++ All solution for changed time constraints are found by Z3
++ Change time constraints in orginal files (not complete)
+
+Version 2.2.0
++ Use java-smt (implicitly also maven)
+
+Version 2.1.1
++ Created a simple GUI for usage
+
+Version 2.0.3
++ Modification are done not during text creation, but as a separate modification step
++ SMT2Model has extra tags on constraints, to identify why a constraint was created (e.g. delay, invariant, guard)
++ Parse variables of a trace
+
+Version 2.0.2
++ Bugfix: Write correct state names in transition "fromState -> toState"
++ SMT22TextFunctionImply creates a function with the model trace and forall imply sign
+
+Version 2.0.1
++ Bugfix: invariants check on current clock without delay
++ Modification are done not during text creation, but as a separate modification step
+  (implemented are already: boundary, urgent, reset)
+
+Version 2.0.0
++ Automated call of z3 (quantifier elimination, soft asserts)
++ Update Z3 library to version 4.8.0
+
+Version 1.4.0
++ Added diagnostics of Sirui Liu
+
+Version 1.3.0
++ Add direct call of Z3
+
+Version 1.2.0
++ Parse failure trace and model of uppaal
+
+Version 1.1.0
++ Parse failure trace of uppaal
++ Check boundary epsilon variation
++ Add quantifier elimination

@@ -1,0 +1,16 @@
+<experiment>
+	<parameter>
+		<resource id="model_fail" value="cav/0db.xml" src="file"/>
+		<resource id="model_good" value="cav/1repairedDB.xml" src="file"/>
+	</parameter>
+	<analysis name="BreakModel">
+		<job name="Job_Diagnosis">
+			<input name="Model" ref="model_fail" />
+			<input name="Parameter" value="BOUNDARY" />
+		</job>
+		<job name="Job_Experiment">
+			<input name="Model" ref="model_good" />
+			<input name="Timeout" value="120" />
+		</job>
+	</analysis>
+</experiment>

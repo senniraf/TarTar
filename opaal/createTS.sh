@@ -14,7 +14,6 @@ file_out=$file"_lts.xml"
 fi
 
 
-
 #echo $file
 #echo $file_in
 #echo $file_out
@@ -30,12 +29,17 @@ fi
 #compile $file.cpp
 g++  -shared -O0 -fPIC -I/usr/local/uppaal/include -L/usr/local/uppaal/lib  -o $file.so $file.cpp -ludbm
 
-
+mem=$(free | awk '/^Mem:/{print $4}')
 #run reachability by ltsmin and write TS to $file.gcf
-opaal2lts-mc --state=table -s=25 --threads=1 --strategy=dfs -u=1 $file.so $file_out
+mem2=$(echo "l(0.9*$mem)/l(2)" | bc -l)
+mem3=${mem2%.*}
+echo --------------------------------------------------------------------------------------------------
+opaal2lts-mc --state=table -s=$mem3 --threads=1 --strategy=dfs -u=1 $file.so $file_out 
 
 rm $file.so
 rm $file.cpp
 
 # afterwards ltsmin-compare --trace file1 file2
 echo "a.b.c.txt" | rev | cut -d"." -f2-  | rev
+echo $mem
+echo $mem3

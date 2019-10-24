@@ -1,0 +1,18 @@
+<!DOCTYPE HTML>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>Error</title>
+<link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+</head>
+<body>
+	<div th:include="navigation :: navigation"></div>
+	<div>
+		<!--  <a th:href="@{/uploadXMIFile}">Error happend.</>-->
+		<h2>Error happend</h2>
+		<p th:utext="${errorCode}"></p>
+		<p th:utext="${errorMsg}"></p>
+	</div>
+</body>
+</html>

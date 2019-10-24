@@ -9,9 +9,9 @@ setup(
             Extension("_udbm_int", 
             sources=["udbm_int.i"], 
             swig_opts=['-c++'],
-            include_dirs=['../usr/uppaal/include'],
+            include_dirs=['/usr/local/uppaal/include'],
             libraries=['udbm'],
-            library_dirs=['../usr/uppaal/lib'],
+            library_dirs=['/usr/local/uppaal/lib'],
             extra_compile_args=["-fpermissive"]
             )
         ]

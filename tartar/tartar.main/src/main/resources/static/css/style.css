@@ -1,0 +1,51 @@
+h1 {
+	color: #0000FF;
+}
+
+h2 {
+	color: #FF0000;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table th, table td {
+	padding: 5px;
+}
+
+label {
+  width:200px;
+  float: left;
+}
+
+.msg {
+	height: 300px;
+	overflow: scroll;
+}
+
+ html{
+        display: flex;
+        flex-flow: row nowrap;  
+        justify-content: center;
+        align-content: center;
+        align-items: center;
+        height:100%;
+        margin: 10px;
+        padding: 10px;
+        background:#eeeeee;
+    }
+    body {
+        margin: 0;
+        flex: 0 1 auto;
+        align-self: auto;
+        /*recommend 1920 / 1080 max based on usage stats, use 100% to that point*/
+        width: 100%
+        max-width: 1024px;
+        height: 100%;
+        margin: 10px;
+        background:#fafafa;
+       /* -webkit-box-shadow: 0px 0px 96px 0px rgba(0,0,0,0.75);
+        -moz-box-shadow: 0px 0px 96px 0px rgba(0,0,0,0.75);
+        box-shadow: 0px 0px 96px 0px rgba(0,0,0,0.75);*/
+    }

@@ -1,0 +1,12 @@
+<div th:fragment="navigation">
+	<div style="border: 1px solid #ccc; padding: 5px;">
+		<a th:href="@{/index}">Index</a> &nbsp;|&nbsp; <a
+			th:href="@{/uploadXMIFile}">Repair Analysis</a> &nbsp;|&nbsp; <a
+			th:href="@{/uploadXMIFileSeed}">Fault Seed Analysis</a> &nbsp;|&nbsp;
+		<!--<a th:href="@{/uploadExperiment}">New Experiment</a>
+         &nbsp;|&nbsp; -->
+		<a th:href="@{/analysisRunning}">Running</a> &nbsp;|&nbsp; <a
+			th:href="@{/results}">Last Results</a> &nbsp;|&nbsp; <a
+			th:href="@{/info}">Info</a>
+	</div>
+</div>

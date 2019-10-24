@@ -1,0 +1,30 @@
+<experiment>
+	<parameter>
+		<resource id="model" value="tacas/1repairedDB2.xml" src="file"/>
+		<resource id="model" value="tacas/2csma.xml" src="file"/>
+		<resource id="model" value="tacas/3elevator.xml" src="file"/>
+		<resource id="model" value="tacas/4viking.xml" src="file"/>
+		<resource id="model" value="tacas/5bando.xml" src="file"/>
+		<resource id="model" value="tacas/6Pacemaker.xml" src="file"/>
+		<resource id="model" value="tacas/7SBR.xml" src="file"/>
+		<resource id="model" value="tacas/8FDDI.xml" src="file"/>
+
+		<resource id="mod" value="BOUNDARY" />
+		<resource id="mod" value="COMPARISON" />
+		<resource id="mod" value="REFERENCE" />
+		<resource id="mod" value="RESET" />
+		<resource id="mod" value="URGENT" />
+	</parameter>
+	<analysis name="{index}_{$model}_{$mod}">
+		<job name="Job_SeedExperiment">
+			<input name="Model" ref="model" />
+			<input name="Timeout" value="600" />
+			<input name="SeedKind" ref="mod" />
+			<input name="RepairKind" value="BOUNDARY" />
+			<input name="RepairKind" value="COMPARISON" />
+			<input name="RepairKind" value="REFERENCE" />
+			<input name="RepairKind" value="RESET" />
+			<input name="RepairKind" value="URGENT" />
+		</job>
+	</analysis>
+</experiment>

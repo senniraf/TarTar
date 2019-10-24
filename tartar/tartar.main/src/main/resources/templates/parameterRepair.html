@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<title>Set Parameter Repair Analysis</title>
+<link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+</head>
+
+<body>
+	<div th:include="navigation :: navigation"></div>
+	<div style="padding: 10px;">
+
+		<h3>Set Repair Options</h3>
+
+		<!-- myOptionsForm -->
+
+		<form th:object="${myOptionsForm}" method="POST" action=""
+			enctype="multipart/form-data">
+			<input type="hidden" th:name="${_csrf.parameterName}"
+				th:value="${_csrf.token}" />
+			<input type="hidden" name="sessionID"
+				th:value="${sessionID}" />
+
+			<div>
+				<label th:text="'Property'"></label> <select
+					th:field="*{propertyName}">
+					<option th:each="dropdownValue: ${propertyList}"
+						th:value="${dropdownValue}" th:text="${dropdownValue}"></option>
+				</select>
+			</div>
+			<br />
+			<div>
+				<label th:text="'Option'"></label> <select th:field="*{optionName}">
+					<option th:each="option: ${optionList}" th:value="${option}"
+						th:text="${option}"></option>
+				</select>
+			</div>
+			<br />
+			<div>
+				<label th:text="'Timeout (s)'"></label> <input th:field="*{timeZ3}"
+					style="width: 30px;" />
+			</div>
+			<br />
+			<div>
+				<input type="submit" value="Start">
+			</div>
+		</form>
+	</div>
+</body>
+</html>

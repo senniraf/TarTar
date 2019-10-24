@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Analyses</title>
+<link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+</head>
+
+<body>
+	<div>
+		<div th:include="navigation :: navigation"></div>
+		<br />
+		<table>
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:if="${SessionList.empty}">
+					<td colspan="2">No analysis is running</td>
+				</tr>
+				<tr th:each="job: ${SessionList}">
+					<td><span th:text="${job.name}"> Name </span></td>
+					<td><span th:text="${job.version}"> Version </span></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>

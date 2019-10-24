@@ -1,0 +1,20 @@
+<experiment>
+	<parameter>
+		<resource id="model" value="cav/1repairedDB.xml" src="file"/>
+		<resource id="model" value="cav/2csma.xml" src="file"/>
+		<resource id="model" value="cav/3elevator.xml" src="file"/>
+		<resource id="model" value="cav/4viking.xml" src="file"/>
+		<resource id="model" value="cav/5bando.xml" src="file"/>
+		<resource id="model" value="cav/6Pacemaker.xml" src="file"/>
+		<resource id="model" value="cav/7SBR.xml" src="file"/>
+		<resource id="model" value="cav/8FDDI.xml" src="file"/>
+	</parameter>
+	<analysis name="{index}_{$model}">
+		<job name="Job_SeedExperiment">
+			<input name="Model" ref="model" />
+			<input name="Timeout" value="120" />
+			<input name="RepairKind" ref="BOUNDARY" />
+			<input name="SeedKind" ref="BOUNDARY" />
+		</job>
+	</analysis>
+</experiment>

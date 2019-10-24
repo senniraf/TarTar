@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<name>JobLibrary_TarTar - Job_RepairComputation</name>
+	<artifactId>tartar.job_repairComputation</artifactId>
+	<url>http://maven.apache.org</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<junit.version>4.12</junit.version>
+		<jdom2.version>2.0.5</jdom2.version>
+		<java.version>10</java.version>
+	</properties>
+	<parent>
+		<groupId>kn.uni.sen.joblibrary.tartar</groupId>
+		<artifactId>trunk_tartar</artifactId>
+		<version>3.0.0</version>
+	</parent>
+	<dependencies>
+		<dependency>
+			<groupId>kn.uni.sen.jobscheduler</groupId>
+			<artifactId>jobscheduler.common</artifactId>
+			<version>${jobscheduler.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>kn.uni.sen.jobscheduler</groupId>
+			<artifactId>jobscheduler.common</artifactId>
+			<version>${jobscheduler.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>kn.uni.sen.joblibrary.tartar</groupId>
+			<artifactId>tartar.common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>kn.uni.sen.joblibrary.tartar</groupId>
+			<artifactId>tartar.job_uppaal2smt2</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>kn.uni.sen.joblibrary.tartar</groupId>
+			<artifactId>tartar.job_admissibility</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.microsoft.z3</groupId>
+			<artifactId>com.microsoft.z3</artifactId>
+			<version>4.8.3</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/com.microsoft.z3.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.25</version>
+		</dependency>
+		<!-- <dependency> <groupId>org.codehaus.janino</groupId> <artifactId>janino</artifactId> 
+			<version>3.0.9</version> </dependency> -->
+		<!-- <dependency> <groupId>libz3java</groupId> <artifactId>libz3java</artifactId> 
+			<version>1.0.0</version> <scope>system</scope> <systemPath>${project.basedir}/lib/libz3java.so</systemPath> 
+			</dependency> -->
+		<!-- <dependency> <groupId>org.sosy-lab</groupId> <artifactId>javasmt-solver-z3</artifactId> 
+			<version>z3-4.4.1-1558-gf96cfea</version> </dependency> -->
+	</dependencies>
+</project>
