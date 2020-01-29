@@ -1,0 +1,12 @@
+<experiment>
+	<parameter>
+		<resource id="model" value="crest20/busstop.xml" src="file"/>
+		<resource id="model" value="crest20/fischer_bad.xml" src="file"/>
+		<resource id="model" value="crest20/0db2.xml" src="file"/>
+	</parameter>
+	<analysis name="{index}_{$model}_{$mod}">
+		<job name="Job_TraceCausality">
+			<input name="Model" ref="model" />
+		</job>
+	</analysis>
+</experiment>

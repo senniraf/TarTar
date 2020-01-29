@@ -2,70 +2,66 @@ package kn.uni.sen.joblibrary.tartar.convert;
 
 import kn.uni.sen.joblibrary.tartar.common.SMT2_OPTION;
 import kn.uni.sen.jobscheduler.common.impl.JobAbstract;
-import kn.uni.sen.jobscheduler.common.model.EventHandler;
 import kn.uni.sen.jobscheduler.common.model.JobResult;
 import kn.uni.sen.jobscheduler.common.model.JobState;
-import kn.uni.sen.jobscheduler.common.resource.ResourceDescription;
+import kn.uni.sen.jobscheduler.common.model.ResourceInterface;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
+import kn.uni.sen.jobscheduler.common.resource.ResourceEnum;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
-import kn.uni.sen.jobscheduler.common.resource.ResourceInterface;
-import kn.uni.sen.jobscheduler.common.resource.ResourceList;
 import kn.uni.sen.jobscheduler.common.resource.ResourceTag;
 import kn.uni.sen.jobscheduler.common.resource.ResourceType;
 
 public class Job_Uppaal2Smt2 extends JobAbstract
 {
-	protected ResourceDescription descrPara = new ResourceDescription("Parameter", ResourceType.LIST);
-	{
-		descrPara.addChildDescription(new ResourceDescription("Parameter", ResourceType.ENUM));
-	}
-	protected ResourceDescription descrTrace = new ResourceDescription("Trace", ResourceType.FILE);
-	protected ResourceDescription descrModel = new ResourceDescription("Model", ResourceType.FILE);
-	protected ResourceDescription descrSmt2 = new ResourceDescription("SMT2", ResourceType.FILE);
+	public static final String PARAMETER = "Parameter";
+	public static final String TRACE = "Trace";
+	public static final String MODEL = "Model";
+	public static final String SMT2 = "SMT2";
 
-	protected ResourceDescription descrResultSmt2 = new ResourceDescription("SMT2", ResourceType.FILE);
 	ResourceFile resultSMT2 = null;
 
-	public Job_Uppaal2Smt2(EventHandler father)
+	public Job_Uppaal2Smt2(RunContext father)
 	{
 		super(father);
 		this.version = "3.7.0";
 
-		this.addInputDescription(descrPara);
-		this.addInputDescription(descrTrace);
-		this.addInputDescription(descrModel);
-		descrModel.addTag(ResourceTag.NECESSARY);
-		this.addInputDescription(descrSmt2);
+		createInputDescr(PARAMETER, ResourceType.ENUM);
+		createInputDescr(TRACE, ResourceType.FILE);
+		createInputDescr(MODEL, ResourceType.FILE).addTag(ResourceTag.NECESSARY);
+		createInputDescr(SMT2, ResourceType.FILE);
 
-		this.addResultDescription(descrResultSmt2);
+		createResultDescr(SMT2, ResourceType.FILE);
 	}
 
 	public Ut2Smt2 createConverter()
 	{
-		ResourceFile model = descrModel.getResourceWithType();
+		ResourceFile model = getResourceWithType(MODEL, false);
 		if (model == null)
 			return null;
 
 		String trace = null;
-		ResourceFile resTrace = descrTrace.getResourceWithType();
+		ResourceFile resTrace = getResourceWithType(TRACE, false);
 		if (resTrace != null)
 			trace = resTrace.getData();
 
 		String destiny = null;
-		ResourceFile resDest = descrSmt2.getResourceWithType();
+		ResourceFile resDest = getResourceWithType(SMT2, false);
 		if (resDest != null)
 			destiny = resDest.getData();
 
-		Ut2Smt2 ut2Smt2 = new Ut2Smt2(trace, model.getData(), destiny, jobContext);
+		Ut2Smt2 ut2Smt2 = new Ut2Smt2(trace, model.getData(), destiny, this);
 
-		ResourceInterface list = descrPara.getResource();
-		if (list instanceof ResourceList)
-			for (ResourceInterface e : ((ResourceList) list).getList())
+		ResourceInterface p = getResourceWithType(PARAMETER, false);
+		while (p != null)
+		{
+			if ((p != null) && (p instanceof ResourceEnum))
 			{
-				if ((e == null) || (e.getData() == null))
-					continue;
-				SMT2_OPTION mode = SMT2_OPTION.valueOf(e.getData());
+				ResourceEnum para = (ResourceEnum) p;
+				SMT2_OPTION mode = SMT2_OPTION.valueOf(para.getData());
 				ut2Smt2.setOption(mode);
 			}
+			p = p.getNext();
+		}
 		return ut2Smt2;
 	}
 
@@ -84,14 +80,14 @@ public class Job_Uppaal2Smt2 extends JobAbstract
 	}
 
 	@Override
-	public ResourceInterface getResource(String name, boolean out)
+	public ResourceInterface getResultResource(String name)
 	{
 		if (name == null)
 			return null;
-		if (name.equals(descrResultSmt2.getName()))
+		if (SMT2.equals(name))
 		{
 			return resultSMT2;
 		}
-		return null;
+		return super.getResultResource(name);
 	}
 }

@@ -7,7 +7,7 @@ import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ConstraintSmt2;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ModelSmt2;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.TextSmt2;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.VariableSmt2;
-import kn.uni.sen.jobscheduler.common.model.JobContext;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 
 public class Smt22TextImply extends Smt22Text
 {
@@ -15,7 +15,7 @@ public class Smt22TextImply extends Smt22Text
 
 	class Smt22TextForall extends Smt22TextFunction
 	{
-		public Smt22TextForall(JobContext context)
+		public Smt22TextForall(RunContext context)
 		{
 			super(false, context);
 		}
@@ -98,7 +98,7 @@ public class Smt22TextImply extends Smt22Text
 		return "(assert-soft " + val + ")\n";
 	}
 
-	public Smt22TextImply(boolean command, ConstraintSmt2 property, JobContext context)
+	public Smt22TextImply(boolean command, ConstraintSmt2 property, RunContext context)
 	{
 		super(false, command, context);
 		variant = "; output analysis without optimizations\n";

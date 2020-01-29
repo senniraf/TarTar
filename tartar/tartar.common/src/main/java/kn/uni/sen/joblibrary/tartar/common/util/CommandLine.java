@@ -4,6 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import kn.uni.sen.jobscheduler.common.helper.HelperConsole;
 
 public class CommandLine
 {
@@ -62,6 +66,75 @@ public class CommandLine
 	// todo: solve ugly return value
 	public static int result = -3;
 
+	// public static long PID = 0;
+	static Pattern pat = Pattern.compile("total kB[ ]*\\d+[ ]*(\\d+)[ ]*");
+
+	// public static synchronized void setPID(long pid)
+	// {
+	// PID = pid;
+	// }
+
+	public static synchronized long getMem()
+	{
+		String pidText = HelperConsole.runCommand("pidof opaal2lts-mc", null, true);
+		int p = 0;
+		try
+		{
+			pidText = pidText.replace("\n", "");
+			p = Integer.parseInt(pidText);
+		} catch (Exception ex)
+		{
+			return -1;
+		}
+
+		String ret = HelperConsole.runCommand("pmap " + p, null, true);
+		Matcher mat = pat.matcher(ret);
+		if (!!!mat.find())
+			return -1;
+		String val2 = mat.group(1);
+		if (val2 == null)
+			return -1;
+
+		try
+		{
+			return Integer.parseInt(val2) / 1024;
+		} catch (Exception e)
+		{
+		}
+		return -1;
+	}
+
+	// public static synchronized long getMemUppaal()
+	// {
+	// String pidText = HelperConsole.runCommand("pidof verifyta", null, true);
+	// int p = 0;
+	// try
+	// {
+	// pidText = pidText.replace("\n", "");
+	// p = Integer.parseInt(pidText);
+	// } catch (Exception ex)
+	// {
+	// return -1;
+	// }
+	// // if (PID == 0)
+	// // return -1;
+	// String ret = HelperConsole.runCommand("pmap " + p, null, true);
+	// Matcher mat = pat.matcher(ret);
+	// if (!!!mat.find())
+	// return -1;
+	// String val2 = mat.group(1);
+	// if (val2 == null)
+	// return -1;
+	//
+	// try
+	// {
+	// return Integer.parseInt(val2) / 1024;
+	// } catch (Exception e)
+	// {
+	// }
+	// return -1;
+	// }
+
 	public static String run(String cmd, String folderPath, boolean bText)
 	{
 		result = -2;
@@ -77,9 +150,11 @@ public class CommandLine
 			// timer.schedule(task, 100);
 
 			Process p = r.exec(cmd, null, folder);
+			// setPID(p.pid());
 			BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			StringBuffer buffer = new StringBuffer();
 			boolean res = p.waitFor(3600, TimeUnit.SECONDS);
+			// setPID(0);
 			if (!!!res)
 				return "";
 			result = p.exitValue();

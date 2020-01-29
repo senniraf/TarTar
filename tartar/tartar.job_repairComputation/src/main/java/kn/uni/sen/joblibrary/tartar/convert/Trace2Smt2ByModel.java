@@ -28,14 +28,14 @@ import kn.uni.sen.joblibrary.tartar.convert.uppaaltrace.model.Process;
 import kn.uni.sen.joblibrary.tartar.convert.uppaaltrace.model.Trace;
 import kn.uni.sen.joblibrary.tartar.convert.uppaaltrace.model.Transition;
 import kn.uni.sen.joblibrary.tartar.convert.uppaaltrace.model.VariableState;
-import kn.uni.sen.jobscheduler.common.model.JobContext;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 
 public class Trace2Smt2ByModel extends Trace2Smt2ByBDM
 {
 	Model model;
 	List<VariableSmt2> varList = new ArrayList<>();
 
-	public Trace2Smt2ByModel(JobContext jobContext)
+	public Trace2Smt2ByModel(RunContext jobContext)
 	{
 		super(jobContext);
 		variant = "; by extra model\n";

@@ -45,7 +45,7 @@ public abstract class ParseUPPAAL<T>
 			e.printStackTrace();
 		} catch (SAXException e)
 		{
-			e.printStackTrace();
+			System.out.println("Error: File " + file + " parse error.");
 		} catch (FileNotFoundException e)
 		{
 			System.out.println("Error: File " + file + " not found.");

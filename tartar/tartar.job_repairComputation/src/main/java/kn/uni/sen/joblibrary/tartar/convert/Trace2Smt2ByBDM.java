@@ -20,7 +20,7 @@ import kn.uni.sen.joblibrary.tartar.convert.uppaaltrace.model.Node;
 import kn.uni.sen.joblibrary.tartar.convert.uppaaltrace.model.Trace;
 import kn.uni.sen.joblibrary.tartar.convert.uppaaltrace.model.Transition;
 import kn.uni.sen.joblibrary.tartar.convert.uppaaltrace.model.VariableState;
-import kn.uni.sen.jobscheduler.common.model.JobContext;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 
 /**
  * 1. version of uppaal2smt2 by rewriting the DBMs
@@ -41,7 +41,7 @@ public class Trace2Smt2ByBDM extends Transformer
 	Integer zoneCounter = 0;
 	StateSmt2 currentState = null;
 
-	public Trace2Smt2ByBDM(JobContext jobContext)
+	public Trace2Smt2ByBDM(RunContext jobContext)
 	{
 		super(jobContext);
 		variant = "; by BDM\n";

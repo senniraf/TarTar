@@ -13,17 +13,6 @@ file_out=$(echo "$(basename "${file_in}")" | cut -f 1 -d ".")
 file_out=$file"_lts.xml"
 fi
 
-
-#echo $file
-#echo $file_in
-#echo $file_out
-#echo $folder_out
-#read
-#folder_out=$(dirname "${file_out}")
-#create $file.cpp
-#folder_cmd=$(pwd)
-#echo $folder_cmd
-
 ./bin/opaal_ltsmin --only-compile $file_in
 
 #compile $file.cpp

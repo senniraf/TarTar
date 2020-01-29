@@ -15,8 +15,8 @@ import org.sosy_lab.java_smt.api.ProverEnvironment;
 import org.sosy_lab.java_smt.api.SolverContext;
 import org.sosy_lab.java_smt.api.SolverContext.ProverOptions;
 
+import kn.uni.sen.joblibrary.tartar.convert.SMTContext;
 import kn.uni.sen.joblibrary.tartar.job_repaircomputation.EventLogger;
-import kn.uni.sen.joblibrary.tartar.job_uppaal2smt2.SMTContext;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
 
 import org.sosy_lab.java_smt.api.SolverException;

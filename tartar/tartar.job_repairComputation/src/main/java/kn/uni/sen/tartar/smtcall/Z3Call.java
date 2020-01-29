@@ -28,7 +28,7 @@ import kn.uni.sen.jobscheduler.common.resource.ResourceString;
 
 public class Z3Call implements SMTCall
 {
-	//Model modelSolution;
+	// Model modelSolution;
 	String eliminatedModel = null;
 	EventLogger logger;
 
@@ -38,10 +38,9 @@ public class Z3Call implements SMTCall
 	long timeDif = 0;
 	public static int timeout = 0;
 
-	/*public Model getModel()
-	{
-		return modelSolution;
-	}*/
+	/*
+	 * public Model getModel() { return modelSolution; }
+	 */
 
 	@Override
 	public void setEventLogger(EventLogger logger)
@@ -86,7 +85,7 @@ public class Z3Call implements SMTCall
 		// return true;
 		Date before = new Date();
 
-		//modelSolution = null;
+		// modelSolution = null;
 		System.gc();
 		try
 		{
@@ -106,7 +105,7 @@ public class Z3Call implements SMTCall
 			 * solver.AssertSoft(ctx.parseSMTLIB2String("(= y true)", null,
 			 * null, null, null), 1, null);
 			 */
-			System.out.println(a.toString());
+			//System.out.println(a.toString());
 			// Status us = solver.Check();
 
 			if (solver.Check() != Status.SATISFIABLE)
@@ -115,7 +114,7 @@ public class Z3Call implements SMTCall
 			Model m = solver.getModel(); // check(ctx, a, Status.SATISFIABLE);
 			if (m != null)
 			{
-				//modelSolution = m;
+				// modelSolution = m;
 				// System.out.println("Satisfiable");
 				// System.out.println(m.toString());
 			} // else
@@ -134,6 +133,46 @@ public class Z3Call implements SMTCall
 		long t_diff = ((new Date()).getTime() - before.getTime()) / 1000;
 		System.out.println("SMT2 file test took " + t_diff + " sec");
 		return true;
+	}
+	
+	public Model checkSat(String modelFile)
+	{
+		System.gc();
+		try
+		{
+			Context ctx = createContext();
+			BoolExpr[] a = ctx.parseSMTLIB2File(modelFile, null, null, null, null);
+			Optimize solver = ctx.mkOptimize();
+			solver.Add(a);
+
+			if (solver.Check() != Status.SATISFIABLE)
+				return null;
+			return solver.getModel();
+		} catch (Exception ex)
+		{
+			System.out.println(ex.toString());
+		}
+		return null;
+	}
+	
+	public Expr[] checkSatObjectives(String modelFile)
+	{
+		System.gc();
+		try
+		{
+			Context ctx = createContext();
+			BoolExpr[] a = ctx.parseSMTLIB2File(modelFile, null, null, null, null);
+			Optimize solver = ctx.mkOptimize();
+			solver.Add(a);
+
+			if (solver.Check() != Status.SATISFIABLE)
+				return null;
+			return solver.getObjectives();
+		} catch (Exception ex)
+		{
+			System.out.println(ex.toString());
+		}
+		return null;
 	}
 
 	public void checkMetaData(String z3Code)
@@ -173,7 +212,7 @@ public class Z3Call implements SMTCall
 		// modelFile = "test/Simply.smt2";
 		this.timeDif = -1;
 		long time = System.currentTimeMillis();
-		//modelSolution = null;
+		// modelSolution = null;
 		System.gc();
 		Context ctx = null;
 		try
@@ -258,7 +297,7 @@ public class Z3Call implements SMTCall
 		long time = System.currentTimeMillis();
 
 		// modelFile = "test/soft.smt2";
-		//modelSolution = null;
+		// modelSolution = null;
 		System.gc();
 		try
 		{
@@ -267,12 +306,14 @@ public class Z3Call implements SMTCall
 			Optimize solver = ctx.mkOptimize();
 			checkStatistic(solver.getStatistics(), true);
 			String content = ResourceFile.parseFile(modelFile);
+			String ig = "";
 			for (ModelSolution sol : solList)
 			{
 				// content += "\n(assert (not " + sol.getAssertNotText() + "
 				// ))";
-				content += "\n(assert " + sol.getAssertText() + ")";
+				ig += "\n(assert " + sol.getAssertText() + ")";
 			}
+			content += ig;
 			checkMetaData(content);
 
 			solver.fromString(content);
@@ -288,7 +329,7 @@ public class Z3Call implements SMTCall
 			checkStatistic(solver.getStatistics(), false);
 			if (m != null)
 			{
-				//modelSolution = m;
+				// modelSolution = m;
 				// System.out.println("Satisfiable");
 				// System.out.println(m.toString());
 

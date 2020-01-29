@@ -20,7 +20,11 @@
 			<input name="Model" ref="model" />
 			<input name="Timeout" value="600" />
 			<input name="RepairKind" ref="mod" />
-			<input name="SeedKind" ref="mod" />
+			<input name="RepairKind" value="BOUNDARY" />
+			<input name="RepairKind" value="COMPARISON" />
+			<input name="RepairKind" value="REFERENCE" />
+			<input name="RepairKind" value="RESET" />
+			<input name="RepairKind" value="URGENT" />		</job>
 		</job>
 	</analysis>
 </experiment>

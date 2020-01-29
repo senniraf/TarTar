@@ -223,6 +223,36 @@ public class ExperimentData
 		return max;
 	}
 
+	public int getMaxConstraintMod()
+	{
+		int max = 0;
+		for (Fault fault : faultList)
+		{
+			List<String> list = fault.getChangeList();
+			if (list == null)
+				continue;
+			int m = list.size();
+			if (m > max)
+				max = m;
+		}
+		return max;
+	}
+	
+	public int getMaxConstraintModAdm()
+	{
+		int max = 0;
+		for (Fault fault : faultList)
+		{
+			List<String> list = fault.getChangeAdmList();
+			if (list == null)
+				continue;
+			int m = list.size();
+			if (m > max)
+				max = m;
+		}
+		return max;
+	}
+
 	private long getMaxUppaalFaultTime()
 	{
 		long max = 0;
@@ -250,25 +280,25 @@ public class ExperimentData
 		return var / count;
 	}
 
-	private double getRepairTimeDeviation(double er)
-	{
-		double var = 0;
-		int count = 0;
-		for (Fault fault : faultList)
-		{
-			for (Repair rep : fault.getRepairList())
-			{
-				double dif = rep.getTimeRepair() / 1000.0;
-				dif = dif - er;
-				dif = dif * dif;
-				var += dif;
-				count++;
-			}
-		}
-		if (count == 0)
-			return 0;
-		return Math.sqrt(var) / count;
-	}
+	// private double getRepairTimeDeviation(double er)
+	// {
+	// double var = 0;
+	// int count = 0;
+	// for (Fault fault : faultList)
+	// {
+	// for (Repair rep : fault.getRepairList())
+	// {
+	// double dif = rep.getTimeRepair() / 1000.0;
+	// dif = dif - er;
+	// dif = dif * dif;
+	// var += dif;
+	// count++;
+	// }
+	// }
+	// if (count == 0)
+	// return 0;
+	// return Math.sqrt(var) / count;
+	// }
 
 	final static DecimalFormat f = new DecimalFormat("#0.000");
 
@@ -287,26 +317,28 @@ public class ExperimentData
 		builder.append("" + sep);
 		builder.append("Seed-Kind" + sep);
 		builder.append("Repair-Kind" + sep);
-		builder.append("Seed_Count" + sep);
-		builder.append("TDT" + sep);
-		builder.append("Time Uppaal" + sep);
-		builder.append("Max Length" + sep);
-		builder.append("Repairs" + sep);
-		builder.append("Admissible" + sep);
-		builder.append("Solve-R" + sep);
-		builder.append("Solve-T" + sep);
-		builder.append("Time QE" + sep);
-		builder.append("Timouts" + sep);
-		builder.append("Time Repair" + sep);
-		builder.append("Deviation" + sep);
-		builder.append("Max mem Z3" + sep);
-		
-		builder.append("Max Var" + sep);
-		builder.append("Max Assert" + sep);
-		builder.append("Max mem Java" + sep);
-		builder.append("Max Adm Time" + sep);
-		
+		builder.append("Seed_Count(#Sd)" + sep);
+		builder.append("TDT(#T)" + sep);
+		builder.append("Time Uppaal(T_UP)" + sep);
+		builder.append("Max Length(Ln)" + sep);
+		builder.append("Repairs(#R)" + sep);
+		builder.append("Admissible(#A)" + sep);
+		builder.append("Solve-T(#S_model)" + sep);
+		builder.append("Solve-R(#S_repair)" + sep);
+		builder.append("Time QE(T_QE)" + sep);
+		builder.append("Timouts(#O)" + sep);
+		builder.append("Time Repair(T_R)" + sep);
+		// builder.append("Deviation" + sep);
+		builder.append("Max mem Z3(M_R)" + sep);
+
+		builder.append("Max Var(#Vr)" + sep);
+		builder.append("Max Assert(#Cn)" + sep);
+		builder.append("Max Adm Time(T_Adm)" + sep);
+		builder.append("Max mem Java(M_A)" + sep);
+
 		builder.append("Max Sol" + sep);
+		builder.append("Max mod.Con" + sep);
+		builder.append("Max mod.AdmCon");
 		builder.append("\n");
 		ResourceFile.appendText2File(fileName, builder.toString());
 	}
@@ -327,8 +359,8 @@ public class ExperimentData
 		builder.append(repCount + sep);
 		int admCount = getAdmissibleCount();
 		builder.append(admCount + sep);
-		builder.append(getAdmRepairCount() + sep);
 		builder.append(tSol + sep);
+		builder.append(getAdmRepairCount() + sep);
 
 		builder.append(round3(getTimeQEMax() / 1000.0) + "s" + sep);
 		builder.append(getQETimeoutCount() + sep);
@@ -336,8 +368,8 @@ public class ExperimentData
 		// add faultCount to repCount, since last z3 call is always unsat
 		double time = getRepairTimeEstimation() / 1000.0;
 		builder.append(round3(time) + "s" + sep);
-		time = getRepairTimeDeviation(time);
-		builder.append(round3(time) + sep);
+		// time = getRepairTimeDeviation(time);
+		// builder.append(round3(time) + sep);
 		// time = getMaxRepair() / 1000.0;
 		// builder.append(round3(time) + "s" + sep);
 		// time = getTimeAdmissible() / 1000.0 / repCount;
@@ -346,10 +378,13 @@ public class ExperimentData
 		// builder.append(round3(time) + "s" + sep);
 		builder.append(getVarZ3() + sep);
 		builder.append(getAssertZ3() + sep);
-		builder.append(round3(getMaxMemory()) + "MB" + sep);
 		time = getMaxAdm() / 1000.0;
 		builder.append(round3(time) + "s" + sep);
-		builder.append(sols);
+		builder.append(round3(getMaxMemory()) + "MB" + sep);
+		builder.append(sols + sep);
+		builder.append(getMaxConstraintMod()+sep);
+		builder.append(getMaxConstraintModAdm());
+		
 		String text = builder.toString().replace(",", ".");
 		ResourceFile.appendText2File(fileName, text);
 	}

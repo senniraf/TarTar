@@ -7,9 +7,9 @@ import kn.uni.sen.jobscheduler.common.JobAbstractTest;
 import kn.uni.sen.jobscheduler.common.JobDataTest;
 import kn.uni.sen.jobscheduler.common.TestResult;
 import kn.uni.sen.jobscheduler.common.model.Job;
+import kn.uni.sen.jobscheduler.common.model.ResourceInterface;
 import kn.uni.sen.jobscheduler.common.resource.ResourceBool;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
-import kn.uni.sen.jobscheduler.common.resource.ResourceInterface;
 
 public class Test_Job_Admissiblity extends JobAbstractTest
 {
@@ -23,7 +23,7 @@ public class Test_Job_Admissiblity extends JobAbstractTest
 	@Override
 	protected Job createJob()
 	{
-		return new Job_Admissibility(context.handler());
+		return new Job_Admissibility(this);
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class Test_Job_Admissiblity extends JobAbstractTest
 				@Override
 				public boolean checkResult(Job job)
 				{
-					ResourceBool res = job.getResourceWithType("Admissible", true, ResourceBool.class);
+					ResourceBool res = job.getResourceWithType(Job_Admissibility.ADMISSIBLE, true);
 					assertTrue(res.getDataValue());
 					return true;
 				}
@@ -54,7 +54,7 @@ public class Test_Job_Admissiblity extends JobAbstractTest
 				@Override
 				public boolean checkResult(Job job)
 				{
-					ResourceBool res = job.getResourceWithType("Admissible", true, ResourceBool.class);
+					ResourceBool res = job.getResourceWithType(Job_Admissibility.ADMISSIBLE, true);
 					assertTrue(!!!res.getDataValue());
 					return true;
 				}

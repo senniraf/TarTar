@@ -10,8 +10,8 @@ import kn.uni.sen.joblibrary.tartar.common.ResultAdm;
 import kn.uni.sen.joblibrary.tartar.common.util.CheckJavaMemory;
 import kn.uni.sen.joblibrary.tartar.common.util.CommandLine;
 import kn.uni.sen.joblibrary.tartar.convert.ParseUPPAAL;
-import kn.uni.sen.jobscheduler.common.model.JobContext;
 import kn.uni.sen.jobscheduler.common.model.JobEvent;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFolder;
 import net.automatalib.automata.fsa.impl.compact.CompactDFA;
@@ -35,7 +35,7 @@ public class AdmissibilityCheck implements CheckAdmissibility
 	String folderOpaal = "./opaal";
 	List<String> counterList = null;
 	CheckJavaMemory mem = new CheckJavaMemory();
-	JobContext context = null;
+	RunContext context = null;
 
 	{
 		String filePath = ResourceFile.getAbsolutPath(".");
@@ -58,7 +58,7 @@ public class AdmissibilityCheck implements CheckAdmissibility
 			System.out.println("Opaal-Folder: " + folderOpaal);
 	}
 
-	public AdmissibilityCheck(JobContext context)
+	public AdmissibilityCheck(RunContext context)
 	{
 		this.context = context;
 	}
@@ -105,7 +105,7 @@ public class AdmissibilityCheck implements CheckAdmissibility
 	{
 		reset();
 		if (folderCur == null)
-			init(context.getFolder());
+			init(context.getFolderText());
 
 		// save stm in a file
 		// call opaal by script
@@ -245,6 +245,12 @@ public class AdmissibilityCheck implements CheckAdmissibility
 		timeSpace1 = 0;
 		timeSpace2 = 0;
 		mem.reset();
+	}
+
+	@Override
+	public void checkMem(long val)
+	{
+		mem.check(val);
 	}
 
 	// Code of createTS.sh

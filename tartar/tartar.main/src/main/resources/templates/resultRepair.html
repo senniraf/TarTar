@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="_csrf" th:content="${_csrf.token}" />
 <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-<meta name="sessionID" th:value="${sessionID}" />
+<meta name="runID" th:value="${runID}" />
 <title>Results</title>
 <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
 </head>
@@ -21,7 +21,7 @@
 	<h3>Repair Analysis Results</h3>
 	<form th:object="${UploadForm}" method="POST" action=""
 		enctype="multipart/form-data">
-		Model.attribute.sessionID: <span th:text="${sessionID}"></span>
+		Model.attribute.runID: <span th:text="${runID}"></span>
 	</form>
 	<div class="msg" id="feedback">Messages:</div>
 	<script type="text/javascript" src="webjars/jquery/3.4.1/jquery.min.js"></script>

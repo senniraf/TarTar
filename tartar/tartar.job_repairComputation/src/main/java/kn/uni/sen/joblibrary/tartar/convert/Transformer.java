@@ -1,20 +1,20 @@
 package kn.uni.sen.joblibrary.tartar.convert;
 
-import kn.uni.sen.jobscheduler.common.model.JobContext;
 import kn.uni.sen.jobscheduler.common.model.JobEvent;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 
 public class Transformer
 {
 	protected String fileExtra = "";
 	protected String variant = "";
-	protected JobContext jobContext;
+	protected RunContext jobContext;
 	int commentDepth = 1;
 
 	protected final static String start = "; UPPAAL symbolic trace to smt2 translation (Version " + Ut2Smt2.version
 			+ ")\n";
 	public final static String t0Name = "_d";
 
-	public Transformer(JobContext jobContext)
+	public Transformer(RunContext jobContext)
 	{
 		this.jobContext = jobContext;
 	}

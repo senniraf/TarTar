@@ -12,9 +12,16 @@ todo:
 - Urgent repair should be checked for state machine locations
 - Bug: Clocks in declaration "clock x,y" are not detected
 - Bug: Constraint TLRI-TAVI+1 is parsed wrong as TLRI - (TAVI+1)
++ Bug: Experiments by Console outputs every message twice
 
 Future:
 - calculate min/max for possible bound variation repairs
+
+Version 3.1.0
++ Bugfix: old dependencies
++ Bugfix Job_RepairComputation: Repair with several constraints is wrongly excluded from further consideration
+not(m1 and m2) = not m1 or not m2 != not m1 and not m2
++ add (Quick&Dirty) implementation of causal delay set
 
 Version 3.0.0
 + split TarTar in several subprojects and adjust layout to JobScheduler style

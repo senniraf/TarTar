@@ -27,7 +27,7 @@ import kn.uni.sen.joblibrary.tartar.convert.smt2modify.Smt2ModUrgent;
 import kn.uni.sen.joblibrary.tartar.convert.smt2modify.Smt2ModVarName;
 import kn.uni.sen.joblibrary.tartar.convert.uppaalmodel.model.Model;
 import kn.uni.sen.joblibrary.tartar.convert.uppaaltrace.model.Trace;
-import kn.uni.sen.jobscheduler.common.model.JobContext;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFolder;
 
@@ -59,9 +59,9 @@ public class Ut2Smt2
 	// hack to get imply
 	ConstraintSmt2 propConstraint;
 
-	JobContext jobContext;
+	RunContext jobContext;
 
-	public Ut2Smt2(String trace, String model, String dest, JobContext context)
+	public Ut2Smt2(String trace, String model, String dest, RunContext context)
 	{
 		this.jobContext = context;
 		fileTrace = trace;
@@ -281,7 +281,7 @@ public class Ut2Smt2
 
 	private String createDestinyFile()
 	{
-		String folder = jobContext.getFolder();
+		String folder = jobContext.getFolderText();
 		String file = ResourceFile.getFilenameOnly(fileModel) + ".smt2";
 		return ResourceFolder.appendFolder(folder, file);
 	}

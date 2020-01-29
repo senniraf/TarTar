@@ -19,8 +19,8 @@
 			enctype="multipart/form-data">
 			<input type="hidden" th:name="${_csrf.parameterName}"
 				th:value="${_csrf.token}" />
-			<input type="hidden" name="sessionID"
-				th:value="${sessionID}" />
+			<input type="hidden" name="runID"
+				th:value="${runID}" />
 
 			<div>
 				<label th:text="'Property'"></label> <select

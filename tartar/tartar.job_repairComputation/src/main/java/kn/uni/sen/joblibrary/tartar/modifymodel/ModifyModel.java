@@ -8,10 +8,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import kn.uni.sen.joblibrary.tartar.common.SMT2_OPTION;
+import kn.uni.sen.joblibrary.tartar.convert.ParseUPPAAL;
+import kn.uni.sen.joblibrary.tartar.convert.smt2modify.Smt2ModComparison;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
 import kn.uni.sen.joblibrary.tartar.job_repaircomputation.Repair;
-import kn.uni.sen.joblibrary.tartar.job_uppaal2smt2.ParseUPPAAL;
-import kn.uni.sen.joblibrary.tartar.uppaal2smt2.smt2modify.Smt2ModComparison;
 import kn.uni.sen.tartar.smtcall.ModelSolution;
 import kn.uni.sen.tartar.smtcall.Modification;
 

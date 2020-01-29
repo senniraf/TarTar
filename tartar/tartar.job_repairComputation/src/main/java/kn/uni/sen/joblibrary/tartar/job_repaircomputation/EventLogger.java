@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import kn.uni.sen.jobscheduler.common.model.JobContext;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
+import kn.uni.sen.joblibrary.tartar.common.CheckAdmissibility;
+import kn.uni.sen.joblibrary.tartar.common.util.CommandLine;
 import kn.uni.sen.jobscheduler.common.model.JobEvent;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
 
@@ -15,11 +17,11 @@ public class EventLogger
 	List<EventLog> eventList = new ArrayList<>();
 	long startTime = System.currentTimeMillis();
 	long timeLast = startTime;
-	Timer timer = new Timer();
+	Timer timer = new Timer("check", true);
 
 	float maxMemoryUsed;
 	float maxMemoryEvent;
-	JobContext context;
+	RunContext context;
 
 	class TimerWork extends TimerTask
 	{
@@ -27,19 +29,32 @@ public class EventLogger
 		public void run()
 		{
 			checkMemory();
+			if (adm != null)
+			{
+				long val = CommandLine.getMem();
+				adm.checkMem(val);
+			}
 		}
 	}
 
 	public EventLogger(boolean verbose)
 	{
 		this(verbose, null);
-		// timer.schedule(new TimerWork(), 0, 100);
 	}
 
-	public EventLogger(boolean verbose, JobContext context)
+	CheckAdmissibility adm;
+
+	public EventLogger(boolean verbose, RunContext context)
 	{
 		this.verbose = verbose;
 		this.context = context;
+		timer.schedule(new TimerWork(), 0, 100);
+		// HelperConsole.runCommand("./resmem ", null, true);
+	}
+	
+	public void setAdm(CheckAdmissibility adm)
+	{
+		this.adm = adm;
 	}
 
 	public void end()
@@ -90,7 +105,6 @@ public class EventLogger
 			maxMemoryUsed = val;
 		if (val > maxMemoryEvent)
 			maxMemoryEvent = val;
-
 	}
 
 	void getMemory()

@@ -4,49 +4,40 @@ import kn.uni.sen.joblibrary.tartar.admissibility.AdmissibilityCheck;
 import kn.uni.sen.joblibrary.tartar.common.ResultAdm;
 import kn.uni.sen.joblibrary.tartar.common.TarTarConfiguration;
 import kn.uni.sen.jobscheduler.common.impl.JobAbstract;
-import kn.uni.sen.jobscheduler.common.model.EventHandler;
 import kn.uni.sen.jobscheduler.common.model.JobResult;
 import kn.uni.sen.jobscheduler.common.model.JobState;
+import kn.uni.sen.jobscheduler.common.model.ResourceInterface;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 import kn.uni.sen.jobscheduler.common.resource.ResourceBool;
-import kn.uni.sen.jobscheduler.common.resource.ResourceDescription;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
-import kn.uni.sen.jobscheduler.common.resource.ResourceInterface;
 import kn.uni.sen.jobscheduler.common.resource.ResourceTag;
 import kn.uni.sen.jobscheduler.common.resource.ResourceType;
 
 public class Job_Admissibility extends JobAbstract
 {
-	protected ResourceDescription descrModel1 = new ResourceDescription("Model1", ResourceType.FILE);
-	protected ResourceDescription descrModel2 = new ResourceDescription("Model2", ResourceType.FILE);
-
-	protected ResourceDescription descrResultAdm = new ResourceDescription("Admissible", ResourceType.BOOL);
+	public static final String MODEL1 = "Model1";
+	public static final String MODEL2 = "Model2";
+	public static final String ADMISSIBLE = "Admissible";
 
 	String fileModel1 = null;
 	String fileModel2 = null;
 	ResultAdm result = null;
 
-	public Job_Admissibility()
-	{
-		this(null);
-	}
-
-	public Job_Admissibility(EventHandler father)
+	public Job_Admissibility(RunContext father)
 	{
 		super(father);
 		this.version = TarTarConfiguration.getVersion();
 
-		this.addInputDescription(descrModel1);
-		descrModel1.addTag(ResourceTag.NECESSARY);
-		this.addInputDescription(descrModel2);
-		descrModel2.addTag(ResourceTag.NECESSARY);
+		createInputDescr(MODEL1, ResourceType.FILE).addTag(ResourceTag.NECESSARY);
+		createInputDescr(MODEL2, ResourceType.FILE).addTag(ResourceTag.NECESSARY);
 
-		this.addResultDescription(descrResultAdm);
+		createResultDescr(ADMISSIBLE, ResourceType.BOOL).addTag(ResourceTag.NECESSARY);
 	}
 
 	boolean parseInput()
 	{
-		ResourceFile resModel1 = descrModel1.getResourceWithType();
-		ResourceFile resModel2 = descrModel2.getResourceWithType();
+		ResourceFile resModel1 = getResourceWithType(MODEL1, false);
+		ResourceFile resModel2 = getResourceWithType(MODEL2, false);
 
 		if (resModel1 != null)
 			fileModel1 = resModel1.getData();
@@ -62,7 +53,7 @@ public class Job_Admissibility extends JobAbstract
 		if ((fileModel1 == null) || (fileModel2 == null))
 			return endError("Missing Input File");
 
-		AdmissibilityCheck check = new AdmissibilityCheck(jobContext);
+		AdmissibilityCheck check = new AdmissibilityCheck(this);
 		result = check.checkEquivalence(fileModel1, fileModel2);
 		return end(JobResult.OK);
 	}
@@ -75,9 +66,9 @@ public class Job_Admissibility extends JobAbstract
 	 */
 
 	@Override
-	public ResourceInterface getResource(String name, boolean out)
+	public ResourceInterface getResultResource(String name)
 	{
-		if (name.equals(descrResultAdm.getName()))
+		if (ADMISSIBLE.equals(name))
 		{
 			ResourceBool bool = new ResourceBool();
 			if (result == null)
@@ -85,6 +76,6 @@ public class Job_Admissibility extends JobAbstract
 			bool.setDataValue(result.isAdmisible());
 			return bool;
 		}
-		return null;
+		return super.getResultResource(name);
 	}
 }

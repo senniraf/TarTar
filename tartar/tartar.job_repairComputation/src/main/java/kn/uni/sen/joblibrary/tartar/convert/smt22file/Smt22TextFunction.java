@@ -2,14 +2,14 @@ package kn.uni.sen.joblibrary.tartar.convert.smt22file;
 
 import java.util.List;
 
-import kn.uni.sen.jobscheduler.common.model.JobContext;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 import kn.uni.sen.joblibrary.tartar.convert.Transformer;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ClockSmt2;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ModelSmt2;
 
 public class Smt22TextFunction extends Smt22Text
 {
-	public Smt22TextFunction(boolean command, JobContext context)
+	public Smt22TextFunction(boolean command, RunContext context)
 	{
 		super(false, command, context);
 		variant = "; output function\n";

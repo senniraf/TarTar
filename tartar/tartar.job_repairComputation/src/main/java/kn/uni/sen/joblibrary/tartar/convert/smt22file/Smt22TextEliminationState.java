@@ -4,13 +4,13 @@ import java.util.List;
 
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ClockSmt2;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ModelSmt2;
-import kn.uni.sen.jobscheduler.common.model.JobContext;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 
 public class Smt22TextEliminationState extends Smt22Text
 {
 	int stateIndex = 0;
 
-	public Smt22TextEliminationState(boolean command, int state, JobContext context)
+	public Smt22TextEliminationState(boolean command, int state, RunContext context)
 	{
 		super(false, command, context);
 		this.stateIndex = state;

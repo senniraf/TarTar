@@ -7,11 +7,11 @@ import java.util.List;
 
 import kn.uni.sen.joblibrary.tartar.job_admissibility.Job_Admissibility;
 import kn.uni.sen.joblibrary.tartar.job_repaircomputation.Job_RepairComputation;
-import kn.uni.sen.joblibrary.tartar.job_uppaal2smt2.Job_Uppaal2Smt2;
+import kn.uni.sen.joblibrary.tartar.job_tracecausality.Job_TraceCausality;
 import kn.uni.sen.joblibrary_tartar.job_experiment.Job_SeedExperiment;
 import kn.uni.sen.jobscheduler.common.impl.JobLibraryAbstract;
-import kn.uni.sen.jobscheduler.common.model.EventHandler;
 import kn.uni.sen.jobscheduler.common.model.Job;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 
 public class JobLibrary_TarTar extends JobLibraryAbstract
 {
@@ -31,17 +31,17 @@ public class JobLibrary_TarTar extends JobLibraryAbstract
 
 		if (getLibraryName().compareTo(libraryName) == 0)
 		{
-			JobList.add(Job_Uppaal2Smt2.class);
 			JobList.add(Job_RepairComputation.class);
 			JobList.add(Job_Admissibility.class);
 			JobList.add(Job_SeedExperiment.class);
+			JobList.add(Job_TraceCausality.class);
 		}
 	}
 
 	@Override
 	public String getLibaryVersion()
 	{
-		return "JV_3.0";
+		return "JV_3.1";
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class JobLibrary_TarTar extends JobLibraryAbstract
 	}
 
 	@Override
-	public Job createJob(String jobName, String version, EventHandler father)
+	public Job createJob(String jobName, String version, RunContext father)
 	{
 		for (Iterator<Class<? extends Job>> it = JobList.iterator(); it.hasNext();)
 		{
@@ -65,12 +65,12 @@ public class JobLibrary_TarTar extends JobLibraryAbstract
 			try
 			{
 				Job job = null;
-				Constructor<? extends Job> con = jobClass.getDeclaredConstructor(EventHandler.class);
+				Constructor<? extends Job> con = jobClass.getDeclaredConstructor(RunContext.class);
 				if (con != null)
 					job = con.newInstance(father);
 				else
 				{
-					con = jobClass.getDeclaredConstructor(EventHandler.class);
+					con = jobClass.getDeclaredConstructor(RunContext.class);
 					if (con != null)
 						job = con.newInstance();
 				}

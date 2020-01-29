@@ -4,7 +4,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import kn.uni.sen.joblibrary.tartar.common.util.CommandLine;
-import kn.uni.sen.jobscheduler.common.model.JobContext;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFolder;
 
@@ -18,18 +18,18 @@ public class UppaalApi
 	String folder = "result";
 	long timeUppaal = 0;
 
-	JobContext jobContext = null;
+	RunContext jobContext = null;
 
-	public UppaalApi(JobContext context)
+	public UppaalApi(RunContext context)
 	{
 		jobContext = context;
-		this.folder = context.getFolder();
+		this.folder = context.getFolderText();
 	}
 
-	public UppaalApi(JobContext context, boolean verbose)
+	public UppaalApi(RunContext context, boolean verbose)
 	{
 		jobContext = context;
-		this.folder = context.getFolder();
+		this.folder = context.getFolderText();
 		this.verbose = verbose;
 	}
 
@@ -100,7 +100,7 @@ public class UppaalApi
 		// System.out.println(pathUppaal + "verifyta -o0 -t1 -y -X" + path +
 		// name + "_trace_ " + fileModel);
 		long time = System.currentTimeMillis();
-		CommandLine.run(pathUppaal + "verifyta -o0 -t1 -y -X" + path + name + "_trace_ " + fileModel, true, 600);
+		CommandLine.run(pathUppaal + "verifyta -o0 -t1 -y -X" + path + name + "_trace_ " + fileModel, true, 60);
 		timeUppaal = System.currentTimeMillis() - time;
 		// System.out.println("Time:" + timeUppaal);
 

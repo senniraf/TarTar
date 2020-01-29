@@ -1,7 +1,7 @@
 package kn.uni.sen.tartar.smtcall;
 
 import kn.uni.sen.joblibrary.tartar.common.SMT2_OPTION;
-import kn.uni.sen.joblibrary.tartar.uppaal2smt2.smt2modify.Smt2ModComparison;
+import kn.uni.sen.joblibrary.tartar.convert.smt2modify.Smt2ModComparison;
 
 /**
  * Contain change constraint

@@ -15,62 +15,23 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
-import kn.uni.sen.joblibrary.tartar.common.SMT2_OPTION;
-import kn.uni.sen.joblibrary.tartar.job_repaircomputation.Job_RepairComputation;
 import kn.uni.sen.joblibrary.tartar.job_repaircomputation.ProgramEvent;
 import kn.uni.sen.joblibrary.tartar.job_repaircomputation.ProgramStatus;
-import kn.uni.sen.joblibrary_tartar.job_experiment.Job_SeedExperiment;
-import kn.uni.sen.jobscheduler.common.impl.JobContextSimple;
 import kn.uni.sen.jobscheduler.common.impl.JobDataInput;
-import kn.uni.sen.jobscheduler.common.impl.LogConsole;
-import kn.uni.sen.jobscheduler.common.model.Job;
-import kn.uni.sen.jobscheduler.common.resource.Helper;
-import kn.uni.sen.jobscheduler.common.resource.ResourceEnum;
-import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
-import kn.uni.sen.jobscheduler.common.resource.ResourceList;
 
 public class GuiResult extends GuiAbstract implements ProgramEvent
 {
-	RunParameter Parameter;
 	TextArea Output;
 	JTextArea Result;
-	Job job;
+	JobRun_TarTar run;
 	JobDataInput inputData = new JobDataInput();
-	JobContextSimple context = JobContextSimple.createDummy("Gui");
-	{
-		context.handler().subscribe(new LogConsole());
-	}
 
-	public GuiResult(RunParameter para)
+	public GuiResult(RunParameter para, JobServer_TarTar serverTarTar)
 	{
 		super(null);
-		this.Parameter = para;
-
-		if (Parameter.isExperiment())
-			job = new Job_SeedExperiment(context.handler());
-		else
-			job = new Job_RepairComputation(context.handler());
-
-		JobDataInput inData = new JobDataInput();
-		job.addLogger(new LogConsole(1));
-		inData.add("Model", new ResourceFile(para.getModelFile()));
-		inData.add("Trace", new ResourceFile(para.getTraceFile()));
-		ResourceList list = new ResourceList();
-		for (SMT2_OPTION opt : para.getOptionList())
-			list.addResource(new ResourceEnum(opt));
-		inData.add("ParameterList", list);
-		inData.add("RepairKind", new ResourceEnum(para.getRepair()));
-		inData.add("SeedKind", new ResourceEnum(para.getRepair()));
-
-		Helper.setResourceSource(job.getInputDescription(), inData);
-	}
-
-	public class DiagnosticThread extends Thread
-	{
-		public void run()
-		{
-			job.start();
-		}
+		if (serverTarTar == null)
+			return;
+		run = (JobRun_TarTar) serverTarTar.createJobRun(null, para);
 	}
 
 	@Override
@@ -124,10 +85,10 @@ public class GuiResult extends GuiAbstract implements ProgramEvent
 		panel.setLayout(new GridLayout(2, 1));
 		panel.add(folderButton);
 		panel.add(Output);
-		//panel.add(Result);
+		// panel.add(Result);
 		panel.setOpaque(true);
 
-		Thread thread = new DiagnosticThread();
+		Thread thread = new Thread(run);
 		thread.start();
 
 		return panel;
@@ -141,7 +102,7 @@ public class GuiResult extends GuiAbstract implements ProgramEvent
 	@Override
 	void checkStatus()
 	{
-		if (job == null)
+		if (run == null)
 			return;
 		// if (!!!diagnostic.getState())
 		// return;

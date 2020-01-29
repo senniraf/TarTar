@@ -1,7 +1,6 @@
 package kn.uni.sen.joblibrary.tartar.web.controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,16 +26,16 @@ import kn.uni.sen.joblibrary.tartar.gui.AnalysisTarTarType;
 import kn.uni.sen.joblibrary.tartar.web.form.JobData;
 import kn.uni.sen.joblibrary.tartar.web.form.OptionsForm;
 import kn.uni.sen.joblibrary.tartar.web.form.UploadForm;
-import kn.uni.sen.joblibrary.tartar.web.model.JobWebSession;
-import kn.uni.sen.joblibrary.tartar.web.model.JobWebSessionTarTar;
+import kn.uni.sen.joblibrary.tartar.web.model.JobRunWeb_TarTar;
+import kn.uni.sen.joblibrary.tartar.web.model.JobServerWeb_TarTar;
 import kn.uni.sen.jobscheduler.common.model.JobEvent;
+import kn.uni.sen.jobscheduler.core.model.JobRun;
 
 @Controller
 @EnableScheduling
 public class TarTarMainController
 {
-	public static final HashMap<Integer, JobWebSessionTarTar> sessionMap = new HashMap<>();
-	private static Integer SessionCounter = 1;
+	JobServerWeb_TarTar server = new JobServerWeb_TarTar();
 	private static Integer LastResult = 0;
 
 	// Inject via application.properties
@@ -56,11 +55,28 @@ public class TarTarMainController
 		return "index";
 	}
 
+	JobRunWeb_TarTar getCreateRun(Integer runID, Model model)
+	{
+		JobRun run = server.createRun(runID);
+		model.addAttribute("runID", run.getRunID());
+		if (run instanceof JobRunWeb_TarTar)
+			return (JobRunWeb_TarTar) run;
+		return null;
+	}
+
+	JobRunWeb_TarTar getRun(Integer runID)
+	{
+		JobRun run = server.getRun(runID);
+		if (run instanceof JobRunWeb_TarTar)
+			return (JobRunWeb_TarTar) run;
+		return null;
+	}
+
 	/*
 	 * @Autowired private SimpMessagingTemplate msgTemplate;
 	 */
 	@PostMapping("/log/msg")
-	public ResponseEntity<?> getSearchResultViaAjax(@Valid @RequestBody Integer sessionID, Errors errors)
+	public ResponseEntity<?> getSearchResultViaAjax(@Valid @RequestBody Integer runID, Errors errors)
 	{
 		AjaxResponseBody result = new AjaxResponseBody();
 		// If error, just return a 400 bad request, along with the error message
@@ -70,8 +86,8 @@ public class TarTarMainController
 					errors.getAllErrors().stream().map(x -> x.getDefaultMessage()).collect(Collectors.joining(",")));
 			return ResponseEntity.badRequest().body(result);
 		}
-		JobWebSessionTarTar session = sessionMap.get(sessionID);
-		if (session == null)
+		JobRunWeb_TarTar run = getRun(runID);
+		if (run == null)
 		{
 			result.setMsg("Session not found!");
 		} else
@@ -79,7 +95,7 @@ public class TarTarMainController
 			// result.setMsg("success");
 			while (true)
 			{
-				JobEvent ev = session.getNextEvent();
+				JobEvent ev = run.getNextEvent();
 				if (ev == null)
 					break;
 				String msg = ev.getText();
@@ -93,14 +109,14 @@ public class TarTarMainController
 	}
 
 	@RequestMapping(value = "/uploadXMIFile", method = RequestMethod.GET)
-	public String uploadUppaalFile(@RequestParam(name = "sessionID", required = false) Integer sessionID, Model model)
+	public String uploadUppaalFile(@RequestParam(name = "runID", required = false) Integer runID, Model model)
 	{
-		JobWebSessionTarTar session = getCreateSession(sessionID, model);
-		if (session == null)
+		JobRunWeb_TarTar run = getCreateRun(runID, model);
+		if (run == null)
 			return "error";
-		if (session.hasStarted())
-			return "redirect:/results?sessionID=" + sessionID;
-		session.setAnalysisType(AnalysisTarTarType.ANALYSIS_REPAIR);
+		if (run.hasStarted())
+			return "redirect:/results?runID=" + runID;
+		run.setAnalysisType(AnalysisTarTarType.ANALYSIS_REPAIR);
 
 		UploadForm form = new UploadForm();
 		model.addAttribute("UploadForm", form);
@@ -109,23 +125,23 @@ public class TarTarMainController
 		model.addAttribute("fileList", fileNames);
 		return "uploadXMIFile";
 	}
-	
+
 	@RequestMapping(value = "/facicon.png", method = RequestMethod.GET)
-	public String loadIcon(@RequestParam(name = "sessionID", required = false) Integer sessionID, Model model)
+	public String loadIcon(@RequestParam(name = "runID", required = false) Integer runID, Model model)
 	{
 		return "favicon.png";
 	}
 
 	@RequestMapping(value = "/uploadXMIFileSeed", method = RequestMethod.GET)
-	public String uploadUppaalFileSeed(@RequestParam(name = "sessionID", required = false) Integer sessionID,
+	public String uploadUppaalFileSeed(@RequestParam(name = "runID", required = false) Integer runID,
 			Model model)
 	{
-		JobWebSessionTarTar session = getCreateSession(sessionID, model);
-		if (session == null)
+		JobRunWeb_TarTar run = getCreateRun(runID, model);
+		if (run == null)
 			return "error";
-		if (session.hasStarted())
-			return "redirect:/results?sessionID=" + sessionID;
-		session.setAnalysisType(AnalysisTarTarType.ANALYSIS_SEED_EXPERIMENT);
+		if (run.hasStarted())
+			return "redirect:/results?runID=" + runID;
+		run.setAnalysisType(AnalysisTarTarType.ANALYSIS_SEED_EXPERIMENT);
 
 		UploadForm form = new UploadForm();
 		model.addAttribute("UploadForm", form);
@@ -135,60 +151,41 @@ public class TarTarMainController
 		return "uploadXMIFile";
 	}
 
-	JobWebSessionTarTar getCreateSession(Integer sessionID, Model model)
-	{
-		if ((sessionID == null) || (sessionID > SessionCounter))
-		{
-			sessionID = SessionCounter;
-			SessionCounter++;
-			// return "redirect:/uploadXMIFile?sessionID=" + sessionID;
-		}
-
-		JobWebSessionTarTar session = sessionMap.get(sessionID);
-		if (session == null)
-		{
-			session = new JobWebSessionTarTar(sessionID);
-			sessionMap.put(sessionID, session);
-		}
-		model.addAttribute("sessionID", session.getId());
-		return session;
-	}
-
 	@RequestMapping(value = "/uploadXMIFile", method = RequestMethod.POST)
 	public String uploadXMIFilePOST(HttpServletRequest request,
-			@RequestParam(name = "sessionID", required = true) Integer sessionID,
+			@RequestParam(name = "runID", required = true) Integer runID,
 			@ModelAttribute("UploadForm") UploadForm form, Model model)
 	{
-		JobWebSessionTarTar session = sessionMap.get(sessionID);
-		if (session == null)
+		JobRunWeb_TarTar run = getRun(runID);
+		if (run == null)
 			return "redirect:/index";
 
 		// session.addDescription(form.getDescription());
-		if (!!!session.doUpload(request, form, session))
+		if (!!!run.doUpload(request, form))
 		{
-			return "redirect:/uploadXMIFile?sessionID=" + sessionID;
+			return "redirect:/uploadXMIFile?runID=" + runID;
 		}
-		session.parseModel();
-		return "redirect:/parameterRepair?sessionID=" + sessionID;
+		run.parseModel();
+		return "redirect:/parameterRepair?runID=" + runID;
 	}
 
 	@RequestMapping(value = "/uploadXMIFileSeed", method = RequestMethod.POST)
 	public String uploadXMIFilePOSTSeed(HttpServletRequest request,
-			@RequestParam(name = "sessionID", required = true) Integer sessionID,
+			@RequestParam(name = "runID", required = true) Integer runID,
 			@ModelAttribute("UploadForm") UploadForm form, Model model)
 	{
-		return uploadXMIFilePOST(request, sessionID, form, model);
+		return uploadXMIFilePOST(request, runID, form, model);
 	}
 
 	@RequestMapping(value = "/parameterRepair", method = RequestMethod.GET)
-	public String setOptionsHandler(@RequestParam(name = "sessionID", required = true) Integer sessionID, Model model)
+	public String setOptionsHandler(@RequestParam(name = "runID", required = true) Integer runID, Model model)
 	{
-		JobWebSessionTarTar session = sessionMap.get(sessionID);
-		if (session == null)
+		JobRunWeb_TarTar run = getRun(runID);
+		if (run == null)
 			return "redirect:/index";
 
-		String[] strArray = session.getPropertyList();
-		String[] optionArray = session.getOptionList();
+		String[] strArray = run.getPropertyList();
+		String[] optionArray = run.getOptionList();
 
 		model.addAttribute("myOptionsForm", new OptionsForm());
 		model.addAttribute("propertyList", strArray);
@@ -200,71 +197,71 @@ public class TarTarMainController
 
 	@RequestMapping(value = "/parameterRepair", method = RequestMethod.POST)
 	public String setOptionsHandlerrPOST(HttpServletRequest request,
-			@RequestParam(name = "sessionID", required = true) Integer sessionID, Model model, //
+			@RequestParam(name = "runID", required = true) Integer runID, Model model, //
 			@ModelAttribute("myOptionsForm") OptionsForm form)
 	{
-		JobWebSessionTarTar session = sessionMap.get(sessionID);
-		if (session == null)
+		JobRunWeb_TarTar run = getRun(runID);
+		if (run == null)
 			return "redirect:/index";
-		session.setOptions(form);
-		session.verifyModel();
+		run.setOptions(form);
+		run.verifyModel();
 
-		setLastResult(sessionID);
-		if (session.getAnalysisType() == AnalysisTarTarType.ANALYSIS_SEED_EXPERIMENT)
-			return "redirect:/resultSeed?sessionID=" + sessionID;
+		setLastResult(runID);
+		if (run.getAnalysisType() == AnalysisTarTarType.ANALYSIS_SEED_EXPERIMENT)
+			return "redirect:/resultSeed?runID=" + runID;
 		else
-			return "redirect:/resultRepair?sessionID=" + sessionID;
+			return "redirect:/resultRepair?runID=" + runID;
 	}
 
-	private void setLastResult(Integer sessionID)
+	private void setLastResult(Integer runID)
 	{
-		if (LastResult < sessionID)
-			LastResult = sessionID;
+		if (LastResult < runID)
+			LastResult = runID;
 	}
 
 	@RequestMapping(value = "/resultRepair", method = RequestMethod.GET)
-	public String showResultRepair(@RequestParam(name = "sessionID", required = true) Integer sessionID, Model model)
+	public String showResultRepair(@RequestParam(name = "runID", required = true) Integer runID, Model model)
 	{
-		JobWebSession session = sessionMap.get(sessionID);
-		model.addAttribute("sessionID", sessionID);
-		if (session == null)
+		JobRunWeb_TarTar run = getRun(runID);
+		model.addAttribute("runID", runID);
+		if (run == null)
 			return "redirect:/index";
 		return "resultRepair";
 	}
 
 	@RequestMapping(value = "/resultSeed", method = RequestMethod.GET)
-	public String showResultSeed(@RequestParam(name = "sessionID", required = true) Integer sessionID, Model model)
+	public String showResultSeed(@RequestParam(name = "runID", required = true) Integer runID, Model model)
 	{
-		JobWebSession session = sessionMap.get(sessionID);
-		model.addAttribute("sessionID", sessionID);
-		if (session == null)
+		JobRunWeb_TarTar run = getRun(runID);
+		if (run == null)
 			return "redirect:/index";
+		model.addAttribute("runID", run.getRunID());
 		return "resultSeed";
 	}
 
 	@RequestMapping(value = "/results", method = RequestMethod.GET)
-	public String resultsHandler(@RequestParam(name = "sessionID", required = false) Integer sessionID, Model model)
+	public String resultsHandler(@RequestParam(name = "runID", required = false) Integer runID, Model model)
 	{
-		JobWebSessionTarTar session = sessionMap.get(sessionID);
-		if (session == null)
+		JobRunWeb_TarTar run = getRun(runID);
+		if (run == null)
 		{
-			sessionID = LastResult;
-			session = sessionMap.get(LastResult);
-			if (session == null)
+			runID = LastResult;
+			run = getRun(runID);
+			if (run == null)
 				return "index";
 		}
-		if (session.getAnalysisType() == AnalysisTarTarType.ANALYSIS_SEED_EXPERIMENT)
-			return "redirect:/resultSeed?sessionID=" + sessionID;
+		if (run.getAnalysisType() == AnalysisTarTarType.ANALYSIS_SEED_EXPERIMENT)
+			return "redirect:/resultSeed?runID=" + runID;
 		else
-			return "redirect:/resultRepair?sessionID=" + sessionID;
+			return "redirect:/resultRepair?runID=" + runID;
 	}
 
 	@RequestMapping(value = "/analysisRunning", method = RequestMethod.GET)
 	public String runningHandler(Model model)
 	{
 		List<JobData> list = new ArrayList<>();
-		for (int i = 1; i < SessionCounter; i++)
-			if (sessionMap.get(i) != null)
+		for (int i = 1; i < server.getMaxRunID(); i++)
+			if (getRun(i) != null)
 				list.add(new JobData("" + i, ""));
 		model.addAttribute("SessionList", list);
 		return "analysisRunning";

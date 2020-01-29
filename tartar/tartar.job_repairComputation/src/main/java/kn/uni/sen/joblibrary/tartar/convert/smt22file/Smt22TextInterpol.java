@@ -6,11 +6,11 @@ import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ClockSmt2;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ModelSmt2;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.StateSmt2;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.TransitionSmt2;
-import kn.uni.sen.jobscheduler.common.model.JobContext;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 
 public class Smt22TextInterpol extends Smt22Text
 {
-	public Smt22TextInterpol(boolean command, JobContext context)
+	public Smt22TextInterpol(boolean command, RunContext context)
 	{
 		super(false, command, context);
 		variant = "; output interpolation\n";

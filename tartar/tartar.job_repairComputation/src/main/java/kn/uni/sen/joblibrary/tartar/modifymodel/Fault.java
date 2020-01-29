@@ -9,6 +9,8 @@ public class Fault
 {
 	String fault;
 	List<Repair> repairList = new ArrayList<>();
+	List<String> changeList = new ArrayList<>();
+	List<String> changeAdmList = new ArrayList<>();
 	double memory = 0.0;
 	double memoryZ3 = 0.0;
 	int admissibleCount = 0;
@@ -33,9 +35,64 @@ public class Fault
 	{
 		if (repair == null)
 			return;
+		if (repairList.contains(repair))
+			return;
 		if (repair.isAdmissible())
 			admissibleCount++;
 		repairList.add(repair);
+		addModList(repair.getModificationList());
+		if(repair.isAdmissible())
+			addModAdmList(repair.getModificationList());
+	}
+
+	private void addModList(List<ModifiedConstraint> modList)
+	{
+		for (ModifiedConstraint mod : modList)
+		{
+			if (mod == null)
+				continue;
+			boolean found = false;
+			String n = mod.getName();
+			for (String s : changeList)
+				if (s.equals(n))
+				{
+					found = true;
+					break;
+				}
+			if (found)
+				continue;
+			changeList.add(n);
+		}
+	}
+	
+	private void addModAdmList(List<ModifiedConstraint> modList)
+	{
+		for (ModifiedConstraint mod : modList)
+		{
+			if (mod == null)
+				continue;
+			boolean found = false;
+			String n = mod.getName();
+			for (String s : changeAdmList)
+				if (s.equals(n))
+				{
+					found = true;
+					break;
+				}
+			if (found)
+				continue;
+			changeAdmList.add(n);
+		}
+	}
+
+	public List<String> getChangeList()
+	{
+		return changeList;
+	}
+	
+	public List<String> getChangeAdmList()
+	{
+		return changeAdmList;
 	}
 
 	public void setMemory(double memory)

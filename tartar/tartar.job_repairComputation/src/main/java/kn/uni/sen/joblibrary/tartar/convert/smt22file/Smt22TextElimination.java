@@ -10,15 +10,15 @@ import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ConstraintSmt2;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ModelSmt2;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.TextSmt2;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.TransitionSmt2;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ConstraintSmt2.Design;
-import kn.uni.sen.jobscheduler.common.model.JobContext;
 
 public class Smt22TextElimination extends Smt22Text
 {
 	public static String VarDeclaration = "";
 	ConstraintSmt2 property;
 
-	public Smt22TextElimination(boolean command, JobContext context, ConstraintSmt2 property, SMT2_OPTION option)
+	public Smt22TextElimination(boolean command, RunContext context, ConstraintSmt2 property, SMT2_OPTION option)
 	{
 		super(false, command, context);
 		if (option != SMT2_OPTION.RESET)

@@ -7,16 +7,14 @@ import kn.uni.sen.joblibrary.tartar.admissibility.AdmissibilityCheck;
 import kn.uni.sen.joblibrary.tartar.common.SMT2_OPTION;
 import kn.uni.sen.joblibrary.tartar.common.TarTarConfiguration;
 import kn.uni.sen.jobscheduler.common.impl.JobAbstract;
-import kn.uni.sen.jobscheduler.common.model.EventHandler;
 import kn.uni.sen.jobscheduler.common.model.JobEvent;
 import kn.uni.sen.jobscheduler.common.model.JobResult;
 import kn.uni.sen.jobscheduler.common.model.JobState;
-import kn.uni.sen.jobscheduler.common.resource.ResourceDescription;
+import kn.uni.sen.jobscheduler.common.model.ResourceInterface;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 import kn.uni.sen.jobscheduler.common.resource.ResourceEnum;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
 import kn.uni.sen.jobscheduler.common.resource.ResourceInteger;
-import kn.uni.sen.jobscheduler.common.resource.ResourceInterface;
-import kn.uni.sen.jobscheduler.common.resource.ResourceList;
 import kn.uni.sen.jobscheduler.common.resource.ResourceString;
 import kn.uni.sen.jobscheduler.common.resource.ResourceTag;
 import kn.uni.sen.jobscheduler.common.resource.ResourceType;
@@ -24,40 +22,31 @@ import kn.uni.sen.tartar.smtcall.Z3Call;
 
 public class Job_RepairComputation extends JobAbstract
 {
-	protected ResourceDescription descrPara = new ResourceDescription("ParameterList", ResourceType.LIST);
-	{
-		descrPara.addChildDescription(new ResourceDescription("Parameter", ResourceType.ENUM));
-	}
-	protected ResourceDescription descrTrace = new ResourceDescription("Trace", ResourceType.FILE);
-	protected ResourceDescription descrModel = new ResourceDescription("Model", ResourceType.FILE);
-	protected ResourceDescription descrTimeout = new ResourceDescription("TimeoutZ3", ResourceType.INTEGER);
-	protected ResourceDescription descrSmt2 = new ResourceDescription("SMT2", ResourceType.FILE);
-	protected ResourceDescription descrProp = new ResourceDescription("Property", ResourceType.STRING);
-	protected ResourceDescription descrRep = new ResourceDescription("RepairKind", ResourceType.ENUM);
-
-	protected ResourceDescription descrRepairList = new ResourceDescription("RepairList", ResourceType.LIST);
-	{
-		descrRepairList.addChildDescription(new ResourceDescription("Repair", ResourceType.STRING));
-	}
+	public static final String PARAMETER = "Parameter";
+	public static final String TRACE = "Trace";
+	public static final String MODEL = "Model";
+	public static final String TIMEOUT_Z3 = "TimeoutZ3";
+	public static final String SMT2 = "SMT2";
+	public static final String PROPERTY = "Property";
+	public static final String REPAIR_KIND = "RepairKind";
+	public static final String REPAIR = "Repair";
 
 	List<Repair> repairList = new ArrayList<>();
 
-	public Job_RepairComputation(EventHandler father)
+	public Job_RepairComputation(RunContext father)
 	{
 		super(father);
 		this.version = TarTarConfiguration.getVersion();
 
-		this.addInputDescription(descrModel);
-		this.addInputDescription(descrProp);
-		descrModel.addTag(ResourceTag.NECESSARY);
-		this.addInputDescription(descrSmt2);
-		this.addInputDescription(descrTrace);
-		this.addInputDescription(descrPara);
-		this.addInputDescription(descrTimeout);
-		this.addInputDescription(descrRep);
-		//descrRep.addTag(ResourceTag.NECESSARY);
+		createInputDescr(PARAMETER, ResourceType.ENUM);
+		createInputDescr(TRACE, ResourceType.FILE);
+		createInputDescr(MODEL, ResourceType.FILE).addTag(ResourceTag.NECESSARY);
+		createInputDescr(TIMEOUT_Z3, ResourceType.INTEGER);
+		createInputDescr(SMT2, ResourceType.FILE);
+		createInputDescr(PROPERTY, ResourceType.STRING);
+		createInputDescr(REPAIR_KIND, ResourceType.ENUM).addTag(ResourceTag.NECESSARY);
 
-		this.addResultDescription(descrRepairList);
+		createResultDescr(REPAIR, ResourceType.STRING);
 	}
 
 	public Job_RepairComputation()
@@ -68,19 +57,19 @@ public class Job_RepairComputation extends JobAbstract
 	@Override
 	public JobState task()
 	{
-		ResourceFile modelFile = descrModel.getResourceWithType();
-		ResourceFile traceFile = descrTrace.getResourceWithType();
-		ResourceEnum repOpt = descrRep.getResourceWithType();
+		ResourceFile modelFile = getResourceWithType(MODEL, false);
+		ResourceFile traceFile = getResourceWithType(TRACE, false);
+		ResourceEnum repOpt = getResourceWithType(REPAIR_KIND, false);
 		if ((modelFile == null) || (repOpt == null))
 			return endError("Missing some input");
 
-		ResourceString propRes = descrProp.getResourceWithType();
+		ResourceString propRes = getResourceWithType(PROPERTY, false);
 		if (propRes != null)
 		{
-			jobContext.logEvent(JobEvent.WARNING, "Property name is not yet implemented");
+			logEventStatus(JobEvent.WARNING, "Property name is not yet implemented");
 		}
 
-		ResourceInteger time = descrTimeout.getResourceWithType();
+		ResourceInteger time = getResourceWithType(TIMEOUT_Z3, false);
 		if (time != null)
 		{
 			int timeVal = time.getDataValue();
@@ -90,18 +79,19 @@ public class Job_RepairComputation extends JobAbstract
 
 		boolean z3 = false;
 		List<SMT2_OPTION> optList = new ArrayList<>();
-		ResourceList paraList = descrPara.getResourceWithType();
-		if ((paraList != null) && (paraList instanceof ResourceList))
-			for (ResourceInterface e : paraList.getList())
+		kn.uni.sen.jobscheduler.common.model.ResourceInterface p = getResourceWithType(PARAMETER, false);
+		while (p != null)
+		{
+			if ((p != null) || (p instanceof ResourceEnum))
 			{
-				if ((e == null) || (e.getData() == null))
-					continue;
-				SMT2_OPTION opt = SMT2_OPTION.valueOf(e.getData());
+				SMT2_OPTION opt = SMT2_OPTION.valueOf(((ResourceEnum) p).getData());
 				if (opt == SMT2_OPTION.Z3)
 					z3 = true;
 				else
 					optList.add(opt);
 			}
+			p = p.getNext();
+		}
 
 		SMT2_OPTION opt = SMT2_OPTION.valueOf(repOpt.getData());
 		optList.add(opt);
@@ -111,10 +101,10 @@ public class Job_RepairComputation extends JobAbstract
 		boolean good = true;
 		for (SMT2_OPTION option : optList)
 		{
-			Diagnostic diagnostic = new Diagnostic(jobContext);
-			diagnostic.setFolder(jobContext.getFolder());
+			Diagnostic diagnostic = new Diagnostic(this);
+			diagnostic.setFolder(getFolderText());
 			diagnostic.setZ3(z3);
-			diagnostic.setAdmChecker(new AdmissibilityCheck(jobContext));
+			diagnostic.setAdmChecker(new AdmissibilityCheck(this));
 			good &= diagnostic.diagnostic(model, trace, option);
 			repairList.addAll(diagnostic.getRepairList());
 		}
@@ -123,8 +113,13 @@ public class Job_RepairComputation extends JobAbstract
 	}
 
 	@Override
-	public ResourceInterface getResource(String name, boolean out)
+	public ResourceInterface getResultResource(String name)
 	{
-		return null;
+		if (REPAIR.equals(name))
+		{
+			// todo: implement
+			return null;
+		}
+		return super.getResultResource(name);
 	}
 }

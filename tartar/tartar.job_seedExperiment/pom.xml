@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>kn.uni.sen.joblibrary.tartar</groupId>
 		<artifactId>trunk_tartar</artifactId>
-		<version>3.0.0</version>
+		<version>3.1.0</version>
 	</parent>
 	<properties>
 		<java.version>10</java.version>
@@ -28,11 +28,6 @@
 		<dependency>
 			<groupId>kn.uni.sen.joblibrary.tartar</groupId>
 			<artifactId>tartar.common</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>kn.uni.sen.joblibrary.tartar</groupId>
-			<artifactId>tartar.job_uppaal2smt2</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

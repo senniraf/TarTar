@@ -44,6 +44,13 @@ public class ModelSolution
 		return changeList;
 	}
 
+	public int getChangeListSize()
+	{
+		if (changeList == null)
+			return 0;
+		return changeList.size();
+	}
+
 	public String toText()
 	{
 		String text = "[";
@@ -70,7 +77,7 @@ public class ModelSolution
 				val = cv.getAssertText();
 				continue;
 			}
-			val = "(and " + val + " " + cv.getAssertText() + ")";
+			val = "(or " + val + " " + cv.getAssertText() + ")";
 		}
 		return val;
 	}

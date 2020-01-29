@@ -11,4 +11,6 @@ public interface CheckAdmissibility
 	double getMemory();
 
 	double getMaxMemory();
+
+	void checkMem(long val);
 }

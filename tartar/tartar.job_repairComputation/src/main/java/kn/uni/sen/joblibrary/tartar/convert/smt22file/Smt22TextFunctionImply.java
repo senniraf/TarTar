@@ -2,7 +2,7 @@ package kn.uni.sen.joblibrary.tartar.convert.smt22file;
 
 import java.util.List;
 
-import kn.uni.sen.jobscheduler.common.model.JobContext;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 import kn.uni.sen.joblibrary.tartar.convert.Transformer;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ClockSmt2;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ConstraintSmt2;
@@ -13,7 +13,7 @@ public class Smt22TextFunctionImply extends Smt22TextFunction
 	ConstraintSmt2 property;
 	String assertSoftText = "";
 
-	public Smt22TextFunctionImply(boolean command, ConstraintSmt2 property, JobContext context)
+	public Smt22TextFunctionImply(boolean command, ConstraintSmt2 property, RunContext context)
 	{
 		super(command, context);
 		variant = "; output function with imply\n";

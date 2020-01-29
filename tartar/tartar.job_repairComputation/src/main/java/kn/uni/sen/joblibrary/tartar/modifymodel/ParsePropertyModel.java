@@ -7,7 +7,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import kn.uni.sen.joblibrary.tartar.job_uppaal2smt2.ParseUPPAAL;
+import kn.uni.sen.joblibrary.tartar.convert.ParseUPPAAL;
 
 public class ParsePropertyModel extends CloneModel
 {

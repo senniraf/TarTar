@@ -14,7 +14,7 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
-import kn.uni.sen.jobscheduler.common.resource.Helper;
+import kn.uni.sen.jobscheduler.common.helper.Helper;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
 
 /**
@@ -34,6 +34,8 @@ public class MainGui
 
 	GuiAbstract Gui;
 	JPanel GuiPanel;
+	
+	JobServer_TarTar serverTarTar = new JobServer_TarTar();
 
 	public static void main(String[] args)
 	{
@@ -171,7 +173,7 @@ public class MainGui
 				frame.getContentPane().repaint();
 			}
 
-			Gui = new GuiResult(Gui.getProgram());
+			Gui = new GuiResult(Gui.getProgram(), serverTarTar);
 			GuiPanel = Gui.createGui();
 			frame.getContentPane().add(GuiPanel, SwingConstants.CENTER);
 			frame.pack();

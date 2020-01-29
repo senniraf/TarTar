@@ -3,7 +3,7 @@ package kn.uni.sen.joblibrary.tartar.convert.smt22file;
 import java.util.ArrayList;
 import java.util.List;
 
-import kn.uni.sen.jobscheduler.common.model.JobContext;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 import kn.uni.sen.joblibrary.tartar.convert.Transformer;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ClockSmt2;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ConstraintSmt2;
@@ -17,7 +17,7 @@ public class Smt22TextSingleAssert extends Smt22Text
 	public static String VarDeclaration = "";
 	ConstraintSmt2 property;
 
-	public Smt22TextSingleAssert(boolean command, ConstraintSmt2 propConstraint, JobContext context)
+	public Smt22TextSingleAssert(boolean command, ConstraintSmt2 propConstraint, RunContext context)
 	{
 		super(false, command, context);
 		variant = "; single assert\n";

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import kn.uni.sen.joblibrary.tartar.admissibility.AdmissibilityCheck;
-import kn.uni.sen.joblibrary.tartar.common.ResultAdm;
+//import kn.uni.sen.joblibrary.tartar.common.ResultAdm;
 import kn.uni.sen.joblibrary.tartar.common.SMT2_OPTION;
 import kn.uni.sen.joblibrary.tartar.common.uppaal.UppaalApi;
 import kn.uni.sen.joblibrary.tartar.convert.ParseUPPAAL;
@@ -16,10 +16,10 @@ import kn.uni.sen.joblibrary.tartar.modifymodel.ExperimentData;
 import kn.uni.sen.joblibrary.tartar.modifymodel.Fault;
 import kn.uni.sen.joblibrary.tartar.modifymodel.FileChange;
 import kn.uni.sen.jobscheduler.common.impl.JobAbstract;
-import kn.uni.sen.jobscheduler.common.model.EventHandler;
 import kn.uni.sen.jobscheduler.common.model.JobResult;
 import kn.uni.sen.jobscheduler.common.model.JobState;
-import kn.uni.sen.jobscheduler.common.resource.ResourceDescription;
+import kn.uni.sen.jobscheduler.common.model.ResourceInterface;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 import kn.uni.sen.jobscheduler.common.resource.ResourceEnum;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFolder;
@@ -28,6 +28,7 @@ import kn.uni.sen.jobscheduler.common.resource.ResourceTag;
 import kn.uni.sen.jobscheduler.common.resource.ResourceType;
 import kn.uni.sen.tartar.smtcall.Z3Call;
 import kn.uni.sen.joblibrary.tartar.job_repaircomputation.Diagnostic;
+import kn.uni.sen.joblibrary.tartar.job_repaircomputation.Job_RepairComputation;
 import kn.uni.sen.joblibrary.tartar.job_repaircomputation.ProgramEvent;
 
 /**
@@ -37,30 +38,30 @@ import kn.uni.sen.joblibrary.tartar.job_repaircomputation.ProgramEvent;
  */
 public class Job_SeedExperiment extends JobAbstract
 {
-	protected ResourceDescription descrModel = new ResourceDescription("Model", ResourceType.FILE);
-	protected ResourceDescription descrCor = new ResourceDescription("SeedKind", ResourceType.ENUM);
-	protected ResourceDescription descrTimeout = new ResourceDescription("TimeoutZ3", ResourceType.INTEGER);
-	protected ResourceDescription descrRep = new ResourceDescription("RepairKind", ResourceType.ENUM);
+	public static final String SEED_KIND = "SeedKind";
+	public static final String FAULT = "FAULT";
+
 	{
-		this.addInputDescription(descrModel);
-		this.addInputDescription(descrCor);
-		this.addInputDescription(descrTimeout);
-		descrRep.addTag(ResourceTag.LIST);
-		this.addInputDescription(descrRep);
+		createInputDescr(Job_RepairComputation.MODEL, ResourceType.FILE).addTag(ResourceTag.NECESSARY);
+		createInputDescr(SEED_KIND, ResourceType.ENUM);
+		createInputDescr(Job_RepairComputation.TIMEOUT_Z3, ResourceType.INTEGER);
+		createInputDescr(Job_RepairComputation.REPAIR_KIND, ResourceType.ENUM);
+
+		createResultDescr(FAULT, ResourceType.STRING);
 	}
 
-	public Job_SeedExperiment(EventHandler father)
+	public Job_SeedExperiment(RunContext father)
 	{
 		super(father);
-		setEventHandler(father);
+		// setEventHandler(father);
 	}
 
 	private Diagnostic createDiagnostic()
 	{
-		Diagnostic diagnostic = new Diagnostic(jobContext);
-		diagnostic.setFolder(jobContext.getFolder());
+		Diagnostic diagnostic = new Diagnostic(this);
+		diagnostic.setFolder(getFolderText());
 		diagnostic.setLogger(2);
-		diagnostic.setAdmChecker(new AdmissibilityCheck(jobContext));
+		diagnostic.setAdmChecker(new AdmissibilityCheck(this));
 		return diagnostic;
 	}
 
@@ -84,7 +85,7 @@ public class Job_SeedExperiment extends JobAbstract
 		List<FileChange> list = new ArrayList<>();
 
 		String fileName = ResourceFile.getFilenameOnly(fileTA);
-		String folder = ResourceFolder.appendFolder(jobContext.getFolder(), fileName);
+		String folder = ResourceFolder.appendFolder(getFolderText(), fileName);
 		api.setFolder(folder);
 		fileName = ResourceFile.getFilename(fileTA);
 		ResourceFolder.createFolder(folder);
@@ -178,13 +179,13 @@ public class Job_SeedExperiment extends JobAbstract
 		logInfo("Mutated-Model-File: " + changes.getFile());
 		logInfo("Modification: " + changes.getText());
 
-		AdmissibilityCheck check = new AdmissibilityCheck(jobContext);
-		String val = "in";
-		ResultAdm adm = check.checkEquivalence(fileOrg, changes.getFile());
-		if (adm == null)
-			val = "unkown ";
-		if ((adm != null) && adm.isAdmisible())
-			val = "";
+		//AdmissibilityCheck check = new AdmissibilityCheck(this);
+		//String val = "in";
+		//ResultAdm adm = check.checkEquivalence(fileOrg, changes.getFile());
+		//if (adm == null)
+		//	val = "unkown ";
+		//if ((adm != null) && adm.isAdmisible())
+		//	val = "";
 
 		// call diagnosis
 		ResourceEnum res = this.repRes;
@@ -199,9 +200,9 @@ public class Job_SeedExperiment extends JobAbstract
 			expData.addSeedFault(changes.getText());
 			Fault fault = expData.addFault(changes.getText(), time);
 			Diagnostic md = createDiagnostic();
-			md.getLogger().logEvent("Corruption is " + val + "admissibile");
+			//md.getLogger().logEvent("Corruption is " + val + "admissibile");
 			md.setFault(fault);
-			md.setFolder(jobContext.getFolder());
+			md.setFolder(getFolderText());
 
 			md.diagnostic(file, fileTrace, optRep);
 			int sc = md.getSolvedCount();
@@ -230,7 +231,7 @@ public class Job_SeedExperiment extends JobAbstract
 		System.gc();
 		System.runFinalization();
 		String name = ResourceFile.getFilenameOnly(fileTA);
-		String folder = jobContext.getFolder();
+		String folder = getFolderText();
 		String path = "";
 		if ("result".equals(folder))
 			path = folder + "/";
@@ -247,7 +248,7 @@ public class Job_SeedExperiment extends JobAbstract
 		// run an experiment with each modification option
 		TDTsolveCount = 0; // number of TDTs with admissible repairs
 		corruptFile(fileTA, corOpt);
-
+		
 		for (Entry<SMT2_OPTION, ExperimentData> entry : expDataMap.entrySet())
 		{
 			ExperimentData expData = entry.getValue();
@@ -259,16 +260,16 @@ public class Job_SeedExperiment extends JobAbstract
 	@Override
 	public JobState task()
 	{
-		ResourceFile modelFile = descrModel.getResourceWithType();
+		ResourceFile modelFile = getResourceWithType(Job_RepairComputation.MODEL, false);
 		if (modelFile == null)
 			return endError("Missing model file!");
 
-		ResourceEnum corEnum = descrCor.getResourceWithType();
+		ResourceEnum corEnum = getResourceWithType(SEED_KIND, false);
 		if (corEnum != null)
 			corOpt = getRepairTypeOpt(corEnum.getData());
 		// logger.log(DEBUG, corEnum.getData()+" "+corOpt);
 
-		ResourceInteger time = descrTimeout.getResourceWithType();
+		ResourceInteger time = getResourceWithType(Job_RepairComputation.TIMEOUT_Z3, false);
 		if (time != null)
 		{
 			int timeVal = time.getDataValue();
@@ -276,10 +277,16 @@ public class Job_SeedExperiment extends JobAbstract
 				Z3Call.timeout = timeVal * 1000;
 		}
 
-		repRes = descrRep.getResourceWithType();
+		//todo: repRes = getResourceWithType(Job_RepairComputation.REPAIR_KIND, false);
+		repRes = new ResourceEnum(SMT2_OPTION.BOUNDARY);
+		repRes.addNext(new ResourceEnum(SMT2_OPTION.RESET)); 
+		repRes.addNext(new ResourceEnum(SMT2_OPTION.URGENT)); 
+		repRes.addNext(new ResourceEnum(SMT2_OPTION.COMPARISON)); 
+		repRes.addNext(new ResourceEnum(SMT2_OPTION.REFERENCE)); 
+		
 
 		if (api == null)
-			api = new UppaalApi(jobContext, false);
+			api = new UppaalApi(this, false);
 
 		Z3Call.timeout = 120000; // 600 = 10 min /org: 120 sec
 		runExp(modelFile.getData());
@@ -302,5 +309,16 @@ public class Job_SeedExperiment extends JobAbstract
 				|| (opt == SMT2_OPTION.RESET) || (opt == SMT2_OPTION.URGENT))
 			return opt;
 		return SMT2_OPTION.UNKOWN;
+	}
+
+	@Override
+	public ResourceInterface getResultResource(String name)
+	{
+		if (FAULT.equals(name))
+		{
+			// todo: implement
+			return null;
+		}
+		return super.getResultResource(name);
 	}
 }

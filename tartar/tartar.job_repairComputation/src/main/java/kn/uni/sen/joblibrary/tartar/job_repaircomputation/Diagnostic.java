@@ -16,7 +16,7 @@ import kn.uni.sen.joblibrary.tartar.convert.Ut2Smt2;
 import kn.uni.sen.joblibrary.tartar.convert.smt2.model.ConstraintSmt2;
 import kn.uni.sen.joblibrary.tartar.modifymodel.Fault;
 import kn.uni.sen.joblibrary.tartar.modifymodel.ModifyModel;
-import kn.uni.sen.jobscheduler.common.model.JobContext;
+import kn.uni.sen.jobscheduler.common.model.RunContext;
 import kn.uni.sen.jobscheduler.common.model.JobEvent;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFolder;
@@ -65,14 +65,14 @@ public class Diagnostic
 
 	CheckJavaMemory memCheck = new CheckJavaMemory();
 
-	JobContext context;
+	RunContext context;
 
 	int solveCount = 0;
 
-	public Diagnostic(JobContext context)
+	public Diagnostic(RunContext context)
 	{
 		this.context = context;
-		folder = context.getFolder();
+		folder = context.getFolderText();
 		eventLogger = new EventLogger(true, context);
 	}
 
@@ -244,6 +244,7 @@ public class Diagnostic
 
 			// same solution found again
 			if ((solLast != null) && solLast.contains(sol))
+				// error: should not happen
 				break;
 
 			// 5.1 find solution
@@ -284,7 +285,7 @@ public class Diagnostic
 		Ut2Smt2 converter = createConverter();
 		if (converter.convert())
 		{
-			System.out.println("Conversion with modificaction failed.");
+			System.out.println("Conversion with modification failed.");
 			return false;
 		}
 		property = converter.getProperty();
@@ -483,6 +484,7 @@ public class Diagnostic
 	public void setAdmChecker(CheckAdmissibility checker)
 	{
 		this.admChecker = checker;
+		eventLogger.setAdm(checker);
 	}
 
 	private SMTCall createSMTSolver()

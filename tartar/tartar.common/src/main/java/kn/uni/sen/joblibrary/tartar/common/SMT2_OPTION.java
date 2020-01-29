@@ -63,7 +63,7 @@ public enum SMT2_OPTION
 		case DBM:
 			return "dbm";
 		case BOUNDARY:
-			return "Boundary";
+			return "Bound Value";
 		case ELIMINATION:
 			return "Quantifier Elimination";
 		case REFERENCE:
@@ -71,9 +71,9 @@ public enum SMT2_OPTION
 		case RESET:
 			return "Clock Reset";
 		case COMPARISON:
-			return "Comparison";
+			return "Operator Variation";
 		case URGENT:
-			return "Urgent State";
+			return "Urgent Location";
 		case IMPLY:
 			return "Imply";
 		case DEL_PROP:

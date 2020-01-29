@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kn.uni.sen.joblibrary.tartar.common.TarTarConfiguration;
-import kn.uni.sen.jobscheduler.common.resource.Helper;
+import kn.uni.sen.jobscheduler.common.helper.Helper;
+import kn.uni.sen.jobscheduler.common.model.JobEvent;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFolder;
 import kn.uni.sen.jobscheduler.experiment.Experiment_Console;
@@ -13,38 +14,12 @@ import kn.uni.sen.jobscheduler.experiment.Job_Experiment;
 
 public class Experiment_TarTar_Console extends Experiment_Console
 {
-	public Experiment_TarTar_Console(String[] args)
+	String[] runArgs;
+
+	public Experiment_TarTar_Console()
 	{
-		super(args);
+		super();
 		System.out.println("Java Version: " + Helper.getJavaVersion());
-		// experiment file by args
-		// ResourceFile file = new ResourceFile(args[0]);
-		// if (file.getExtension() == null)
-		// file.setExtension(".xml");
-
-		String filePath = storeFile(args[0]);
-		// get QuantUM library path
-		// String[] list = new String[] { "-Library", lib, "-Experiment",
-		// filePath, "-Pre", pack + " \\\n" };
-		// this.Args = list;
-
-		List<String> list = new ArrayList<>();
-		list.add(Job_Experiment.class.getSimpleName());
-		list.add("-Library");
-		list.add(getLib());
-		list.add("-Experiment");
-		list.add(filePath);
-		//list.add("-Pre");
-		//String pack = TarTarMain.class.getName();
-		//list.add(pack + " \\\n");
-		boolean con = false;
-		for (String s : args)
-			if (s.equals("-run") || s.equals("-Run"))
-				con = true;
-		if (con)
-			list.add("-Run");
-
-		this.runArgs = list.toArray(new String[] {});
 	}
 
 	public static void loadDynamicLibrary(String libraryName)
@@ -99,6 +74,35 @@ public class Experiment_TarTar_Console extends Experiment_Console
 		return filePath;
 	}
 
+	@Override
+	public void run(String[] args)
+	{
+		if (args.length <= 0)
+		{
+			logEventStatus(JobEvent.ERROR, "Missing input parameters");
+			return;
+		}
+
+		String filePath = null;
+		List<String> list = new ArrayList<>();
+		for (String s : args)
+			if (filePath == null)
+				filePath = s;
+			else
+				list.add(s);
+
+		// get QuantUM library path
+		list.add(0, "-" + Job_Experiment.LIBRARY);
+		list.add(1, getLib());
+		list.add(2, "-" + Job_Experiment.EXPERIMENT);
+		list.add(3, filePath);
+		//list.add(4, "-" + Job_Experiment.PRE);
+		//list.add(5, "kn/uni/sen/joblibrary/tartar/gui/LibraryQuantUM_Console \\\n");
+
+		String[] runArgs = list.toArray(new String[] {});
+		super.run(runArgs);
+	}
+
 	public static void main(String args[])
 	{
 		if (args.length == 0)
@@ -106,6 +110,6 @@ public class Experiment_TarTar_Console extends Experiment_Console
 			System.out.println("Give experiment file as argument.");
 			return;
 		}
-		(new Experiment_TarTar_Console(args)).run();
+		(new Experiment_TarTar_Console()).run(args);
 	}
 }

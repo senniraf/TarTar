@@ -8,18 +8,76 @@ import kn.uni.sen.joblibrary.tartar.common.SMT2_OPTION;
 import kn.uni.sen.jobscheduler.common.JobAbstractTest;
 import kn.uni.sen.jobscheduler.common.JobDataTest;
 import kn.uni.sen.jobscheduler.common.model.Job;
+import kn.uni.sen.jobscheduler.common.model.ResourceInterface;
 import kn.uni.sen.jobscheduler.common.resource.ResourceEnum;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
 import kn.uni.sen.jobscheduler.common.resource.ResourceInteger;
-import kn.uni.sen.jobscheduler.common.resource.ResourceInterface;
-import kn.uni.sen.jobscheduler.common.resource.ResourceList;
 
 public class Test_Job_RepairComputation extends JobAbstractTest
 {
-	String fileModel = "0db2.xml";
-	String fileTrace = null;
+	String fileModel = "db.xml";
+	String fileTrace = null; // "db.o0-t1-y-X1trace.xml";
 
 	String modelFileUrg = "";
+
+	{
+		fileModel = "test.xml";
+		fileModel = "0db2.xml";
+		//fileModel = "5bando_break_ov_120_3.xml";
+		// fileModel = "Test_StateTransitionMultipleTimes.xml";
+		// fileModel = "1db3.xml";
+		// fileModel = "7SBR_break_uv_14_1.xml";
+		// fileModel = "8FDDI_break_ov_1_2.xml";
+		// fileModel = "1state.xml";
+		// fileModel = "2state.xml";
+		// fileModel = "3state.xml";
+		// fileTrace = "3state_trace.xml";
+		// fileModel = "db_mk2.xml";
+		// fileTrace = "db_mk2_trace.xml";
+
+		// fileTrace = "db.o0-t1-y-X1trace.xml";
+
+		// fileModel = "sbr_trw0.6_good_break_bv_10_5.xml";
+		// fileTrace = "sbr_trw0.6_good_break_bv_10_5_trace_1.xml";
+
+		// fileModel = "bando_break_bv_4_3.xml";
+		// fileTrace = null;
+
+		// fileModel = "PM_all_bad.xml";
+		// fileTrace = null;
+
+		// fileModel = "fischer_bad.xml";
+		// fileTrace = null;
+
+		// fileModel = "db_mk3.xml";
+		// fileTrace = "db_mk3_trace.xml";
+
+		// fileModel = "bando.xml";
+		// fileTrace = null;
+
+		// fileModel = "mcta_FB5.xml";
+		// fileTrace = null;
+
+		// fileModel = "length_test1.xml";
+		// fileModel = "length_test2.xml";
+		// fileModel = "length_test10.xml";
+		// fileModel = "length_test20.xml";
+		// fileModel = "length_test50.xml";
+		// fileModel = "length_test100.xml";
+		// fileTrace = null;
+
+		// fileModel = "pacemaker2-err1-db.xml";
+		// fileTrace = "pacemaker2-err1-trace.xml";
+
+		// fileModel = "sbr_trw.ver0.5.xml";
+		// fileTrace = null; // "sbr_trw.ver0.5_trace_dep.xml";
+
+		// fileModel = "test_msg_broad.xml";
+		// fileTrace = null;// "test_parser_trace_1.xml";
+
+		// fileModel = "csma_02_bad26.xml";
+		// fileTrace = null;
+	}
 
 	boolean verbose = true;
 	SMT2_OPTION option = SMT2_OPTION.UNKOWN;
@@ -29,7 +87,7 @@ public class Test_Job_RepairComputation extends JobAbstractTest
 	@Override
 	protected Job createJob()
 	{
-		return new Job_RepairComputation(context.handler());
+		return new Job_RepairComputation(this);
 	}
 
 	protected JobDataTest createTest(Job jobTest2, int index)
@@ -84,11 +142,10 @@ public class Test_Job_RepairComputation extends JobAbstractTest
 			return new ResourceInteger(2);
 		} else if (name.compareTo("ParameterList") == 0)
 		{
-			ResourceList list = new ResourceList();
+			ResourceInterface res = new ResourceEnum(SMT2_OPTION.Z3.toString());
 			// ResourceEnum modeInput = new ResourceEnum(option);
 			// list.addResource(modeInput);
-			list.addResource(new ResourceEnum(SMT2_OPTION.Z3.toString()));
-			return list;
+			return res;
 		} else if (name.equals("TimeoutZ3"))
 		{
 			return new ResourceInteger(600);

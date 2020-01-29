@@ -5,7 +5,7 @@ var myVar = setInterval(fire_ajax_submit, 1000);
 //});
 
 function fire_ajax_submit() {
-	var sessionID = $("meta[name='sessionID']").attr("value");
+	var sessionID = $("meta[name='runID']").attr("value");
 	var csrfToken = $("meta[name='_csrf']").attr("content");
 	var csrfHeader = $("meta[name='_csrf_header']").attr("content");
 	console.log(csrfToken);

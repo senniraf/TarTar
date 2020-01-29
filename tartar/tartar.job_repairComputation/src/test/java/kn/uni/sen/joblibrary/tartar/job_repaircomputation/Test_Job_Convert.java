@@ -4,9 +4,8 @@ import static org.junit.Assert.assertTrue;
 
 import kn.uni.sen.jobscheduler.common.JobAbstractTest;
 import kn.uni.sen.jobscheduler.common.model.Job;
+import kn.uni.sen.jobscheduler.common.model.ResourceInterface;
 import kn.uni.sen.jobscheduler.common.resource.ResourceEnum;
-import kn.uni.sen.jobscheduler.common.resource.ResourceInterface;
-import kn.uni.sen.jobscheduler.common.resource.ResourceList;
 import kn.uni.sen.joblibrary.tartar.common.SMT2_OPTION;
 import kn.uni.sen.joblibrary.tartar.convert.Job_Uppaal2Smt2;
 import kn.uni.sen.jobscheduler.common.resource.ResourceFile;
@@ -19,7 +18,7 @@ public class Test_Job_Convert extends JobAbstractTest
 	@Override
 	protected Job createJob()
 	{
-		return new Job_Uppaal2Smt2(context.handler());
+		return new Job_Uppaal2Smt2(this);
 	}
 
 	@Override
@@ -41,15 +40,14 @@ public class Test_Job_Convert extends JobAbstractTest
 			return file;
 		} else if (name.equals("Parameter"))
 		{
-			ResourceList list = new ResourceList();
-			list.addResource(new ResourceEnum(SMT2_OPTION.BOUNDARY));
+			ResourceInterface res = new ResourceEnum(SMT2_OPTION.Z3);
+			res.addNext(new ResourceEnum(SMT2_OPTION.BOUNDARY));
 			// list.addResource(new ResourceEnum(SMT2_OPTION.RESET));
 			// list.addResource(new ResourceEnum(SMT2_OPTION.URGENT));
 			// list.addResource(new ResourceEnum(SMT2_OPTION.REFERENCE));
 			// list.addResource(new ResourceEnum(SMT2_OPTION.COMPARISON));
 
-			list.addResource(new ResourceEnum(SMT2_OPTION.Z3));
-			return list;
+			return res;
 		}
 		return null;
 	}

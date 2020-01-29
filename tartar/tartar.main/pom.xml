@@ -6,7 +6,7 @@
 
 	<groupId>kn.uni.sen.joblibrary.tartar</groupId>
 	<artifactId>tartar.main</artifactId>
-	<version>3.0.0</version>
+	<version>3.1.0</version>
 
 	<name>JobLibrary_TarTar - Main</name>
 	<description>Start TarTar webserver with SpringBoot</description>
@@ -19,8 +19,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<jobscheduler.version>1.2.0</jobscheduler.version>
-		<tartar.version>3.0.0</tartar.version>
+		<jobscheduler.version>1.3.0</jobscheduler.version>
+		<tartar.version>3.1.0</tartar.version>
 		<java.version>10</java.version>
 	</properties>
 
@@ -79,6 +79,11 @@
 		<dependency>
 			<groupId>kn.uni.sen.joblibrary.tartar</groupId>
 			<artifactId>tartar.job_seedExperiment</artifactId>
+			<version>${tartar.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>kn.uni.sen.joblibrary.tartar</groupId>
+			<artifactId>tartar.job_tracecausality</artifactId>
 			<version>${tartar.version}</version>
 		</dependency>
 		<dependency>
