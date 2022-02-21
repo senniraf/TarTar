@@ -12,7 +12,7 @@ public class Test_Job_TraceCausality extends JobAbstractTest
 	String modelFile = "busstop.xml";
 	{
 		modelFile = "fischer_bad.xml";
-		//modelFile = "0db2.xml";
+		modelFile = "0db2.xml";
 	}
 
 	@Override
