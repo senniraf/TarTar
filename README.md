@@ -39,7 +39,12 @@ We used:
 sudo apt install openjdk-11-jdk
 ```
 ### Z3
-Simply extract the archive into the tartar directory.
+Simply extract the archive into the tartar directory and run the following commands:
+```
+python scripts/mk_make.py –java
+cd build; make
+sudo make install
+```
 ### pyuppaal
 Pyuppaal depend on the following Ubuntu packages:
 ```
@@ -93,9 +98,17 @@ You need the following packages:
 ```
 sudo apt install libopenmpi-dev python-dev openmpi-bin python-numpy python-matplotlib python-nose
 ```
-At this point you should add the Opaal and pyuppaal directories to you `PYTHONPATH` variable in your `.bashrc`, by adding the line:
+At this point you should add the Opaal and pyuppaal directories to you `PYTHONPATH` variable in your `.bashrc`, by adding the lines:
 ```
 export PYTHONPATH=$BASEDIR/tartar/opaal:$BASEDIR/tartar/pyuppaal
+export PATH="$BASEDIR/tartar/ltsmin-3.0.2/src/pins2lts-mc/:$BASEDIR/tartar/opaal/bin/:${PATH}"
+export PYTHONPATH="$BASEDIR/tartar/pyuppaal:$BASEDIR/tartar/opaal:${PYTHONPATH}"
+```
+You now need to allow for the execution of createTS.sh and opaal_ltsmin by running the following commands:
+```
+cd opaal
+chmod +x createTS.sh
+chmod +x bin/opaal_ltsmin
 ```
 
 If you followed the above steps, you should now be able to run opaal.
@@ -106,6 +119,7 @@ To check everything is alright, you can run the command "nosetests" from the opa
 You need the following packages:
 ```
 sudo apt install bison flex zlib1g-dev libpopt-dev ant
+sudo apt-get install autoconf
 ```
 First you should execute ltsminreconf, you may have to make it executable first:
 ```
@@ -117,6 +131,34 @@ Now install with
 ./configure PKG_CONFIG="/path/to/pkgconfig"
 make
 sudo make install
+```
+
+### Maven
+To install Maven run:
+```
+sudo apt-cache search maven
+sudo apt-get install maven
+```
+You can check if the installation succeeded by checking the version with:
+```
+mvn –version
+```
+To install TarTar you need to navigate to the tartar directory and then use Maven to start the installation:
+```
+cd tartar
+mvn install
+```
+All parts should successfully install.
+
+### Eclipse
+Install [Eclipse](https://www.eclipse.org/downloads/) for Java Developers.
+To import the TarTar files into an Eclipse project navigate to
+```
+File > Open Projects from File System > Select the TarTar folder
+```
+You can then use Maven to import the project by navigation to
+```
+File > Import > Existing Maven Projects > Select the TarTar folder
 ```
 
 ## Usage Instructions
