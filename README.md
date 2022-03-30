@@ -21,7 +21,7 @@ TarTar itself is licensed by the MIT license.
  - [pydbm](http://people.cs.aau.dk/~adavid/UDBM/)
  - [Uppaal](http://www.uppaal.org/) (download necessary)
  - [Z3](https://github.com/Z3Prover/z3) (download necessary)
- - [UPPAAL DBM Library](http://people.cs.aau.dk/~adavid/UDBM/)(download necessary)
+ - [UPPAAL DBM Library](http://people.cs.aau.dk/~adavid/UDBM/)
 
 ## Get TarTar
 Download TarTar directly from github. You will need to download [Uppaal](http://www.uppaal.org/) (4.1.23) and [Z3](https://github.com/Z3Prover/z3/releases/tag/z3-4.8.3) (4.8.3) from their websites.
@@ -55,10 +55,6 @@ To run tests of the installation you can run:
 sh tests/run_tests.sh
 ```
 ### UPPAAL DBM Library
-Download the patched version from http://mcc.uppaal.org/opaal/UPPAAL-dbm-2.0.8-opaal3.tar.gz
-
-Unpack the archive into the tartar directory.
-
 You need the following packages:
 ```
 sudo apt install libboost-all-dev
