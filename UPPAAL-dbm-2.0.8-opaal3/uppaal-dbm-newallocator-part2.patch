@@ -1,0 +1,58 @@
+=== modified file 'dbm/DBMAllocator.cpp'
+--- dbm/DBMAllocator.cpp	2012-05-15 14:47:25 +0000
++++ dbm/DBMAllocator.cpp	2012-05-15 14:58:19 +0000
+@@ -78,6 +78,19 @@
+     // Instances.
+     DBMTable dbm_table;
+     DBMAllocator dbm_allocator;
++#else
++    /****************************************************
++     * Allocation of DBMs: by new allocator             *
++     ****************************************************/
++    void* dbm_new(cindex_t dim)
++    {
++#ifdef ENABLE_STORE_MINGRAPH
++        return new int32_t[intsizeof(idbm_t)+dim*dim+bits2intsize(dim*dim)];
++#else
++        return new int32_t[intsizeof(idbm_t)+dim*dim];
++#endif
++    }
++
+ #endif // ENABLE_DBM_NEW
+     base::ItemAllocator<alloc_ifed_t> ifed_allocator(200);
+     base::ItemAllocator<alloc_fdbm_t> fdbm_allocator(600);
+
+=== modified file 'include/dbm/inline_fed.h'
+--- include/dbm/inline_fed.h	2012-05-15 14:47:25 +0000
++++ include/dbm/inline_fed.h	2012-05-15 14:57:59 +0000
+@@ -92,7 +92,6 @@
+     /** Allocate memory with new.
+      * @param dim: dimension of the idbm_t to allocate.
+      */
+-    static 
+     void* dbm_new(cindex_t dim);
+ 
+     /** Deallocate memory as allocated by dbm_new.
+@@ -331,21 +330,6 @@
+         raw_t matrix[];      //< DBM matrix
+     };
+ 
+-    /****************************************************
+-     * Allocation of DBMs: by new allocator             *
+-     ****************************************************/
+-#ifdef ENABLE_DBM_NEW
+-    static inline
+-    void* dbm_new(cindex_t dim)
+-    {
+-#ifdef ENABLE_STORE_MINGRAPH
+-        return new int32_t[intsizeof(idbm_t)+dim*dim+bits2intsize(dim*dim)];
+-#else
+-        return new int32_t[intsizeof(idbm_t)+dim*dim];
+-#endif
+-    }
+-#endif // ENABLE_DBM_NEW
+-
+     /*********************************
+      * Allocation of fdbm_t & ifed_t *
+      *********************************/
+

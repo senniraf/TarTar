@@ -1,1 +1,12 @@
-
+diff -uNr UPPAAL-dbm-2.0.8-opaal2/modules/include/dbm/Valuation.h UPPAAL-dbm-2.0.8-opaal3/modules/include/dbm/Valuation.h
+--- UPPAAL-dbm-2.0.8-opaal2/modules/include/dbm/Valuation.h	2011-04-20 14:19:35.000000000 +0200
++++ UPPAAL-dbm-2.0.8-opaal3/modules/include/dbm/Valuation.h	2013-04-05 11:22:06.544115393 +0200
+@@ -67,7 +67,7 @@
+         Valuation(const Valuation<S>& original)
+             : base::pointer_t<S>(new S[original.size()], original.size())
+         {
+-            copyFrom(original);
++            this->copyFrom(original);
+         }
+ 
+         ~Valuation() { delete [] base::pointer_t<S>::data; }

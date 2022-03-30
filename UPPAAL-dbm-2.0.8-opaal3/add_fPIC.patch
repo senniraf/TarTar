@@ -1,0 +1,8 @@
+--- UPPAAL-dbm-2.0.8/modules/setup.sh	2011-04-07 01:06:33.000000000 +0200
++++ UPPAAL-dbm-2.0.8-opaal/modules/setup.sh	2012-05-02 16:19:35.000000000 +0200
+@@ -244,4 +244,4 @@
+     cfg_ar="ar"
+     cfg_strip="strip"
+ fi
+-LINKFLAGS="$cfg_lflags" CFLAGS="$cfg_cflags $CFLAGS" CC="$cfg_cc" CXX="$cfg_cxx" AR="$cfg_ar" STRIP="$cfg_strip" "$cfg_sourcedir"/configure $PREFIX $EXTRAHOST
++LINKFLAGS="$cfg_lflags" CFLAGS="$cfg_cflags -fPIC $CFLAGS" CC="$cfg_cc" CXX="$cfg_cxx" AR="$cfg_ar" STRIP="$cfg_strip" "$cfg_sourcedir"/configure $PREFIX $EXTRAHOST
