@@ -32,14 +32,14 @@ git clone https://github.com/sen-uni-kn/tartar
 ## Installation
 The following instructions were tested on and are written for Ubuntu 18.04.2. 
 ### UPPAAL
-Simply extract the archive into the tartar directory and make sure you have the latest Java Development Kit (JDK).
+Simply extract the archive into the tartar directory crated by cloning the github project and make sure you have the latest Java Development Kit (JDK).
 
 We used:
 ```
 sudo apt install openjdk-11-jdk
 ```
 ### Z3
-Simply extract the archive into the tartar directory and run the following commands:
+Simply extract the archive into the tartar directory crated by cloning the github project and run the following commands:
 ```
 python scripts/mk_make.py –java
 cd build; make
