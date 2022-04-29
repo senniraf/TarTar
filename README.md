@@ -59,7 +59,7 @@ You need the following packages:
 ```
 sudo apt install libboost-all-dev
 ```
-To install it, after unpacking:
+To install it after unpacking navigate to the modules folder and execute:
 ```
 ./setup.sh
 ```
