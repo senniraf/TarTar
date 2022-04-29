@@ -63,6 +63,7 @@ To install it after unpacking navigate to the modules folder and execute:
 ```
 ./setup.sh
 ```
+You may need to allow for execution of the setup.sh and configure file in the respective file settings.
 Choose build dir, install path (you will have to use this directory in the setup.py for pydbm later), and compiler.
 Choose compile options "2" and configuration options "6 11".
 
