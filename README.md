@@ -125,8 +125,11 @@ chmod +x ltsminreconf
 ```
 Now install with
 ```
-./configure PKG_CONFIG="/path/to/pkgconfig"
-make
+./configure #PKG_CONFIG="/path/to/pkgconfig"
+sudo make
+./configure #PKG_CONFIG="/path/to/pkgconfig"
+sudo make install #src/pins-lib
+sudo make
 sudo make install
 ```
 
