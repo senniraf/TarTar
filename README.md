@@ -162,4 +162,13 @@ File > Import > Existing Maven Projects > Select the TarTar folder
 ```
 
 ## Usage Instructions
-Usage instructions will be added soon.
+
+TarTar can be started by the `main` in the class `MainGui` in different modes.
+
+The call arguments of `main()` control which mode is started:
+- without argument -> Gui
+- with `-web` -> web application
+- otherwise TarTar is executed in the console (`-h` for more information)
+
+The experiments from the papers are created with the respective experiment name as argument e.g. `experiment_cav2020`.
+This created the experiment and can be executed by calling the script `result/result-date-time/experiment_cav2020.sh`. 
