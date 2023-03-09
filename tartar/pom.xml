@@ -13,7 +13,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>4.12</junit.version>
 		<jdom2.version>2.0.5</jdom2.version>
-		<jobscheduler.version>1.5.0</jobscheduler.version>
+		<jobscheduler.version>1.6.0</jobscheduler.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.release>11</maven.compiler.release>
@@ -26,11 +26,6 @@
 		<module>tartar.job_tracecausality</module>
 		<module>tartar.main</module>
 	</modules>
-	<scm>
-		<url>https://svn.uni-konstanz.de/soft/tools/tartar/trunk2</url>
-		<connection>scm:svn:https://svn.uni-konstanz.de/soft/tools/tartar/trunk2</connection>
-		<developerConnection>scm:svn:https://svn.uni-konstanz.de/soft/tools/tartar/trunk2</developerConnection>
-	</scm>
 	<dependencies>
 		<!-- testing dependencies -->
 		<dependency>

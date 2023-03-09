@@ -19,7 +19,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<jobscheduler.version>1.5.0</jobscheduler.version>
+		<jobscheduler.version>1.6.0</jobscheduler.version>
 		<tartar.version>3.1.0</tartar.version>
 		<java.version>10</java.version>
 	</properties>
@@ -74,6 +74,11 @@
 		<dependency>
 			<groupId>kn.uni.sen.jobscheduler</groupId>
 			<artifactId>jobscheduler.console</artifactId>
+			<version>${jobscheduler.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>kn.uni.sen.jobscheduler</groupId>
+			<artifactId>jobscheduler.core</artifactId>
 			<version>${jobscheduler.version}</version>
 		</dependency>
 		<dependency>
